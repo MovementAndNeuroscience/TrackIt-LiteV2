@@ -1,0 +1,20 @@
+GUIDE FOR SETTING UP TRACK IT 
+
+THIS GUIDE IS UNDER DEVELOPMENT AND MAY NOT COVER ALL PROCESSES. 
+
+
+- Get reading from DAC board 
+ Usually when you setup trackit you place your sensor input into ai0 and ground. 
+ It may happen that it is occupied by another sensor, thus you are forced to use another analog port. 
+ If you use another analog port like ai4 you need to alter the script for Python to understand that 
+ it have to read from the port. 
+ 
+ 1. To do that open the file daqmxlib.py by right clicking it and press "Edit in IDLE" 
+ 2. press cntr + f 
+ 3. write channels_samples={"ai
+   you will be directed to a place in the code where the channel of the analog port is defined by "aix"
+   where x is a number. 
+ 4. on the line where you found aix replace aix with the analog port you wish to read the signal from 
+    like "ai4".
+ 5. press cntr + s or save the file in a different way. 
+ 6. open meny.py and test whether or not you have established the communication you want.  

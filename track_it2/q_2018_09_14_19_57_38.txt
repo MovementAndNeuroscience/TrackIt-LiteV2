@@ -1,0 +1,12 @@
+Score (% of rect width)	Inaccuracy (% of half of rect height)	Stddev (% of rect height)	Entry (% of rect width)	Exit (% of rect width)
+0.0	11.0	0.0	5.05	0.0
+0.0	nan	nan	0.0	0.0
+0.0	nan	nan	0.0	0.0
+0.0	nan	nan	0.0	0.0
+0.0	nan	nan	0.0	0.0
+0.0	nan	nan	0.0	0.0
+0.0	nan	nan	0.0	0.0
+0.0	nan	nan	0.0	0.0
+0.0	nan	nan	0.0	0.0
+0.0	nan	nan	0.0	0.0
+0.0	nan	nan	0.0	0.0

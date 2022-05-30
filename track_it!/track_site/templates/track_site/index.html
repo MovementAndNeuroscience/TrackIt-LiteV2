@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Track</title>
+</head>
+<body>
+{% if results %}
+    <table>
+        <thead>
+        Welcome to track Web service! Here you can see recent results of experiments.
+        </thead>
+        <tbody>
+        <!--
+        <tr><td>Date</td>
+            {% for record in results %}
+            <td>{{record.DATE}}</td>
+            {% endfor %}
+        </tr>
+        <tr><td>Length</td>
+            {% for record in results %}
+            <td>{{record.DURATION}}</td>
+            {% endfor %}
+        </tr>
+        <tr><td>Number of rectangles</td>
+            {% for record in results %}
+            <td>{{record.NUM_RECTS}}</td>
+            {% endfor %}
+        </tr>
+        <tr><td>Correct (%)</td>
+            {% for record in results %}
+            <td>{{record.CORRECT}}</td>
+            {% endfor %}
+        </tr>
+        <tr></tr> !-->
+    {% for record in results %}
+        <tr><td>Date</td><td>{{record.DATE}}</td></tr>
+        <tr><td>Length</td><td>{{record.DURATION}}</td></tr>
+        <tr><td>Number of rectangles</td><td>{{record.NUM_RECTS}}</td></tr>
+        <tr><td>Correct (%)</td><td>{{record.CORRECT}}</td></tr>
+        <tr><td>Precision (stddev) by rectangle</td><td>{{record.STDDEV_BY_RECT}}</td></tr>
+        <tr><td>Inaccuracy by rectangle</td><td>{{record.INACCURACY_BY_RECT}}</td></tr>
+        <tr><td>Slew rates by rectangle</td><td>{{record.SLEW_RATE_BY_RECT}}</td></tr>
+        <tr><td></td><td></td></tr>
+    {% endfor %}
+        </tbody>
+    </table>
+    <p><a href="graph">Click here to see the graphical representation of the results!</a></p>
+{% else %}
+    <p>No results are available. Try to perform some experiments in order to create the data!</p>
+{% endif %}
+</body>
+</html>

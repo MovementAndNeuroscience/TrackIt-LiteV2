@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Graph</title>
+</head>
+<body>
+
+<canvas id="correctness" width="400" height="400"></canvas>
+
+<p><a href="index">Click here to come back to the main page!</a></p>
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script><!-->
+<script src="js"></script>
+  <script>
+    var ctx = document.getElementById("correctness").getContext("2d");
+    var data = {
+      labels: {{dates}},
+      datasets: [{
+        label: "My First dataset",
+        fillColor: "rgba(220,220,220,0.2)",
+        strokeColor: "rgba(220,220,220,1)",
+        pointColor: "rgba(220,220,220,1)",
+        pointStrokeColor: "#fff",
+        pointHighlightFill: "#fff",
+        pointHighlightStroke: "rgba(220,220,220,1)",
+        data: {{corrects}}
+      }]
+    };
+    var MyNewChart = new Chart(ctx).Line(data);
+  </script>
+</body>
+</html>

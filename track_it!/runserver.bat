@@ -1,0 +1,1 @@
+cd track_site & python manage.py runserver

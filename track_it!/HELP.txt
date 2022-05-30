@@ -1,0 +1,135 @@
+ ______  ____    ______  ____     __  __      ______  ______  __     
+/\__  _\/\  _`\ /\  _  \/\  _`\  /\ \/\ \    /\__  _\/\__  _\/\ \    
+\/_/\ \/\ \ \L\ \ \ \L\ \ \ \/\_\\ \ \/'/'   \/_/\ \/\/_/\ \/\ \ \   
+   \ \ \ \ \ ,  /\ \  __ \ \ \/_/_\ \ , <       \ \ \   \ \ \ \ \ \  
+    \ \ \ \ \ \\ \\ \ \/\ \ \ \L\ \\ \ \\`\      \_\ \__ \ \ \ \ \_\ 
+     \ \_\ \ \_\ \_\ \_\ \_\ \____/ \ \_\ \_\    /\_____\ \ \_\ \/\_\
+      \/_/  \/_/\/ /\/_/\/_/\/___/   \/_/\/_/    \/_____/  \/_/  \/_/
+
+Welcome to TRACK IT! programme. Now you can perform plenty of customized exercises with force sensor, see the results and their analyses
+and archive all the data by one click!
+
+1. MAIN FUNCTIONALITIES
+
+The programme allows one to perform the following actions:
+
+- run a single stationary exercise, or a series of such,
+- run a "quest-mode" exercise, with stationary track but moving rectangles,
+- start the server, rendering the results via http(REST),
+- view the results, both directly in a form of text and browsing the server contents in the default webbrowser,
+- save all the data (samples, values, Excel data and plots),
+- clear recently captured results,
+- view this help.
+
+2. PREPARING AND RUNNING EXERCISES
+
+In order to enjoy properly the astonishing capabilities of TRACK IT! one has to remember that the exercises have to be clearly defined before
+run. 
+
+2.1 PREPARING A STATIONARY EXERCISE
+
+A stationary exercise requires the following:
+
+-> number of repetitions: if more than 1 a series of identical runs will be performed (NOTE: Multi-run? option MUST be checked,
+otherwise only 1 run will occur).
+
+-> Feedback?: if checked, a feedback in form of numerical score representation will be visible during the exercise,
+
+-> Spawn mode: how the rectangles should be generated; Random -> new random setting, Last setting -> repeat recently spawned
+set, Custom -> rectangles' positions to be explicitly defined by the user,
+
+-> rectangle height, expressed in pixels. This value MUST be greater than 0 and should be chosen carefully, as too high rectangles will be shrinked.
+The height of the exercise screen is always 1000px.
+
+-> number of random rectangles: up to 10,
+
+-> Type series values: if Custom mode chosen, here the upper height coordinate of each rectangle should be typed
+
+-> fb times: valid, if feedback is selected,
+
+-> length of the exercise: can be chosen from 1 to 12 seconds.
+
+2.2 PREPARING QUEST EXERCISE
+
+One should set the following parameters:
+
+-> number of series: how many predefined series of rectangles should appear (0 means that only random rectangles remain),
+
+-> type series values: upper height coordinates of all the series members should be put (similarly as in 2.1),
+
+-> series first?: if checked series will precede randomly generated rectangles, otherwise the other way round.
+
+-> number of random rectangles: 0 or more randomly spawned rectangles,
+
+-> rectangle width: a positive number determining rectangle width in pixels,
+
+-> rectangles height: see 2.1.
+
+2.3 RUNNING THE EXERCISE
+
+Once all the parameters are correctly set, one may start the exercise by clicking "Start normal exercise"/"Start quest exercise" button. 
+
+IMPORTANT: After clicking start a new window will appear. Tracking is suspended until ENTER is pressed, so that the window can be calmly 
+positioned in the secondary display.
+
+The first phase of each run is a delay, which lasts "time after fb" seconds. The actual line tracking starts right after the sound generated
+by the programme is audible. When the line reaches the end of the screen, after "time to fb" seconds the percentage of correct track will be
+displayed (for "fb time" seconds). Then next runs follow, in the cast of last (or single) run the window will automatically close. Afterwards
+all the collected data will be accessible from the program, as well as from the webserver.
+
+IMPORTANT: It is strongly recommended that one does not close the exercise window before the end of the series, as in such a case the results
+may be not generated.
+
+3. VIEWING THE RESULTS
+
+TRACK IT! generates the following information for each exercise:
+
+-> main exercise parameters: date and time, number of rectangles, duration;
+
+-> the percentage of the time the line was fitting the rectangles;
+
+-> the precision with respect to each rectangle (standard deviation expressed as the percentage of rectangle's height);
+
+-> inaccuraccy per rectangle, i.e. how far did the line go from the rectangle center - expressed as the percentage of halved rectangle's 
+height;
+
+-> slew rate per rectangle, how long did it take to reach the next rectangle from the previous one (percentage of rectangle's width);
+
+-> a plot showing the object's performance, in a form of screenshot (PNG file),
+
+-> a .txt file, suitable to be opened in Excel for further analysis.
+
+-> a .txt file, containing raw samples.
+
+Some of the aforementioned quantities are accessible from the main window (they are simply displayed on the main text field). 
+In order to refresh the text field content one may click "Update results" button. The newest results are appended to the existing ones.
+Clicking "Clear data" removes all the content of the text field. Also all the recently generated plots will be deleted.
+Should one want to archive a group of exercises (plots and statistics), "Save data" button saves all in a new, timestamped folder.
+One of the files, namely 'results_excel.txt', generated by the programme, may be dragged onto MS Excel's empty spreadsheet in order to 
+fill Excel cells with experiments' data.
+IMPORTANT: Once saved by "Save data", the files in timestamped folders shall not be affected by "Clear data" button!
+
+4. USING WEB INTERFACE
+
+Not only does TRACK IT! present the exercises' output in a form of plot or text, but also it provides a simple REST server, presenting statistical
+values in a form of table and historical performance analysis in a form of line graph. In order to delight oneself with this feature one ought to
+perform the following steps:
+
+-> clicking "Run Webserver" button,
+
+-> clicking "View the Website" button.
+
+The latter button automatically forwards one to the default web browser and queries the main page of the website. The user may navigate between
+the table and the graph via hyperlink.
+
+IMPORTANT: the source of data for Web server is the track is 'track_results.json' file and therefore only recent data, i.e. data not saved via
+"Save data" button, will be presented. In order to see previously saved data one has to replace 'track_results.json' file in main directory with
+identically named file from the timestamped folder.
+It has to be noticed that the server cannot present the data and shows errors when the file is empty, so one CANNOT browse the website without
+running any exercise, when previous data have been cleared!
+
+5. MISCELLANEOUS
+
+Clicking "View help" allows one to display this document. Clicking "About" displays some information about the programme and its author.
+
+IMPORTANT: Please remember about closing the server console when done with the programme. The web server instance does not close automatically!

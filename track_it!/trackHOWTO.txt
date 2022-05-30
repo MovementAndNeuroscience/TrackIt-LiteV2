@@ -1,0 +1,36 @@
+How to set up a new computer with tracking script:
+
+1. Download and unzip the script folder.
+
+2. Install python 2.7.x (some number) from -> https://www.python.org/downloads/ DO NOT ISNTALL PYTHON 3
+when installing Python - remember to specify installation on C: in drop down menu
+
+3. Install NiDAQ drivers: get the installation file "NIDAQ961f1.exe", run it (self-extract will occur) and then run a typical installation. It requires a restart of the computer.
+
+4. Run cmd (Windows command line): WIN + 'R' and then type "cmd"
+
+5. Install python packages that are missing (type "pip install NAME_OF_THE_PACKAGE"):
+
+- pygame (pip install pygame)
+
+- PyDAQmx (pip install PyDAQmx, etc.)
+
+- numpy
+
+- Pillow
+
+- desktopmagic
+
+- pywin32gui: 
+
+	- download the .whl file from: http://www.lfd.uci.edu/~gohlke/pythonlibs/#pywin32
+	- choose the pywin32-223.1-cp27m-win_amd64 (if windows is 64-Bit version)
+	- place it in C:\Users\YOUR_USERNAME
+	- run "pip install THE_NAME_OF_THE_WHL_FILE"
+	- run "C:\python27\Scripts\pywin32_postinstall.py -install"
+
+
+ATTENTION: NEVER UPDATE NIMAX!!!
+
+	After this, check the Dev input in NImax
+	AND update the input Dev number in: Exercise2py and the Daqmxlib files

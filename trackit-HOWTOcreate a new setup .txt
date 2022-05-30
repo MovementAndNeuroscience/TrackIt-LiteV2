@@ -1,0 +1,49 @@
+How to set up a new computer with tracking script:
+
+1. Download and unzip the script folder.
+
+2. Install python 2.7.x (some number) from -> https://www.python.org/downloads/ DO NOT INSTALL PYTHON 3
+
+3. Install NiDAQ drivers: get the installation file "NIDAQ961f1.exe", run it (self-extract will occur) and then run a typical installation. It requires a restart of the computer.
+
+4. Run cmd as administrator 
+	press windows button 
+	Type "cmd"
+	Right click command prompt - choose "Run as administrator"
+
+5. In the command prompt the directory you are currently looking at is "C:\WINDOWS\system32"
+   We want to go to this directory "C:\Python27\scripts"
+   From this folder we can install all the different packages Python needs to be able to run Track-it
+	Now, in the command prompt type "cd.."
+	It sends you to the folder above which is "C:\WINDOWS"
+	again write "cd.."
+	Now you are at the C drive 
+	Write "cd python27"
+	The command promt has traversed into the folder Python27
+	now write "cd scripts"
+	We are now landed where we want to be 
+
+6. Install python packages that are missing for Track-it to work   
+   we do it with the help of pip, which is pythons package installer  
+   (type "pip install NAME_OF_THE_PACKAGE", e.g "pip install pygame" ):
+
+- pygame (pip install pygame)
+
+- PyDAQmx (pip install PyDAQmx, etc.)
+
+- numpy
+
+- Pillow
+
+- desktopmagic
+
+- pywin32
+
+
+7. In the command prompt we need to install a supplementary item, which pip cannot help us with
+	write "pywin32_postinstall.py -install"
+   
+8. Now you are ready to try Track-it_litev2 (if you are on a win10 machine choose the folder trackit_litev2_win10)
+
+
+ATTENTION: NEVER UPDATE NIMAX!!!

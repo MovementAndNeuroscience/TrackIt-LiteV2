@@ -1,0 +1,12 @@
+series:	100v 400f
+exercise:	400 300 100v 400f 240 100 100v 400f 500
+Score (% of rect width)	Inaccuracy (% of half of rect height)	Stddev (% of rect height)	Entry (% of rect width)	Exit (% of rect width)
+0.0	1199.0	0.0	2.0	0.0
+0.0	1399.0	0.0	2.0	0.0
+0.0	1799.0	0.0	2.0	0.0
+0.0	1199.0	0.0	2.0	0.0
+0.0	1519.0	0.0	2.0	0.0
+0.0	1799.0	0.0	2.0	0.0
+0.0	1799.0	0.0	2.0	0.0
+0.0	1199.0	0.0	2.0	0.0
+0.0	999.0	0.0	2.0	0.0
