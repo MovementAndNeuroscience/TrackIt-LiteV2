@@ -1,29 +1,60 @@
 #Trackit_v3_mainmenu
 import dearpygui.dearpygui as dpg
-import webbrowser
 import ValueRepository as valRep
+import Calibrationdata as caliDat
+import CalibrationConductor as caliConductor
+import AdaptiveDifficultyConductor as adaptDifConductor
+import GameConductor
+import Eventsdata
+import EventData 
+import EventDataGenerator
+import TriggerGenerator
 
-subjectId = dpg.mvInputInt
+calibrationData = caliDat.Calibrationdata()
+eventsData = Eventsdata.EventsData()
 
-def save_callback():
-    print("Save Clicked" + str(dpg.get_value("subjectId")) + " \ndevice : " + dpg.get_value("device"))
+
+def save_configuration():
+
+    valRep.SaveConfig(dpg)
     
 def start_game():
     print("starting game")
+    print(calibrationData.GetMaxInput())
 
-def load_configuration():
-    print("load configuration")
+    if dpg.get_value("adaptiveDif") == True:
+        adaptDifConductor.changeDifficulty(dpg)
+        
+    eventsData = EventDataGenerator.GenerateEvents(dpg)
+    eventsData = TriggerGenerator.GenerateTriggers(eventsData)
+    
+    print(str(len(eventsData.eventDatas)) + " amount of data ")
+    GameConductor.RunGame(dpg,eventsData)
+
+def load_configuration(sender, app_data):
+    
+    valRep.LoadConfig(dpg, app_data)     
 
 def Start_Calibration():
-    print("calibraiton started")
-
-def import_events():
-    print("importing events")
+    caliConductor.RunCalibration(dpg,calibrationData)
+    dpg.set_value("calibrationInput", calibrationData.maxinput)
+    dpg.set_value("maxVoltage", calibrationData.maxVoltage) 
+    dpg.set_value("minVoltage", calibrationData.minVoltage) 
 
 def quit_trackit():
     dpg.destroy_context()
 
+def Import_event_callback(sender, app_data):
+        data = open(app_data["file_path_name"], 'r')
+        dpg.configure_item("writtenEvents", default_value = data.read())
+
 def _configuration_menu():
+
+    with dpg.file_dialog(directory_selector=False, show=False, callback=Import_event_callback, id="importEventWindow", width=700 ,height=400):
+        dpg.add_file_extension(".txt")
+        dpg.add_file_extension("", color=(150, 255, 150, 255))
+        dpg.add_file_extension(".txt", color=(0, 255, 0, 255), custom_text="[TrackItv3_Events]")   
+
     with dpg.window(label="Base Configuration", pos=[0,50]):
 
         with dpg.group(horizontal=True):
@@ -33,19 +64,15 @@ def _configuration_menu():
 
         with dpg.group(horizontal=True,horizontal_spacing= 50):
             dpg.add_text("Input Device")
-            dpg.add_radio_button(("Mouse", "USB/ADAM", "NIDAQ"), callback= save_callback, horizontal=True, source="device")
+            dpg.add_radio_button(("Mouse", "USB/ADAM", "NIDAQ"), horizontal=True, source="device")
 
         with dpg.group(horizontal=True,horizontal_spacing= 50):
             dpg.add_input_text(label="TrackIt Events", width=500, source= "writtenEvents")
-            dpg.add_button(label= "import event file", callback= import_events)
+            dpg.add_button(label= "import event file", callback=lambda: dpg.show_item("importEventWindow"))
 
         dpg.add_text("R=Rectancle, P=Pause, b=blue, g=green,\ny=yellow, v=violet, r=red, p=pink, c=cyan, f=black ")
         dpg.add_input_int(label="stimuli display time (ms)", width=200, source= "stimDisplayTime")
         dpg.add_input_int(label="stimuli height (px)", width=200, source= "stimHeight")
-
-        with dpg.group(horizontal=True,horizontal_spacing= 50):
-            dpg.add_input_text(label="Rectangle to have triggers. \nwrite their order number \nseperate with spaces", width=200, source="rectsWithTriggers")
-            dpg.add_input_text(label="Trigger values. \none per event, \nseperate by space", width=200, source="triggerValues")
 
         dpg.add_input_double(label= "Feedback screen, time in seconds (0 = non)", width=200, source="feedbackLength")
 
@@ -75,7 +102,7 @@ def _game_configuration_menu():
             dpg.add_checkbox(label="Training mode", source="trainingMode")
             dpg.add_button(label= "Configure", callback=_training_conf)
         
-        dpg.add_checkbox(label="SVIPT - show all targets")
+        dpg.add_checkbox(label="SVIPT - show all targets")#need its own variable 
 
         with dpg.group(horizontal=True,horizontal_spacing= 135): 
             dpg.add_checkbox(label="Target sustain on screen", source="TargetSustain")
@@ -92,7 +119,9 @@ def _game_configuration_menu():
 def _rand_target_conf():
      with dpg.window(label="Random Target Configuration", pos=[450,50]):
         dpg.add_input_int(label="Min cloeseness in px", width= 100, source= "minCloseness")
-        dpg.add_input_int(label="Maz cloeseness in px", width= 100, source= "maxCloseness")
+        dpg.add_input_int(label="Max cloeseness in px", width= 100, source= "maxCloseness")
+        dpg.add_input_int(label="Number of Events", width= 100, source= "SetNumOfRandomEvents")
+
 
 def _adaptive_conf():
      with dpg.window(label="Adaptive Difficulty Configuration", pos=[450,50]):
@@ -124,19 +153,42 @@ with dpg.theme() as global_theme:
 
     with dpg.theme_component(dpg.mvAll):
         dpg.add_theme_style(dpg.mvStyleVar_ItemSpacing, 20,20, category=dpg.mvThemeCat_Core)
-        dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 6, category=dpg.mvThemeCat_Core)
+        dpg.add_theme_style(dpg.mvStyleVar_FrameRounding,6, category=dpg.mvThemeCat_Core)
         dpg.add_theme_style(dpg.mvStyleVar_WindowTitleAlign, 0.5, 0.5, category=dpg.mvThemeCat_Core)
-        dpg.add_theme_color(dpg.mvThemeCol_FrameBg,(85,82,93,255), category=dpg.mvThemeCat_Core)
-        dpg.add_theme_color(dpg.mvThemeCol_Button,(85,82,93,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_FrameBg,(57,62,73,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_Button,(83,83,99,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvStyleVar_WindowRounding, 10, category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_WindowBg,(9,13,32,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_ChildBg,(5,7,18,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_PopupBg,(8,11,25,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_Border,(61,72,122,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_BorderShadow,(24,34,84,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_FrameBgHovered,(45,65,150,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_FrameBgActive,(74,95,196,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_TitleBg,(0,0,0,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_TitleBgActive,(20,64,134,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_MenuBarBg,(15,15,70,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_CheckMark,(122,139,217,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered,(37,50,110,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_ButtonActive,(45,65,150,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_Header,(51,51,55,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_HeaderHovered,(34,56,120,255), category=dpg.mvThemeCat_Core)
+        dpg.add_theme_color(dpg.mvThemeCol_HeaderActive,(0,119,200,255), category=dpg.mvThemeCat_Core)
+
 
 dpg.bind_theme(global_theme)
 
 valRep.SetupValueRepository(dpg)
 
-#dpg.show_style_editor()
+
 
 dpg.create_viewport(title= "Trackit_v3", width= 1025, height= 800)
 dpg.setup_dearpygui()
+#dpg.show_style_editor()
+with dpg.file_dialog(directory_selector=False, show=False, callback=load_configuration, id="loadConfigWindow", width=700 ,height=400):
+    dpg.add_file_extension(".cfg")
+    dpg.add_file_extension("", color=(150, 255, 150, 255))
+    dpg.add_file_extension(".cfg", color=(0, 255, 0, 255), custom_text="[TRackItv3_Config]")   
 
 with dpg.window(label="Trackit V3",min_size=[1000,50]):
     with dpg.menu_bar():
@@ -144,8 +196,8 @@ with dpg.window(label="Trackit V3",min_size=[1000,50]):
         with dpg.menu(label="Home menu"):
 
             dpg.add_menu_item(label="Start Trackit", callback= start_game)
-            dpg.add_menu_item(label="Save Configuration", callback= save_callback)
-            dpg.add_menu_item(label="Load Configuration", callback= load_configuration)
+            dpg.add_menu_item(label="Save Configuration", callback= save_configuration)
+            dpg.add_menu_item(label="Load Configuration", callback=lambda: dpg.show_item("loadConfigWindow"))
             dpg.add_menu_item(label="Quit Trackit_v3", callback= quit_trackit)
 
         with dpg.menu(label="Configuration"):
