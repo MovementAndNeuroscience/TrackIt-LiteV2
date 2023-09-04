@@ -38,7 +38,10 @@ def SetupValueRepository(dpg):
         dpg.add_int_value(default_value = 100, tag = "maxRandomHeight")
         dpg.add_int_value(default_value = 0, tag = "calibrationInput")
         dpg.add_double_value(default_value = 1.0, tag = "maxVoltage") 
-        dpg.add_double_value(default_value = 0.0, tag = "minVoltage") 
+        dpg.add_double_value(default_value = 0.0, tag = "minVoltage")
+        dpg.add_double_value(default_value = 5.0, tag = "absMaxVoltage")
+        dpg.add_string_value(default_value= "Relative", tag="absOrRelVoltage")
+        dpg.add_string_value(default_value= "ai1", tag="nidaqCh")  
 
 
 def SaveConfig(dpg):
@@ -79,7 +82,10 @@ def SaveConfig(dpg):
         "maxRandomHeight": str(dpg.get_value("maxRandomHeight")),
         "calibrationInput": str(dpg.get_value("calibrationInput")),
         "maxVoltage": str(dpg.get_value("maxVoltage") ),
-        "minVoltage": str(dpg.get_value("minVoltage") )
+        "minVoltage": str(dpg.get_value("minVoltage") ),
+        "absMaxVoltage": str(dpg.get_value("absMaxVoltage")),
+        "absOrRelVoltage": str(dpg.get_value("absOrRelVoltage")),
+        "nidaqCh": str(dpg.get_value("nidaqCh"))
     }
     nameOfFile =  str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) +'_'+'conf.cfg'
     with open(nameOfFile, 'w') as c:
@@ -129,6 +135,9 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("calibrationInput", default_value = int(data["calibrationInput"]))
     dpg.configure_item("maxVoltage", default_value = float(data["maxVoltage"]))
     dpg.configure_item("minVoltage", default_value = float(data["minVoltage"]))
+    dpg.configure_item("absMaxVoltage", default_value = float(data["absMaxVoltage"]))
+    dpg.configure_item("absOrRelVoltage", default_value = data["absOrRelVoltage"])
+    dpg.configure_item("nidaqCh", default_value = data["nidaqCh"])
 
 
 def TrueOrFalse(data):

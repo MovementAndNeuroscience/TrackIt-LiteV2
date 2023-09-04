@@ -21,11 +21,13 @@ def RunGame(dpg, eventsData):
     
     inputs = InputDatas.InputDatas()
     events = eventsData.eventDatas
-    reader = daqmxlib.Reader()
+    nidaqCh = dpg.get_value("nidaqCh")
+    reader = daqmxlib.Reader({nidaqCh:1})
 
     useSustain = dpg.get_value("TargetSustain")
     minSustainTime = dpg.get_value("sustainOnTarget")
     bl = (0,0,0)
+    f = (0,0,0)
     w = (255,255,255)
     r = (255,0,0)
     g = (0,255,0)
@@ -34,6 +36,7 @@ def RunGame(dpg, eventsData):
     v = (148, 0, 211)  # violet
     c = (0, 255, 255)  # cyan
     p = (255, 20, 147)  # pink
+    o = (255,140,0) # orange
 
     clock = pygame.time.Clock()
     inputMode = dpg.get_value("device")
@@ -49,6 +52,9 @@ def RunGame(dpg, eventsData):
     tempPos = 0
     maxVoltage = dpg.get_value("maxVoltage")
     minVoltage = dpg.get_value("minVoltage")
+    percentageOfMaxVoltage = dpg.get_value("percentOfMaxCal")
+    absOrRelvoltage = dpg.get_value("absOrRelVoltage")
+    absoluteMaxVoltage = dpg.get_value("absMaxVoltage")
 
     font = pygame.font.Font('freesansbold.ttf', 40)
     introText = font.render('Press Return to Start TrackIt', True, w)
@@ -182,7 +188,11 @@ def RunGame(dpg, eventsData):
 
             if inputMode == "NIDAQ":
                 voltage = reader.read()[0]
-                ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage)
+                ypos = 0 
+                if absOrRelvoltage == "Relative":
+                    ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
+                if absOrRelvoltage == "Absolute":  
+                    ypos=VoltageConverter.get_px_from_voltage(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)  
                 drawPlayer(ypos,r)
                 tempInput = InputData.InputData(voltage,ypos,gameTimeCounter)
                 inputs.AddInputData(tempInput)

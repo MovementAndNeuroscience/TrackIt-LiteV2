@@ -140,7 +140,8 @@ class Reader():
     Reader class, responsible for collecting data from the NI-USB Data Acquisition Hardware
     """
 
-    def __init__(self, channels_samples={"ai1": 1}):
+    #def __init__(self, channels_samples={"ai1": 1}):
+    def __init__(self, channels_samples):
         """
         Class Constructor
         :param channels_samples: A dictionary with a mapping between the physical channels used to acquire the data and

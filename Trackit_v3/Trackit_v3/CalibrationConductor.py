@@ -24,7 +24,8 @@ def RunCalibration(dpg, calibrationDataClass):
     calibrated = False
     calibrationStarted = False
     calibrationCounter = 0
-    reader = daqmxlib.Reader()
+    nidaqCh = dpg.get_value("nidaqCh")
+    reader = daqmxlib.Reader({nidaqCh:1})
 
     font = pygame.font.Font('freesansbold.ttf', 40)
     introText = font.render('Press Return to Start Calibration', True, w)
@@ -79,7 +80,7 @@ def RunCalibration(dpg, calibrationDataClass):
                 voltage = reader.read()[0]
                 print("Voltage : " + str(voltage))
                 calibrationDataClass = VoltageConverter.Calibrate_minAndMaxVoltage(voltage, calibrationDataClass)
-                ypos=VoltageConverter.get_px_from_voltage(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
+                ypos=VoltageConverter.get_px_from_voltage_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
                 #print("ypos : "+ str(ypos))
                 drawPlayer(ypos)
                 if(ypos > calibrationDataClass.GetMaxInput()):
