@@ -6,8 +6,11 @@ def SetupValueRepository(dpg):
         dpg.add_string_value(default_value="John Doe", tag="investName")
         dpg.add_int_value(default_value= 0, tag="subjectId")
         dpg.add_string_value(default_value= "Mouse", tag="device")
+        dpg.add_string_value(default_value= "Downwards", tag="forceDirection")
         dpg.add_string_value(default_value= "R300r P400 R200b P200", tag="writtenEvents")
-        dpg.add_int_value(default_value= 200, tag="stimDisplayTime")
+        dpg.add_int_value(default_value= 1000, tag="stimDisplayTime")
+        dpg.add_int_value(default_value= 2000, tag="baseDisplayTime")
+        dpg.add_int_value(default_value= 2000, tag="pauseTime")
         dpg.add_int_value(default_value= 50, tag="stimHeight")
         dpg.add_double_value(default_value= 2.2, tag="feedbackLength")
         dpg.add_int_value(default_value= 50, tag="percentOfMaxCal")
@@ -50,8 +53,11 @@ def SaveConfig(dpg):
         "investName": str(dpg.get_value("investName")),
         "subjectId": str(dpg.get_value("subjectId")),
         "device": str(dpg.get_value("device")),
+        "forceDirection": str(dpg.get_value("forceDirection")),
         "writtenEvents": str(dpg.get_value("writtenEvents")),
         "stimDisplayTime": str(dpg.get_value("stimDisplayTime")),
+        "baseDisplayTime": str(dpg.get_value("baseDisplayTime")),
+        "pauseTime": str(dpg.get_value("pauseTime")),
         "stimHeight": str(dpg.get_value("stimHeight")),
         "feedbackLength": str(dpg.get_value("feedbackLength")),
         "percentOfMaxCal": str(dpg.get_value("percentOfMaxCal")),
@@ -102,8 +108,11 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("investName", default_value = data['investName'])
     dpg.configure_item("subjectId", default_value = int(data['subjectId']))
     dpg.configure_item("device", default_value = data['device'])
+    dpg.configure_item("forceDirection", default_value = data['forceDirection'])
     dpg.configure_item("writtenEvents", default_value = data['writtenEvents'])
     dpg.configure_item("stimDisplayTime", default_value = int(data['stimDisplayTime']))
+    dpg.configure_item("baseDisplayTime", default_value = int(data['baseDisplayTime']))
+    dpg.configure_item("pauseTime", default_value = int(data['pauseTime']))
     dpg.configure_item("stimHeight", default_value = int(data['stimHeight']))
     dpg.configure_item("feedbackLength", default_value = float(data['feedbackLength']))
     dpg.configure_item("percentOfMaxCal", default_value = int(data['percentOfMaxCal']))

@@ -21,11 +21,15 @@ def RunCalibration(dpg, calibrationDataClass):
 
     clock = pygame.time.Clock()
     inputMode = dpg.get_value("device")
+    forcedirection = dpg.get_value("forceDirection")
     calibrated = False
     calibrationStarted = False
     calibrationCounter = 0
+    reader = 0
+    feedbackVoltage = 0 
     nidaqCh = dpg.get_value("nidaqCh")
-    reader = daqmxlib.Reader({nidaqCh:1})
+    if inputMode == "NIDAQ":
+        reader = daqmxlib.Reader({nidaqCh:1})
 
     font = pygame.font.Font('freesansbold.ttf', 40)
     introText = font.render('Press Return to Start Calibration', True, w)
@@ -35,6 +39,7 @@ def RunCalibration(dpg, calibrationDataClass):
     text_calibrate = font.render('CALIBRATE!', True, w)
     text_motivation = font.render('FULL THROTTLE!', True, w)
     text_done = font.render('DONE!', True, w)
+    text_feedback = font.render(str(feedbackVoltage), True, w)
 
     textRect = introText.get_rect()
     text_1_Rect = text_1.get_rect()
@@ -43,8 +48,10 @@ def RunCalibration(dpg, calibrationDataClass):
     text_cali_rect = text_calibrate.get_rect()
     text_moti_rect = text_motivation.get_rect()
     text_done_rect = text_done.get_rect()
+    text_feedback_rect = text_feedback.get_rect()
 
     textpos = (GetSystemMetrics(0) // 2 ,GetSystemMetrics(1) //20 )
+    feedbackPos = ((GetSystemMetrics(0) // 2)-200 ,GetSystemMetrics(1) //12 )
     textRect.center = (GetSystemMetrics(0) // 2, GetSystemMetrics(1) // 2)
     text_1_Rect.center = textpos
     text_2_Rect.center = textpos
@@ -52,6 +59,7 @@ def RunCalibration(dpg, calibrationDataClass):
     text_cali_rect.center = textpos
     text_moti_rect.center = textpos
     text_done_rect.center = textpos
+    text_feedback_rect.center = feedbackPos
 
     def drawPlayer(ypos):
         pygame.draw.circle(gameDisplay, r, (GetSystemMetrics(0)/2, ypos), 5)
@@ -66,6 +74,7 @@ def RunCalibration(dpg, calibrationDataClass):
 
             if inputMode == "Mouse":
                 mx,my=pygame.mouse.get_pos()
+                feedbackVoltage = my
                 drawPlayer(my)
                 if(my > calibrationDataClass.GetMaxInput()):
                     calibrationDataClass.SetMaxInput(my)
@@ -79,9 +88,15 @@ def RunCalibration(dpg, calibrationDataClass):
             if inputMode == "NIDAQ":
                 voltage = reader.read()[0]
                 print("Voltage : " + str(voltage))
+                ypos=0
                 calibrationDataClass = VoltageConverter.Calibrate_minAndMaxVoltage(voltage, calibrationDataClass)
-                ypos=VoltageConverter.get_px_from_voltage_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
-                #print("ypos : "+ str(ypos))
+                feedbackVoltage = voltage
+                if forcedirection == "Downwards":
+                    ypos=VoltageConverter.get_px_from_voltage_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
+                elif forcedirection == "Upwards":
+                    ypos=VoltageConverter.get_px_from_voltage_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
+                    ypos = GetSystemMetrics(1) - ypos
+
                 drawPlayer(ypos)
                 if(ypos > calibrationDataClass.GetMaxInput()):
                     calibrationDataClass.SetMaxInput(ypos)
@@ -94,10 +109,15 @@ def RunCalibration(dpg, calibrationDataClass):
                 gameDisplay.blit(text_1, text_1_Rect)
             elif(calibrationCounter < 5000):
                 gameDisplay.blit(text_calibrate, text_cali_rect)
+                text_feedback = font.render(str(feedbackVoltage), True, w)
+                gameDisplay.blit(text_feedback, text_feedback_rect)
             elif(calibrationCounter < 6000):
                 gameDisplay.blit(text_motivation, text_moti_rect)
+                text_feedback = font.render(str(feedbackVoltage), True, w)
+                gameDisplay.blit(text_feedback, text_feedback_rect)
             elif(calibrationCounter < 8000):
                 gameDisplay.blit(text_done, text_done_rect)
+                gameDisplay.blit(text_feedback, text_feedback_rect)
             elif(calibrationCounter < 8500):
                 calibrated = True                     
 

@@ -9,6 +9,8 @@ import random
 def GenerateEvents(dpg):
     importedEvents = dpg.get_value("writtenEvents")
     event_display_time = dpg.get_value("stimDisplayTime")
+    baseline_display_time = dpg.get_value("baseDisplayTime")
+    pause_time = dpg.get_value("pauseTime")
     event_height = dpg.get_value("stimHeight")
     event_baseline = dpg.get_value("baseline")
     random_events = dpg.get_value("randomTargets")
@@ -32,8 +34,15 @@ def GenerateEvents(dpg):
         rects_pauses_list = importedEvents.split()
 
         for event in rects_pauses_list:
-            newEvent = EventData.EventData(len(tempEventList.eventDatas), event_height, int(event[1:-1]), event[0], event[-1], event_display_time, InputDatas.InputDatas())
-            tempEventList.AddEventData(newEvent)
+            if event[0] == "R":
+                newEvent = EventData.EventData(len(tempEventList.eventDatas), event_height, int(event[1:-1]), event[0], event[-1], event_display_time, InputDatas.InputDatas())
+                tempEventList.AddEventData(newEvent)
+            if event[0] == "B":
+                newEvent = EventData.EventData(len(tempEventList.eventDatas), event_height, 0, event[0], event[-1], int(event[1:-1]), InputDatas.InputDatas())
+                tempEventList.AddEventData(newEvent)
+            if event[0] == "P":
+                newEvent = EventData.EventData(len(tempEventList.eventDatas), event_height, 10000, event[0], event[-1], int(event[1:-1]), InputDatas.InputDatas())
+                tempEventList.AddEventData(newEvent)
 
     if(random_events):
         i = 0
@@ -43,7 +52,7 @@ def GenerateEvents(dpg):
             newEvent = EventData.EventData(len(tempEventList.eventDatas), event_height, newLocation, 'R', 'b', event_display_time, InputDatas.InputDatas())
             previousLocation = newLocation 
             tempEventList.AddEventData(newEvent)
-            newPause = EventData.EventData(len(tempEventList.eventDatas), event_height, 200, 'P', 'y', event_display_time, InputDatas.InputDatas())
+            newPause = EventData.EventData(len(tempEventList.eventDatas), event_height, 10000, 'P', 'y', pause_time, InputDatas.InputDatas())
             tempEventList.AddEventData(newPause)
             i = i + 1 
 
@@ -68,7 +77,7 @@ def GenerateEvents(dpg):
 
             
             elif len(tempEventListWithBaseline.eventDatas)%3 == 2:
-                baselineEvent = EventData.EventData(len(tempEventListWithBaseline.eventDatas),event_height,0,'B','g',event_display_time, InputDatas.InputDatas())
+                baselineEvent = EventData.EventData(len(tempEventListWithBaseline.eventDatas),event_height,0,'B','g',baseline_display_time, InputDatas.InputDatas())
                 tempEventListWithBaseline.AddEventData(baselineEvent)
 
         for event in tempEventListWithBaseline.eventDatas:
@@ -77,7 +86,7 @@ def GenerateEvents(dpg):
             tempEventListWithBaselineAndPause.AddEventData(event)
             
             if len(tempEventListWithBaselineAndPause.eventDatas)%4 == 3:
-                pauseEvent = EventData.EventData(len(tempEventListWithBaselineAndPause.eventDatas),event_height,1100,'P','',event_display_time, InputDatas.InputDatas())
+                pauseEvent = EventData.EventData(len(tempEventListWithBaselineAndPause.eventDatas),event_height,1100,'P','',pause_time, InputDatas.InputDatas())
                 tempEventListWithBaselineAndPause.AddEventData(pauseEvent)
 
         eventsdata = tempEventListWithBaselineAndPause

@@ -66,16 +66,25 @@ def _configuration_menu():
             dpg.add_text("Input Device")
             dpg.add_radio_button(("Mouse", "USB/ADAM", "NIDAQ"), horizontal=True, source="device")
             dpg.add_input_text(label="NIDAQ input channel", width=50,indent= 450, source= "nidaqCh")
+        
+        with dpg.group(horizontal=True,horizontal_spacing= 50):   
+            dpg.add_text("Direction of the force")
+            dpg.add_radio_button(("Downwards","Upwards"), horizontal=True, source="forceDirection")
 
         with dpg.group(horizontal=True,horizontal_spacing= 50):
             dpg.add_input_text(label="TrackIt Events", width=500, source= "writtenEvents")
             dpg.add_button(label= "import event file", callback=lambda: dpg.show_item("importEventWindow"))
 
-        dpg.add_text("R=Rectancle, P=Pause, b=blue, g=green,\ny=yellow, v=violet, r=red, p=pink, c=cyan, f=black , o=orange ")
-        dpg.add_input_int(label="stimuli display time (ms)", width=200, source= "stimDisplayTime")
-        dpg.add_input_int(label="stimuli height (px)", width=200, source= "stimHeight")
+        dpg.add_text("R=Rectancle, P=Pause, b=blue, g=green,\ny=yellow, v=violet, r=red, p=pink, c=cyan, f=black, o=orange ")
+        
+        with dpg.group(horizontal=True,horizontal_spacing= 50):
+            dpg.add_input_int(label="stimuli display time (ms)", width=125, source= "stimDisplayTime")
+            dpg.add_input_int(label="Baseline display time (ms)", width=125, source= "baseDisplayTime")
+            dpg.add_input_int(label="Pause time (ms)", width=125, source= "pauseTime")
 
-        dpg.add_input_double(label= "Feedback screen, time in seconds (0 = non)", width=200, source="feedbackLength")
+        dpg.add_input_int(label="stimuli height (px)", width=125, source= "stimHeight")
+
+        dpg.add_input_double(label= "Feedback screen, time in seconds (0 = non)", width=125, source="feedbackLength")
        
         with dpg.group(horizontal=True,horizontal_spacing= 50):
             dpg.add_text("Absolute or Relative (calibrated) Maximum Voltage")
@@ -190,7 +199,7 @@ valRep.SetupValueRepository(dpg)
 
 
 
-dpg.create_viewport(title= "Trackit_v3", width= 1025, height= 800)
+dpg.create_viewport(title= "Trackit_v3", width= 1050, height= 800)
 dpg.setup_dearpygui()
 #dpg.show_style_editor()
 with dpg.file_dialog(directory_selector=False, show=False, callback=load_configuration, id="loadConfigWindow", width=700 ,height=400):
@@ -198,7 +207,7 @@ with dpg.file_dialog(directory_selector=False, show=False, callback=load_configu
     dpg.add_file_extension("", color=(150, 255, 150, 255))
     dpg.add_file_extension(".cfg", color=(0, 255, 0, 255), custom_text="[TRackItv3_Config]")   
 
-with dpg.window(label="Trackit V3",min_size=[1000,50]):
+with dpg.window(label="Trackit V3",min_size=[1028,50]):
     with dpg.menu_bar():
 
         with dpg.menu(label="Home menu"):

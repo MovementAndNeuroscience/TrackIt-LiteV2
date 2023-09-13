@@ -18,11 +18,17 @@ def RunGame(dpg, eventsData):
     #Setup calibration space and such 
     gameDisplay = pygame.display.set_mode((GetSystemMetrics(0),GetSystemMetrics(1)))
     pygame.display.set_caption('Track-it V3')
-    
+
+    inputMode = dpg.get_value("device")
+    forceDirection = dpg.get_value("forceDirection")
+
     inputs = InputDatas.InputDatas()
     events = eventsData.eventDatas
+
     nidaqCh = dpg.get_value("nidaqCh")
-    reader = daqmxlib.Reader({nidaqCh:1})
+    reader = 0
+    if inputMode == "NIDAQ":
+        reader = daqmxlib.Reader({nidaqCh:1})
 
     useSustain = dpg.get_value("TargetSustain")
     minSustainTime = dpg.get_value("sustainOnTarget")
@@ -39,7 +45,7 @@ def RunGame(dpg, eventsData):
     o = (255,140,0) # orange
 
     clock = pygame.time.Clock()
-    inputMode = dpg.get_value("device")
+    
     gameStarted = False
     gameOver = False
     gameTimeCounter = 0
@@ -65,6 +71,14 @@ def RunGame(dpg, eventsData):
 
     textRect.center = (GetSystemMetrics(0) // 2, GetSystemMetrics(1) // 2)
     guideTextRect.center = (GetSystemMetrics(0) // 2, GetSystemMetrics(1) - 50)
+    if forceDirection == "Upwards":
+        for event in events:
+            rectPos = (GetSystemMetrics(1) -  event.targetHeight)- event.targetPosition
+            print("RECT POS : " + str(rectPos))
+            event.targetPosition = rectPos
+        
+        guideTextRect.center = (GetSystemMetrics(0) // 2, 50)
+        
 
     def drawPlayer(ypos, color):
         pygame.draw.circle(gameDisplay, color, (GetSystemMetrics(0)/2, ypos), 5)
@@ -87,7 +101,6 @@ def RunGame(dpg, eventsData):
         if (ypos > event.targetHeight + event.targetPosition or ypos < event.targetPosition) and collisionDetected == True:
             collisionDetected = False
             event.targetExitTime = gameTimeCounter
-            print("target Exit at : " + str(event.targetExitTime))
             return collisionDetected, event
         return collisionDetected, event
 
@@ -120,12 +133,7 @@ def RunGame(dpg, eventsData):
         if collisionDetected == True:
             
             events[eventIndex].targetExitTime = gameTimeCounter
-            print("Target exit at the very last update : " + str(events[eventIndex].targetExitTime))
             collisionDetected = False
-
-        print(str(events[eventIndex].timeOffTarget) + " " + str(events[eventIndex].timeOnTarget) + " " + str(events[eventIndex].percentTimeOnTarget) + " " + str(events[eventIndex].reactionTime))
-        print("lengths of time array : " + str(len(events[eventIndex].inputDuringEvent.inputdatas)))
-
 
         eventIndex += 1
         eventVisibleTime = 0
@@ -149,6 +157,7 @@ def RunGame(dpg, eventsData):
 
     while not gameOver:
 
+
         if(gameStarted == True):
             #resets image
             gameTimeCounter += clock.get_time()
@@ -166,7 +175,7 @@ def RunGame(dpg, eventsData):
                 events[eventIndex].targetVisibleFromTime = gameTimeCounter
 
             if events[eventIndex].eventType == "R" or events[eventIndex].eventType == "B": #create rect based on current Event
-                pygame.draw.rect(gameDisplay, eval(events[eventIndex].eventColor),[0, events[eventIndex].targetPosition, GetSystemMetrics(0), events[eventIndex].targetHeight],1)
+                    pygame.draw.rect(gameDisplay, eval(events[eventIndex].eventColor),[0, events[eventIndex].targetPosition, GetSystemMetrics(0), events[eventIndex].targetHeight],1)
 
             if eventTriggerSend == False:
                 #send event trigger 
@@ -189,10 +198,19 @@ def RunGame(dpg, eventsData):
             if inputMode == "NIDAQ":
                 voltage = reader.read()[0]
                 ypos = 0 
-                if absOrRelvoltage == "Relative":
-                    ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
-                if absOrRelvoltage == "Absolute":  
-                    ypos=VoltageConverter.get_px_from_voltage(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)  
+                if forceDirection == "Downwards":
+                    if absOrRelvoltage == "Relative":
+                        ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
+                    if absOrRelvoltage == "Absolute":  
+                        ypos=VoltageConverter.get_px_from_voltage(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)  
+                if forceDirection == "Upwards":
+                    if absOrRelvoltage == "Relative":
+                        ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
+                        ypos = GetSystemMetrics(1) - ypos
+                    if absOrRelvoltage == "Absolute":  
+                        ypos=VoltageConverter.get_px_from_voltage(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)
+                        ypos = GetSystemMetrics(1) - ypos  
+
                 drawPlayer(ypos,r)
                 tempInput = InputData.InputData(voltage,ypos,gameTimeCounter)
                 inputs.AddInputData(tempInput)
