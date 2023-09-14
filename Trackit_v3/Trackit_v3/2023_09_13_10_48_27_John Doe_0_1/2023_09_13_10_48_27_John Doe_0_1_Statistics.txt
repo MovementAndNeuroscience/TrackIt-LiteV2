@@ -1,2 +1,0 @@
-Mean_Accuracy	 Std_Accuracy	Mean_Time_On_Target	 Std_Time_On_Target	 Total_Time_On_Target
-54.410000000000004	25.7796002468791	626.6	238.30367181392734	6266.0

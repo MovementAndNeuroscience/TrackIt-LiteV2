@@ -24,12 +24,15 @@ def start_game():
 
     if dpg.get_value("adaptiveDif") == True:
         adaptDifConductor.changeDifficulty(dpg)
+
+    if dpg.get_value("svipt") == True:
+        print("svipt activated")
+    else:
+        eventsData = EventDataGenerator.GenerateEvents(dpg)
+        eventsData = TriggerGenerator.GenerateTriggers(eventsData)
         
-    eventsData = EventDataGenerator.GenerateEvents(dpg)
-    eventsData = TriggerGenerator.GenerateTriggers(eventsData)
-    
-    print(str(len(eventsData.eventDatas)) + " amount of data ")
-    GameConductor.RunGame(dpg,eventsData)
+        print(str(len(eventsData.eventDatas)) + " amount of data ")
+        GameConductor.RunGame(dpg,eventsData)
 
 def load_configuration(sender, app_data):
     
@@ -64,12 +67,12 @@ def _configuration_menu():
 
         with dpg.group(horizontal=True,horizontal_spacing= 50):
             dpg.add_text("Input Device")
-            dpg.add_radio_button(("Mouse", "USB/ADAM", "NIDAQ"), horizontal=True, source="device")
+            dpg.add_radio_button(("Mouse", "USB/ADAM", "NIDAQ"), horizontal=True, source="device", tag = "inputDevice")
             dpg.add_input_text(label="NIDAQ input channel", width=50,indent= 450, source= "nidaqCh")
         
         with dpg.group(horizontal=True,horizontal_spacing= 50):   
             dpg.add_text("Direction of the force")
-            dpg.add_radio_button(("Downwards","Upwards"), horizontal=True, source="forceDirection")
+            dpg.add_radio_button(("Downwards","Upwards"), horizontal=True, source="forceDirection", tag = "forceD")
 
         with dpg.group(horizontal=True,horizontal_spacing= 50):
             dpg.add_input_text(label="TrackIt Events", width=500, source= "writtenEvents")
@@ -84,11 +87,11 @@ def _configuration_menu():
 
         dpg.add_input_int(label="stimuli height (px)", width=125, source= "stimHeight")
 
-        dpg.add_input_double(label= "Feedback screen, time in seconds (0 = non)", width=125, source="feedbackLength")
+        dpg.add_input_int(label= "Feedback screen, time in ms (0 = non)", width=125, source="feedbackLength")
        
         with dpg.group(horizontal=True,horizontal_spacing= 50):
             dpg.add_text("Absolute or Relative (calibrated) Maximum Voltage")
-            dpg.add_radio_button(("Absolute", "Relative"), horizontal=True, source="absOrRelVoltage")
+            dpg.add_radio_button(("Absolute", "Relative"), horizontal=True, source="absOrRelVoltage", tag = "absOrRelVol")
 
         with dpg.group(horizontal=True,horizontal_spacing= 50):
             dpg.add_text("Max input Calibration")
@@ -119,7 +122,7 @@ def _game_configuration_menu():
             dpg.add_checkbox(label="Training mode", source="trainingMode")
             dpg.add_button(label= "Configure", callback=_training_conf)
         
-        dpg.add_checkbox(label="SVIPT - show all targets")#need its own variable 
+        dpg.add_checkbox(label="SVIPT - show all targets", source = "svipt")#need its own variable 
 
         with dpg.group(horizontal=True,horizontal_spacing= 135): 
             dpg.add_checkbox(label="Target sustain on screen", source="TargetSustain")

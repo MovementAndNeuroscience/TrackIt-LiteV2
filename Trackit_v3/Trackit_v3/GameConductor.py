@@ -45,10 +45,14 @@ def RunGame(dpg, eventsData):
     o = (255,140,0) # orange
 
     clock = pygame.time.Clock()
+    clockEndOfGame = 0; 
     
     gameStarted = False
+    countdownStarted = False
     gameOver = False
+    endOfFeedback = False
     gameTimeCounter = 0
+    countDownCounter = 0 
     eventIndex = 0
     eventVisibleTime = 0 
     collisionDetected = False
@@ -69,16 +73,46 @@ def RunGame(dpg, eventsData):
     textRect = introText.get_rect()
     guideTextRect = guidelineText.get_rect() 
 
-    textRect.center = (GetSystemMetrics(0) // 2, GetSystemMetrics(1) // 2)
+    middleTextPos = (GetSystemMetrics(0) // 2, GetSystemMetrics(1) // 2)
+    textRect.center = middleTextPos
     guideTextRect.center = (GetSystemMetrics(0) // 2, GetSystemMetrics(1) - 50)
+    
     if forceDirection == "Upwards":
         for event in events:
-            rectPos = (GetSystemMetrics(1) -  event.targetHeight)- event.targetPosition
+            rectPos = 0
+            if event.eventType == "R":
+                rectPos = GetSystemMetrics(1) - event.targetPosition
+                if rectPos < 0:
+                    rectPos = 10
+            elif event.eventType == "B" or event.eventType == "P":
+                rectPos = (GetSystemMetrics(1)-  event.targetHeight  ) - event.targetPosition
             print("RECT POS : " + str(rectPos))
             event.targetPosition = rectPos
         
         guideTextRect.center = (GetSystemMetrics(0) // 2, 50)
         
+    #Feeedback Variables 
+    feedbackLength = dpg.get_value("feedbackLength")
+    feedbackTimer = 0
+    feedbackAcc = font.render('accuracy', True, w)
+    feedbackAccRect = feedbackAcc.get_rect()
+    feedbackAccRect.center = ((GetSystemMetrics(0) // 2) - 200, GetSystemMetrics(1) // 2)
+    feedbackTime = font.render('timeOnTarget', True, w)
+    feedbackTimeRect = feedbackAcc.get_rect()
+    feedbackTimeRect.center = ((GetSystemMetrics(0) // 2) - 400, GetSystemMetrics(1) // 2 + 50)
+    meanAccuracy = 0
+    meanTimeOnTarget = 0 
+
+    #CountDown 
+    text_1 = font.render('1', True, w)
+    text_2 = font.render('2', True, w)
+    text_3 = font.render('3', True, w)
+    text_1_Rect = text_1.get_rect()
+    text_2_Rect = text_2.get_rect()
+    text_3_Rect = text_3.get_rect()
+    text_1_Rect.center = middleTextPos
+    text_2_Rect.center = middleTextPos
+    text_3_Rect.center = middleTextPos
 
     def drawPlayer(ypos, color):
         pygame.draw.circle(gameDisplay, color, (GetSystemMetrics(0)/2, ypos), 5)
@@ -151,8 +185,10 @@ def RunGame(dpg, eventsData):
             events[eventIndex].targetVisibleFromTime = gameTimeCounter
             reacted = False
             eventTriggerSend = False
+            meanAccuracy = 0
+            meanTimeOnTarget = 0 
         
-        return eventVisibleTime, gameOver, reacted, eventTriggerSend, collisionDetected, events, eventIndex
+        return eventVisibleTime, gameOver, reacted, eventTriggerSend, collisionDetected, events, eventIndex, meanAccuracy, meanTimeOnTarget
 
 
     while not gameOver:
@@ -228,7 +264,7 @@ def RunGame(dpg, eventsData):
                 eventVisibleTime += clock.get_time()
                 if eventVisibleTime >= events[eventIndex].targetTotalTime:
 
-                    eventVisibleTime, gameOver, reacted, eventTriggerSend, collisionDetected, events, eventIndex = EndOfEvent(dpg, inputs, events, gameTimeCounter, eventIndex, collisionDetected, eventVisibleTime, gameOver, reacted, eventTriggerSend)
+                    eventVisibleTime, gameOver, reacted, eventTriggerSend, collisionDetected, events, eventIndex, meanAccuracy, meanTimeOnTarget = EndOfEvent(dpg, inputs, events, gameTimeCounter, eventIndex, collisionDetected, eventVisibleTime, gameOver, reacted, eventTriggerSend)
 
             elif useSustain == True:
                 eventVisibleTime += clock.get_time()
@@ -240,8 +276,19 @@ def RunGame(dpg, eventsData):
 
                     events[eventIndex].targetTotalTime = eventVisibleTime    
                      
-                    eventVisibleTime, gameOver, reacted, eventTriggerSend, collisionDetected, events, eventIndex = EndOfEvent(dpg, inputs, events, gameTimeCounter, eventIndex, collisionDetected, eventVisibleTime, gameOver, reacted, eventTriggerSend) 
-
+                    eventVisibleTime, gameOver, reacted, eventTriggerSend, collisionDetected, events, eventIndex, meanAccuracy, meanTimeOnTarget = EndOfEvent(dpg, inputs, events, gameTimeCounter, eventIndex, collisionDetected, eventVisibleTime, gameOver, reacted, eventTriggerSend) 
+        elif countdownStarted == True:
+            countDownCounter += clock.get_time() 
+            gameDisplay.fill(bl)
+            if(countDownCounter < 1000):
+                gameDisplay.blit(text_3, text_3_Rect)
+            elif(countDownCounter < 2000):
+                gameDisplay.blit(text_2, text_2_Rect)
+            elif(countDownCounter < 3000):
+                gameDisplay.blit(text_1, text_1_Rect)
+            elif countDownCounter < 4000:
+                countdownStarted = False
+                gameStarted = True
         else:
             gameDisplay.blit(introText, textRect)
 
@@ -254,10 +301,26 @@ def RunGame(dpg, eventsData):
                     pygame.quit()
 
                 if event.key == pygame.K_RETURN:
-                    gameStarted = True
+                    countdownStarted = True
 
         pygame.display.update()
         clock.tick(120)
+    
+    while not endOfFeedback:
+        gameDisplay.fill(bl)
+        meanAccuracy = round(meanAccuracy)
+        meanTimeOnTarget = round(meanTimeOnTarget)
+        feedbackAcc = font.render('Average accuracy : ' + str(meanAccuracy) + '%', True, w)
+        feedbackTime = font.render('Average Time on Target : ' + str(meanTimeOnTarget) + ' ms out of ' + str(dpg.get_value("stimDisplayTime")) + ' ms' , True, w)
+        feedbackTimer += clock.get_time() - clockEndOfGame
+        if feedbackTimer < feedbackLength:
+            gameDisplay.blit(feedbackAcc, feedbackAccRect)
+            gameDisplay.blit(feedbackTime, feedbackTimeRect)
+        else:
+            endOfFeedback = True
+        pygame.display.update()
+        clock.tick(120)
+
     pygame.quit()
 
 

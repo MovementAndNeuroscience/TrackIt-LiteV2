@@ -12,7 +12,7 @@ def SetupValueRepository(dpg):
         dpg.add_int_value(default_value= 2000, tag="baseDisplayTime")
         dpg.add_int_value(default_value= 2000, tag="pauseTime")
         dpg.add_int_value(default_value= 50, tag="stimHeight")
-        dpg.add_double_value(default_value= 2.2, tag="feedbackLength")
+        dpg.add_int_value(default_value= 2000, tag="feedbackLength")
         dpg.add_int_value(default_value= 50, tag="percentOfMaxCal")
         dpg.add_bool_value(default_value = False, tag = "baseline")
         dpg.add_bool_value(default_value = False, tag = "randomTargets")
@@ -37,8 +37,8 @@ def SetupValueRepository(dpg):
         dpg.add_bool_value(default_value = False, tag = "coinRew")
         dpg.add_int_value(default_value = 5, tag = "SetNumOfRandomEvents")
         dpg.add_int_value(default_value = 1, tag = "playerLevel")
-        dpg.add_int_value(default_value = 50, tag = "minRandomHeight")
-        dpg.add_int_value(default_value = 100, tag = "maxRandomHeight")
+        dpg.add_int_value(default_value = 30, tag = "minRandomHeight")
+        dpg.add_int_value(default_value = 80, tag = "maxRandomHeight")
         dpg.add_int_value(default_value = 0, tag = "calibrationInput")
         dpg.add_double_value(default_value = 1.0, tag = "maxVoltage") 
         dpg.add_double_value(default_value = 0.0, tag = "minVoltage")
@@ -52,8 +52,8 @@ def SaveConfig(dpg):
         "blockNo": str(dpg.get_value("blockNo")),
         "investName": str(dpg.get_value("investName")),
         "subjectId": str(dpg.get_value("subjectId")),
-        "device": str(dpg.get_value("device")),
-        "forceDirection": str(dpg.get_value("forceDirection")),
+        "device": str(dpg.get_value("inputDevice")),
+        "forceDirection": str(dpg.get_value("forceD")),
         "writtenEvents": str(dpg.get_value("writtenEvents")),
         "stimDisplayTime": str(dpg.get_value("stimDisplayTime")),
         "baseDisplayTime": str(dpg.get_value("baseDisplayTime")),
@@ -90,7 +90,7 @@ def SaveConfig(dpg):
         "maxVoltage": str(dpg.get_value("maxVoltage") ),
         "minVoltage": str(dpg.get_value("minVoltage") ),
         "absMaxVoltage": str(dpg.get_value("absMaxVoltage")),
-        "absOrRelVoltage": str(dpg.get_value("absOrRelVoltage")),
+        "absOrRelVoltage": str(dpg.get_value("absOrRelVol")),
         "nidaqCh": str(dpg.get_value("nidaqCh"))
     }
     nameOfFile =  str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) +'_'+'conf.cfg'
@@ -114,7 +114,7 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("baseDisplayTime", default_value = int(data['baseDisplayTime']))
     dpg.configure_item("pauseTime", default_value = int(data['pauseTime']))
     dpg.configure_item("stimHeight", default_value = int(data['stimHeight']))
-    dpg.configure_item("feedbackLength", default_value = float(data['feedbackLength']))
+    dpg.configure_item("feedbackLength", default_value = int(data['feedbackLength']))
     dpg.configure_item("percentOfMaxCal", default_value = int(data['percentOfMaxCal']))
     dpg.configure_item("baseline", default_value = (TrueOrFalse(data['baseline'])))
     dpg.configure_item("randomTargets", default_value = (TrueOrFalse(data['randomTargets'])))
@@ -148,9 +148,33 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("absOrRelVoltage", default_value = data["absOrRelVoltage"])
     dpg.configure_item("nidaqCh", default_value = data["nidaqCh"])
 
+    TrasferForceDirectionToForceD(dpg)
+    TransferDeviceToInputDevice(dpg)
+    TransferAbsOrRelVoltageToAbsOrRelVol(dpg)
+
 
 def TrueOrFalse(data):
     if data == 'False':
         return False
     if data == 'True':
         return True
+    
+def TrasferForceDirectionToForceD(dpg):
+    if dpg.get_value("forceDirection") == "Upwards":
+        dpg.set_value("forceD", "Upwards")
+    if dpg.get_value("forceDirection") == "Downwards":
+        dpg.set_value("forceD", "Downwards")
+
+def TransferDeviceToInputDevice(dpg):
+    if dpg.get_value("device") == "Mouse":
+        dpg.set_value("inputDevice", "Mouse")
+    if dpg.get_value("device") == "NIDAQ":
+        dpg.set_value("inputDevice", "NIDAQ")
+    if dpg.get_value("device") == "USB/ADAM":
+        dpg.set_value("inputDevice", "USB/ADAM")
+
+def TransferAbsOrRelVoltageToAbsOrRelVol(dpg):
+    if dpg.get_value("absOrRelVoltage") == "Absolute":
+        dpg.set_value("absOrRelVol", "Absolute")
+    if dpg.get_value("absOrRelVoltage") == "Relative":
+        dpg.set_value("absOrRelVol", "Relative")
