@@ -124,7 +124,6 @@ def RunGame(dpg, eventsData):
             return collisionDetected, event
         return collisionDetected, event
             
-
     def OverlapDetection(event, ypos, collisionDetected):
         if collisionDetected == True:
             event.timeOnTarget += clock.get_time()

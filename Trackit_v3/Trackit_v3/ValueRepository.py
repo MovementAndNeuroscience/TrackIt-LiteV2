@@ -45,6 +45,9 @@ def SetupValueRepository(dpg):
         dpg.add_double_value(default_value = 5.0, tag = "absMaxVoltage")
         dpg.add_string_value(default_value= "Relative", tag="absOrRelVoltage")
         dpg.add_string_value(default_value= "ai1", tag="nidaqCh")  
+        dpg.add_bool_value(default_value = False, tag = "svipt")
+        dpg.add_int_value(default_value = 0, tag = "noSviptTrials")
+        dpg.add_int_value(default_value = 0, tag = "noSviptEvents")
 
 
 def SaveConfig(dpg):
@@ -91,7 +94,10 @@ def SaveConfig(dpg):
         "minVoltage": str(dpg.get_value("minVoltage") ),
         "absMaxVoltage": str(dpg.get_value("absMaxVoltage")),
         "absOrRelVoltage": str(dpg.get_value("absOrRelVol")),
-        "nidaqCh": str(dpg.get_value("nidaqCh"))
+        "nidaqCh": str(dpg.get_value("nidaqCh")),
+        "svipt": str(dpg.get_value("svipt")),
+        "noSviptTrials": str(dpg.get_value("noSviptTrials")), 
+        "noSviptEvents": str(dpg.get_value("noSviptEvents"))  
     }
     nameOfFile =  str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) +'_'+'conf.cfg'
     with open(nameOfFile, 'w') as c:
@@ -147,6 +153,9 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("absMaxVoltage", default_value = float(data["absMaxVoltage"]))
     dpg.configure_item("absOrRelVoltage", default_value = data["absOrRelVoltage"])
     dpg.configure_item("nidaqCh", default_value = data["nidaqCh"])
+    dpg.configure_item("svipt", default_value = (TrueOrFalse(data['svipt'])))
+    dpg.configure_item("noSviptTrials", default_value = int(data["noSviptTrials"]))
+    dpg.configure_item("noSviptEvents", default_value = int(data["noSviptEvents"]))
 
     TrasferForceDirectionToForceD(dpg)
     TransferDeviceToInputDevice(dpg)

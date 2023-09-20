@@ -5,6 +5,8 @@ import Calibrationdata as caliDat
 import CalibrationConductor as caliConductor
 import AdaptiveDifficultyConductor as adaptDifConductor
 import GameConductor
+import SVIPTgameConductor
+import SviptGenerator
 import Eventsdata
 import EventData 
 import EventDataGenerator
@@ -25,13 +27,17 @@ def start_game():
     if dpg.get_value("adaptiveDif") == True:
         adaptDifConductor.changeDifficulty(dpg)
 
+    eventsData = EventDataGenerator.GenerateEvents(dpg)
+    eventsData = TriggerGenerator.GenerateTriggers(eventsData)
+
+
+    print(str(len(eventsData.eventDatas)) + " amount of data ")
+
     if dpg.get_value("svipt") == True:
-        print("svipt activated")
+        print("svipt activated")    
+        sviptBlock = SviptGenerator.GenerateSVIPT(dpg)
+        SVIPTgameConductor.RunGame(dpg,sviptBlock)
     else:
-        eventsData = EventDataGenerator.GenerateEvents(dpg)
-        eventsData = TriggerGenerator.GenerateTriggers(eventsData)
-        
-        print(str(len(eventsData.eventDatas)) + " amount of data ")
         GameConductor.RunGame(dpg,eventsData)
 
 def load_configuration(sender, app_data):
@@ -119,22 +125,28 @@ def _game_configuration_menu():
         dpg.add_checkbox(label="Write Your Own Sequence", source= "ownSequence")
         
         with dpg.group(horizontal=True,horizontal_spacing= 213): 
-            dpg.add_checkbox(label="Training mode", source="trainingMode")
+            dpg.add_checkbox(label="Training mode", source="trainingMode", tag = "trainingMode1")
             dpg.add_button(label= "Configure", callback=_training_conf)
         
-        dpg.add_checkbox(label="SVIPT - show all targets", source = "svipt")#need its own variable 
+        with dpg.group(horizontal=True,horizontal_spacing= 135): 
+            dpg.add_checkbox(label="SVIPT - show all targets", source = "svipt", tag = "svipt1")#need its own variable 
+            dpg.add_button(label= "Configure", callback=_SVIPT_conf)
 
         with dpg.group(horizontal=True,horizontal_spacing= 135): 
             dpg.add_checkbox(label="Target sustain on screen", source="TargetSustain")
             dpg.add_button(label= "Configure", callback=_targ_sustein_conf)
 
         with dpg.group(horizontal=True,horizontal_spacing= 142): 
-            dpg.add_checkbox(label="Show certain amount of \ntargets at a time", source= "moreTargets")
+            dpg.add_checkbox(label="Show certain amount of \ntargets at a time", source= "moreTargets", tag = "moreTargets1")
             dpg.add_button(label= "Configure", callback=_visible_targs_conf)
 
         with dpg.group(horizontal=True,horizontal_spacing= 162): 
-            dpg.add_checkbox(label="Extrinsic motivation", source= "extrinsicMotivation")
+            dpg.add_checkbox(label="Extrinsic motivation", source= "extrinsicMotivation", tag = "extrinsicMotivation1")
             dpg.add_button(label= "Configure", callback=_extrinsic_mot_conf)   
+    dpg.disable_item("trainingMode1")
+    dpg.disable_item("svipt1")
+    dpg.disable_item("moreTargets1")
+    dpg.disable_item("extrinsicMotivation1")
 
 def _rand_target_conf():
      with dpg.window(label="Random Target Configuration", pos=[450,50]):
@@ -154,6 +166,11 @@ def _training_conf():
 def _targ_sustein_conf():
      with dpg.window(label="Target Sustain Configuration", pos=[450,50]):
         dpg.add_input_int(label="time on target in ms", width= 100, source="sustainOnTarget")
+
+def _SVIPT_conf():
+    with dpg.window(label="SVIPT Configuration", pos=[450,50]):
+        dpg.add_input_int(label="Number of trials", width= 100, source="noSviptTrials")
+        dpg.add_input_int(label="Number of gates per trial", width= 100, source="noSviptEvents")
 
 def _visible_targs_conf():
      with dpg.window(label="Visible Targets Configuration", pos=[450,50]):
