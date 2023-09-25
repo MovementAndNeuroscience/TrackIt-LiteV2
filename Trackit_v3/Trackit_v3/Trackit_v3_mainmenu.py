@@ -36,6 +36,7 @@ def start_game():
     if dpg.get_value("svipt") == True:
         print("svipt activated")    
         sviptBlock = SviptGenerator.GenerateSVIPT(dpg)
+        print("lengths of SVIPT : "  + str(len(sviptBlock.trials)))
         SVIPTgameConductor.RunGame(dpg,sviptBlock)
     else:
         GameConductor.RunGame(dpg,eventsData)
@@ -129,7 +130,7 @@ def _game_configuration_menu():
             dpg.add_button(label= "Configure", callback=_training_conf)
         
         with dpg.group(horizontal=True,horizontal_spacing= 135): 
-            dpg.add_checkbox(label="SVIPT - show all targets", source = "svipt", tag = "svipt1")#need its own variable 
+            dpg.add_checkbox(label="SVIPT - show all targets", source = "svipt")#need its own variable 
             dpg.add_button(label= "Configure", callback=_SVIPT_conf)
 
         with dpg.group(horizontal=True,horizontal_spacing= 135): 
@@ -144,7 +145,6 @@ def _game_configuration_menu():
             dpg.add_checkbox(label="Extrinsic motivation", source= "extrinsicMotivation", tag = "extrinsicMotivation1")
             dpg.add_button(label= "Configure", callback=_extrinsic_mot_conf)   
     dpg.disable_item("trainingMode1")
-    dpg.disable_item("svipt1")
     dpg.disable_item("moreTargets1")
     dpg.disable_item("extrinsicMotivation1")
 

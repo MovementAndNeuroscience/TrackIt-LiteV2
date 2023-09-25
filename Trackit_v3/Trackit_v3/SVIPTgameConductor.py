@@ -52,21 +52,27 @@ def RunGame(dpg, sviptBlock):
     stopstarted = False
     gameStarted = False
     countdownStarted = False
+    eventTriggerSend = False
+    collisionDetected = False
     firstEvent = True
     gameTimeCounter = 0
     trialIndex = 0
     eventManager = 1
     eventVisibleTime = 0 
+    tempPos = 0
+    reacted = False 
         
 
     font = pygame.font.Font('freesansbold.ttf', 40)
     introText = font.render('Press Return to Start TrackIt', True, w)
     stopText = font.render('Stop press enter to continue next trial', True, w)
     guidelineText = font.render("Hit the squares as fast and accurate as possible", True, w)
+    rectNoTExt = font.render("1", True, r)
 
     textRect = introText.get_rect()
     stopRect = stopText.get_rect()
-    guideTextRect = guidelineText.get_rect() 
+    guideTextRect = guidelineText.get_rect()
+    rectNoTextRect =  rectNoTExt.get_rect()
     middleTextPos = (GetSystemMetrics(0) // 2, GetSystemMetrics(1) // 2)
     textRect.center = middleTextPos
     stopRect.center = middleTextPos
@@ -134,6 +140,17 @@ def RunGame(dpg, sviptBlock):
                 dpg.configure_item("playerLevel", default_value = dpg.get_value("playerLevel") + 1)
             else:
                 dpg.configure_item("playerLevel", default_value = dpg.get_value("playerLevel") - 1)  
+    
+    def EndOfATrial(trial):
+        trials[trialIndex].completionTime = gameTimeCounter
+        trial.events = statistics.CalculateOverAndUndershoot(trial.events)
+        for event in trial.events:
+            if event.overshoot == True or event.undershoot == True:
+                trial.error += 1 
+        return trial
+
+    def EndOfABlock(dpg, trials, inputs):
+        SaveFiles.SaveSviptDataToFiles(dpg, trials, inputs)
 
 #RUN THE GAME 
     while not gameOver:
@@ -156,9 +173,15 @@ def RunGame(dpg, sviptBlock):
                     if eventToBeGenerated == eventManager:
                         event.eventColor = "g"
                         pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],1)
+                        rectNoTExt = font.render(str(event.targetId), True, eval(event.eventColor))
+                        rectNoTextRect.center = (GetSystemMetrics(0) - 500 ,event.targetPosition + 50)
+                        gameDisplay.blit(rectNoTExt, rectNoTextRect)
                     else : 
                         event.eventColor = "r"
                         pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],1)
+                        rectNoTExt = font.render(str(event.targetId), True, eval(event.eventColor))
+                        rectNoTextRect.center = (GetSystemMetrics(0) - 400 ,event.targetPosition + 50 )
+                        gameDisplay.blit(rectNoTExt, rectNoTextRect)
 
                     eventToBeGenerated += 1
                     
@@ -213,8 +236,10 @@ def RunGame(dpg, sviptBlock):
             eventVisibleTime += clock.get_time()
             
             if trials[trialIndex].events[eventManager].timeOnTarget > 150:
+                print("event manager : " + str(eventManager))
                 if eventManager != 0:
                     eventManager = 0
+                    trials[trialIndex].events[eventManager].timeOnTarget = 0
                 else:
                     index = 1 
                     tempTimeOntarget = 100
@@ -222,14 +247,20 @@ def RunGame(dpg, sviptBlock):
                         index += 1 
                         if index < len(trials[trialIndex].events):
                             tempTimeOntarget = trials[trialIndex].events[index].timeOnTarget
+                            print("temptimeOnTarget : " + str(tempTimeOntarget))
                         else:
+                            trials[trialIndex] = EndOfATrial(trials[trialIndex])
                             trialIndex += 1
                             stopstarted = True
-                            if trialIndex > len(trials):
-                                gameOver = False 
-                                break 
+                            gameStarted = False
+                            if trialIndex >= len(trials):
+                                EndOfABlock(dpg, trials, inputs.inputdatas)
+                                inputs.inputdatas
+                                gameOver = True 
+                                tempTimeOntarget = 0
                             else :
-                                break
+                                print("next trial")
+                                tempTimeOntarget = 0
                     eventManager = index
 
 
@@ -267,7 +298,11 @@ def RunGame(dpg, sviptBlock):
                 if event.key == pygame.K_RETURN:
                     if stopstarted == True:
                         countdownStarted = True
+                        countDownCounter = 0
                         stopstarted = False
+                        eventTriggerSend = False
+                        reacted = False 
+                        eventManager = 1
                     else:
                         countdownStarted = True
                         

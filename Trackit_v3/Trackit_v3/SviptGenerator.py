@@ -4,6 +4,7 @@ import InputDatas
 import EventData
 from win32api import GetSystemMetrics
 import random
+import copy
 
 def GenerateSVIPT(dpg):
 
@@ -20,16 +21,18 @@ def GenerateSVIPT(dpg):
     sviptblock = SviptBlock.SviptBlock(dpg.get_value("noSviptTrials"))
     sviptTrial = SviptTrial.SviptTrial(dpg.get_value("noSviptEvents"))
 
+    sviptblock.trials = [] 
+    sviptTrial.events = []   
     availablePixels = []
     pixel = 0 
-    while pixel < GetSystemMetrics(1):
+    while pixel <= GetSystemMetrics(1):
         availablePixels.append(pixel)
         pixel += 1
 
 
     if random_events:
         
-        baselineEvent = EventData.EventData(len(sviptTrial.events),event_height,0,'B','g',60000, InputDatas.InputDatas())
+        baselineEvent = EventData.EventData(len(sviptTrial.events),event_height,10,'B','g',60000, InputDatas.InputDatas())
         sviptTrial.AddEvent(baselineEvent)
 
         i = 0
@@ -57,8 +60,12 @@ def GenerateSVIPT(dpg):
             for event in sviptTrial.events:
                 event.targetHeight = random.randint(minRandomHeight, maxRandomHeight)
 
+    trialno = 0 
     while len(sviptblock.trials) <= sviptblock.noTrials:
-        sviptblock.AddTrial(sviptTrial)
+        sviptblock.AddTrial(copy.deepcopy(sviptTrial))
+        sviptblock.trials[trialno].trialno = trialno
+        trialno +=1
+
 
     return sviptblock
 
@@ -91,7 +98,8 @@ def ExtractFirstRectFromPixels(availablePixels, pos, height):
         currentPix += 1 
 
     for curr in rectPixels:
-        availablePixels.remove(curr)
+        if curr < len(availablePixels):
+            availablePixels.remove(curr)
 
     return availablePixels
 
@@ -113,7 +121,8 @@ def FindTheNextRect(previousLocation, min_closeness_between_events, max_closenes
     for curr in rectPixels:
         pixelPresent = availablePixels.count(curr)
         if pixelPresent == 0:
-            FindTheNextRect(previousLocation, min_closeness_between_events, max_closeness_between_events, dpg, availablePixels, minRandomHeight, maxRandomHeight)
+
+            FindTheNextRect(previousLocation, min_closeness_between_events, max_closeness_between_events, dpg, availablePixels, minRandomHeight, maxRandomHeight, random_heights_for_events, event_height)
 
     for curr in rectPixels:
         availablePixels.remove(curr)

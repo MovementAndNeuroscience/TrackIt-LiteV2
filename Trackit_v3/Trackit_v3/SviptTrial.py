@@ -3,6 +3,7 @@ class SviptTrial():
     noEvents = 0
     events = []
     error = 0
+    trialno = 0
 
     def __init__(self, noEvents):
         self.noEvents = noEvents
