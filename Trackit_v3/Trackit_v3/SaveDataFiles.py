@@ -91,7 +91,6 @@ def SaveSviptDataToFiles(dpg, trials, inputs):
         shutil.move(file_name + '.txt', os.path.join(new_dir, file_name + '.txt'))
         shutil.move(file_name_svipt + '.txt', os.path.join(new_dir, file_name_svipt + '.txt'))
         shutil.move(file_name_inputdata + '.txt', os.path.join(new_dir, file_name_inputdata + '.txt'))
-        shutil.move(file_name_statistic + '.txt', os.path.join(new_dir, file_name_statistic + '.txt'))
         print ('Results saved in the following folder: {}'.format(dir_name))
     except Exception as e:
         print(e)

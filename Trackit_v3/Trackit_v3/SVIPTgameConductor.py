@@ -54,6 +54,7 @@ def RunGame(dpg, sviptBlock):
     countdownStarted = False
     eventTriggerSend = False
     collisionDetected = False
+    trialStartTime = 0
     firstEvent = True
     gameTimeCounter = 0
     trialIndex = 0
@@ -142,7 +143,7 @@ def RunGame(dpg, sviptBlock):
                 dpg.configure_item("playerLevel", default_value = dpg.get_value("playerLevel") - 1)  
     
     def EndOfATrial(trial):
-        trials[trialIndex].completionTime = gameTimeCounter
+        trials[trialIndex].completionTime = gameTimeCounter - trialStartTime
         trial.events = statistics.CalculateOverAndUndershoot(trial.events)
         for event in trial.events:
             if event.overshoot == True or event.undershoot == True:
@@ -160,6 +161,7 @@ def RunGame(dpg, sviptBlock):
             gameDisplay.fill(bl)
 
             if trialIndex == 0 and firstEvent == True:
+                trialStartTime = gameTimeCounter
                 firstEvent = False
 
                 if inputMode == "USB/ADAM" or inputMode == "NIDAQ":
@@ -174,13 +176,13 @@ def RunGame(dpg, sviptBlock):
                         event.eventColor = "g"
                         pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],1)
                         rectNoTExt = font.render(str(event.targetId), True, eval(event.eventColor))
-                        rectNoTextRect.center = (GetSystemMetrics(0) - 500 ,event.targetPosition + 50)
+                        rectNoTextRect.center = (GetSystemMetrics(0) - 600 ,event.targetPosition + event.targetHeight/2)
                         gameDisplay.blit(rectNoTExt, rectNoTextRect)
                     else : 
                         event.eventColor = "r"
                         pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],1)
                         rectNoTExt = font.render(str(event.targetId), True, eval(event.eventColor))
-                        rectNoTextRect.center = (GetSystemMetrics(0) - 400 ,event.targetPosition + 50 )
+                        rectNoTextRect.center = (GetSystemMetrics(0) - 400 ,event.targetPosition + event.targetHeight/2)
                         gameDisplay.blit(rectNoTExt, rectNoTextRect)
 
                     eventToBeGenerated += 1
@@ -280,6 +282,7 @@ def RunGame(dpg, sviptBlock):
             elif countDownCounter < 5000:
                 countdownStarted = False
                 gameStarted = True
+                trialStartTime = gameTimeCounter
         
         elif stopstarted == True:
             gameDisplay.fill(bl)

@@ -36,8 +36,12 @@ def start_game():
     if dpg.get_value("svipt") == True:
         print("svipt activated")    
         sviptBlock = SviptGenerator.GenerateSVIPT(dpg)
-        print("lengths of SVIPT : "  + str(len(sviptBlock.trials)))
-        SVIPTgameConductor.RunGame(dpg,sviptBlock)
+        if sviptBlock.noTrials == 99999:
+            with dpg.window(label="SVIPT creation failed", pos=[0,50]):
+                dpg.add_text("The Computer tried too many times to generate your SVIPT level please try again")
+        else:
+            print("lengths of SVIPT : "  + str(len(sviptBlock.trials)))
+            SVIPTgameConductor.RunGame(dpg,sviptBlock)
     else:
         GameConductor.RunGame(dpg,eventsData)
 
@@ -125,9 +129,9 @@ def _game_configuration_menu():
         dpg.add_checkbox(label="Radnom target height", source="randomTargetHeight")
         dpg.add_checkbox(label="Write Your Own Sequence", source= "ownSequence")
         
-        with dpg.group(horizontal=True,horizontal_spacing= 213): 
-            dpg.add_checkbox(label="Training mode", source="trainingMode", tag = "trainingMode1")
-            dpg.add_button(label= "Configure", callback=_training_conf)
+        # with dpg.group(horizontal=True,horizontal_spacing= 213): 
+        #     dpg.add_checkbox(label="Training mode", source="trainingMode")
+        #     dpg.add_button(label= "Configure", callback=_training_conf)
         
         with dpg.group(horizontal=True,horizontal_spacing= 135): 
             dpg.add_checkbox(label="SVIPT - show all targets", source = "svipt")#need its own variable 
@@ -137,16 +141,15 @@ def _game_configuration_menu():
             dpg.add_checkbox(label="Target sustain on screen", source="TargetSustain")
             dpg.add_button(label= "Configure", callback=_targ_sustein_conf)
 
-        with dpg.group(horizontal=True,horizontal_spacing= 142): 
-            dpg.add_checkbox(label="Show certain amount of \ntargets at a time", source= "moreTargets", tag = "moreTargets1")
-            dpg.add_button(label= "Configure", callback=_visible_targs_conf)
+        # with dpg.group(horizontal=True,horizontal_spacing= 142): 
+        #     dpg.add_checkbox(label="Show certain amount of \ntargets at a time", source= "moreTargets")
+        #     dpg.add_button(label= "Configure", callback=_visible_targs_conf)
 
-        with dpg.group(horizontal=True,horizontal_spacing= 162): 
-            dpg.add_checkbox(label="Extrinsic motivation", source= "extrinsicMotivation", tag = "extrinsicMotivation1")
-            dpg.add_button(label= "Configure", callback=_extrinsic_mot_conf)   
-    dpg.disable_item("trainingMode1")
-    dpg.disable_item("moreTargets1")
-    dpg.disable_item("extrinsicMotivation1")
+        # with dpg.group(horizontal=True,horizontal_spacing= 162): 
+        #     dpg.add_checkbox(label="Extrinsic motivation", source= "extrinsicMotivation")
+        #     dpg.add_button(label= "Configure", callback=_extrinsic_mot_conf)
+
+
 
 def _rand_target_conf():
      with dpg.window(label="Random Target Configuration", pos=[450,50]):

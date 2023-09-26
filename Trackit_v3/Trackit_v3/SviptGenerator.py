@@ -25,6 +25,7 @@ def GenerateSVIPT(dpg):
     sviptTrial.events = []   
     availablePixels = []
     pixel = 0 
+    recursiveCounter = 0; 
     while pixel <= GetSystemMetrics(1):
         availablePixels.append(pixel)
         pixel += 1
@@ -38,11 +39,15 @@ def GenerateSVIPT(dpg):
         i = 0
         previousLocation = 0; 
         while i <= sviptTrial.noEvents:
-            newLocation, event_height = CalculateNewLocation(previousLocation,min_closeness_between_events,max_closeness_between_events, dpg, random_heights_for_events, availablePixels, minRandomHeight, maxRandomHeight, event_height) 
-            newEvent = EventData.EventData(len(sviptTrial.events), event_height, newLocation, 'R', 'b', 10000, InputDatas.InputDatas())
-            previousLocation = newLocation 
-            sviptTrial.AddEvent(newEvent)
-            i = i + 1 
+            newLocation, event_height = CalculateNewLocation(previousLocation,min_closeness_between_events,max_closeness_between_events, dpg, random_heights_for_events, availablePixels, minRandomHeight, maxRandomHeight, event_height, recursiveCounter) 
+            if newLocation == 99999:
+                sviptblock.noTrials = 99999
+                return sviptblock
+            else:
+                newEvent = EventData.EventData(len(sviptTrial.events), event_height, newLocation, 'R', 'b', 10000, InputDatas.InputDatas())
+                previousLocation = newLocation 
+                sviptTrial.AddEvent(newEvent)
+                i = i + 1 
 
     if own_Sequence:
         rects_pauses_list = importedEvents.split()
@@ -69,7 +74,7 @@ def GenerateSVIPT(dpg):
 
     return sviptblock
 
-def CalculateNewLocation(previousLocation,min_closeness_between_events,max_closeness_between_events, dpg, random_heights_for_events, availablePixels, minRandomHeight, maxRandomHeight, event_height):
+def CalculateNewLocation(previousLocation,min_closeness_between_events,max_closeness_between_events, dpg, random_heights_for_events, availablePixels, minRandomHeight, maxRandomHeight, event_height, recursiveCounter):
 
     if random_heights_for_events:
         if(previousLocation == 0):
@@ -79,7 +84,7 @@ def CalculateNewLocation(previousLocation,min_closeness_between_events,max_close
 
             return pos, height
         else:
-            height, newPos = FindTheNextRect(previousLocation, min_closeness_between_events, max_closeness_between_events, dpg, availablePixels, minRandomHeight, maxRandomHeight,random_heights_for_events, event_height)
+            height, newPos = FindTheNextRect(previousLocation, min_closeness_between_events, max_closeness_between_events, dpg, availablePixels, minRandomHeight, maxRandomHeight,random_heights_for_events, event_height, recursiveCounter)
             return newPos, height
     else: 
         if(previousLocation == 0):
@@ -87,7 +92,7 @@ def CalculateNewLocation(previousLocation,min_closeness_between_events,max_close
             availablePixels = ExtractFirstRectFromPixels(availablePixels, pos, event_height)
             return pos, event_height
         else:
-            height, newPos =FindTheNextRect(previousLocation, min_closeness_between_events, max_closeness_between_events, dpg, availablePixels, minRandomHeight, maxRandomHeight, random_heights_for_events, event_height)
+            height, newPos = FindTheNextRect(previousLocation, min_closeness_between_events, max_closeness_between_events, dpg, availablePixels, minRandomHeight, maxRandomHeight, random_heights_for_events, event_height, recursiveCounter)
             return height, newPos
 
 def ExtractFirstRectFromPixels(availablePixels, pos, height):
@@ -103,7 +108,7 @@ def ExtractFirstRectFromPixels(availablePixels, pos, height):
 
     return availablePixels
 
-def FindTheNextRect(previousLocation, min_closeness_between_events, max_closeness_between_events, dpg, availablePixels, minRandomHeight, maxRandomHeight, random_heights_for_events, event_height):
+def FindTheNextRect(previousLocation, min_closeness_between_events, max_closeness_between_events, dpg, availablePixels, minRandomHeight, maxRandomHeight, random_heights_for_events, event_height, recursiveCounter):
     newPos = random.randint(100, dpg.get_value("calibrationInput"))
     distFromOldToNewPos = abs(previousLocation-newPos)
     while distFromOldToNewPos <  min_closeness_between_events or distFromOldToNewPos >  max_closeness_between_events:
@@ -121,10 +126,23 @@ def FindTheNextRect(previousLocation, min_closeness_between_events, max_closenes
     for curr in rectPixels:
         pixelPresent = availablePixels.count(curr)
         if pixelPresent == 0:
-
-            FindTheNextRect(previousLocation, min_closeness_between_events, max_closeness_between_events, dpg, availablePixels, minRandomHeight, maxRandomHeight, random_heights_for_events, event_height)
-
+            if recursiveCounter < 899:
+                recursiveCounter += 1
+                height, newPos = FindTheNextRect(previousLocation, min_closeness_between_events, max_closeness_between_events, dpg, availablePixels, minRandomHeight, maxRandomHeight, random_heights_for_events, event_height, recursiveCounter)
+                if (height == 99999):
+                    return height, newPos
+            else :
+                recursiveCounter = 0
+                height = 99999
+                newPos = 99999
+                break
+            
     for curr in rectPixels:
+        pixelPresent = availablePixels.count(curr)
+        if pixelPresent == 0:
+            recursiveCounter = 0 
+            height = 99999
+            newPos = 99999
+            break
         availablePixels.remove(curr)
-
     return height,newPos
