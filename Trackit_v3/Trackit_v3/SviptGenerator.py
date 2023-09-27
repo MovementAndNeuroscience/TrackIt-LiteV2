@@ -38,7 +38,7 @@ def GenerateSVIPT(dpg):
 
         i = 0
         previousLocation = 0; 
-        while i <= sviptTrial.noEvents:
+        while i < sviptTrial.noEvents:
             newLocation, event_height = CalculateNewLocation(previousLocation,min_closeness_between_events,max_closeness_between_events, dpg, random_heights_for_events, availablePixels, minRandomHeight, maxRandomHeight, event_height, recursiveCounter) 
             if newLocation == 99999:
                 sviptblock.noTrials = 99999
@@ -66,7 +66,7 @@ def GenerateSVIPT(dpg):
                 event.targetHeight = random.randint(minRandomHeight, maxRandomHeight)
 
     trialno = 0 
-    while len(sviptblock.trials) <= sviptblock.noTrials:
+    while len(sviptblock.trials) < sviptblock.noTrials:
         sviptblock.AddTrial(copy.deepcopy(sviptTrial))
         sviptblock.trials[trialno].trialno = trialno
         trialno +=1

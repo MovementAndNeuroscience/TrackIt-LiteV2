@@ -78,6 +78,22 @@ def RunGame(dpg, sviptBlock):
     textRect.center = middleTextPos
     stopRect.center = middleTextPos
     
+    if forceDirection == "Upwards":
+        for trial in trials:
+            for event in trial.events:
+                rectPos = 0
+                if event.eventType == "R":
+                    rectPos = GetSystemMetrics(1) - event.targetPosition
+                    if rectPos < 0:
+                        rectPos = 10
+                elif event.eventType == "B" or event.eventType == "P":
+                    rectPos = (GetSystemMetrics(1)-  event.targetHeight  ) - event.targetPosition
+                print("RECT POS : " + str(rectPos))
+                event.targetPosition = rectPos
+            
+            guideTextRect.center = (GetSystemMetrics(0) // 2, 50)
+
+
 
     #CountDown 
     text_1 = font.render('1', True, w)
@@ -176,13 +192,13 @@ def RunGame(dpg, sviptBlock):
                         event.eventColor = "g"
                         pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],1)
                         rectNoTExt = font.render(str(event.targetId), True, eval(event.eventColor))
-                        rectNoTextRect.center = (GetSystemMetrics(0) - 600 ,event.targetPosition + event.targetHeight/2)
+                        rectNoTextRect.center = (GetSystemMetrics(0)/2 + 100 ,event.targetPosition + event.targetHeight/2)
                         gameDisplay.blit(rectNoTExt, rectNoTextRect)
                     else : 
                         event.eventColor = "r"
                         pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],1)
                         rectNoTExt = font.render(str(event.targetId), True, eval(event.eventColor))
-                        rectNoTextRect.center = (GetSystemMetrics(0) - 400 ,event.targetPosition + event.targetHeight/2)
+                        rectNoTextRect.center = (GetSystemMetrics(0)/2 + 200,event.targetPosition + event.targetHeight/2)
                         gameDisplay.blit(rectNoTExt, rectNoTextRect)
 
                     eventToBeGenerated += 1
