@@ -11,6 +11,9 @@ import SaveDataFiles as SaveFiles
 import TrackItStatistics as statistics
 import VoltageConverter
 import daqmxlib
+import serial
+import SerialBoardAPI
+import InputRepository as inRep
  
 def RunGame(dpg, eventsData):
 
@@ -21,17 +24,37 @@ def RunGame(dpg, eventsData):
 
     inputMode = dpg.get_value("device")
     forceDirection = dpg.get_value("forceDirection")
-
-    inputs = InputDatas.InputDatas()
-    events = eventsData.eventDatas
-
-    nidaqCh = dpg.get_value("nidaqCh")
-    reader = 0
-    if inputMode == "NIDAQ":
-        reader = daqmxlib.Reader({nidaqCh:1})
-
     useSustain = dpg.get_value("TargetSustain")
     minSustainTime = dpg.get_value("sustainOnTarget")
+    maxVoltage = dpg.get_value("maxVoltage")
+    minVoltage = dpg.get_value("minVoltage")
+    percentageOfMaxVoltage = dpg.get_value("percentOfMaxCal")
+    absOrRelvoltage = dpg.get_value("absOrRelVoltage")
+    absoluteMaxVoltage = dpg.get_value("absMaxVoltage")
+    comport = dpg.get_value("comport")
+    experimentalMode = dpg.get_value("experimentMode")
+    nidaqCh = dpg.get_value("nidaqCh")
+
+    gameStarted = False
+    countdownStarted = False
+    gameOver = False
+    endOfFeedback = False
+    gameTimeCounter = 0
+    countDownCounter = 0 
+    eventIndex = 0
+    eventVisibleTime = 0 
+    collisionDetected = False
+    firstEvent = True
+    reacted = False 
+    eventTriggerSend = False
+    tempPos = 0
+    reader = 0
+    setupConnection = True
+
+    serialObj = serial.Serial() 
+    inputs = InputDatas.InputDatas()
+    events = eventsData.eventDatas
+    
     bl = (0,0,0)
     f = (0,0,0)
     w = (255,255,255)
@@ -46,25 +69,18 @@ def RunGame(dpg, eventsData):
 
     clock = pygame.time.Clock()
     clockEndOfGame = 0; 
-    
-    gameStarted = False
-    countdownStarted = False
-    gameOver = False
-    endOfFeedback = False
-    gameTimeCounter = 0
-    countDownCounter = 0 
-    eventIndex = 0
-    eventVisibleTime = 0 
-    collisionDetected = False
-    firstEvent = True
-    reacted = False 
-    eventTriggerSend = False
-    tempPos = 0
-    maxVoltage = dpg.get_value("maxVoltage")
-    minVoltage = dpg.get_value("minVoltage")
-    percentageOfMaxVoltage = dpg.get_value("percentOfMaxCal")
-    absOrRelvoltage = dpg.get_value("absOrRelVoltage")
-    absoluteMaxVoltage = dpg.get_value("absMaxVoltage")
+
+    if inputMode == "NIDAQ":
+        reader = daqmxlib.Reader({nidaqCh:1})
+
+    if inputMode == "USB/ADAM":
+        if setupConnection == True:
+            serialObj = SerialBoardAPI.SetupSerialCommuniation(comport)
+            serialObj = SerialBoardAPI.testCommunication(serialObj)
+            SerialBoardAPI.OpenCommunication(serialObj)
+            reader = SerialBoardAPI.GetValueFromA0(serialObj)
+            setupConnection = False 
+
 
     font = pygame.font.Font('freesansbold.ttf', 40)
     introText = font.render('Press Return to Start TrackIt', True, w)
@@ -170,7 +186,7 @@ def RunGame(dpg, eventsData):
 
         eventIndex += 1
         eventVisibleTime = 0
-        if inputMode == "USB/ADAM" or inputMode == "NIDAQ" and eventIndex != len(events):
+        if inputMode == "USB/ADAM" or inputMode == "NIDAQ" and eventIndex < len(events):
             TriggerSender.send_trigger(events[eventIndex].targetTrigger)
 
         if eventIndex == len(events):
@@ -217,38 +233,11 @@ def RunGame(dpg, eventsData):
                 events[eventIndex].targetTrigger
                 eventTriggerSend = True
 
-            if inputMode == "Mouse":                    
-                mx,my=pygame.mouse.get_pos()
-                drawPlayer(my,r)
-                tempInput = InputData.InputData(my,my,gameTimeCounter)
-                inputs.AddInputData(tempInput)
-                
-            if inputMode == "USB/ADAM":
-                voltage = 0
-                ypos=0 #USB/ADAM input goes here 
-                drawPlayer(ypos, r)
-                tempInput = InputData.InputData(voltage,ypos,gameTimeCounter)
-                inputs.AddInputData(tempInput)
+            voltage,ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader)
 
-            if inputMode == "NIDAQ":
-                voltage = reader.read()[0]
-                ypos = 0 
-                if forceDirection == "Downwards":
-                    if absOrRelvoltage == "Relative":
-                        ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
-                    if absOrRelvoltage == "Absolute":  
-                        ypos=VoltageConverter.get_px_from_voltage(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)  
-                if forceDirection == "Upwards":
-                    if absOrRelvoltage == "Relative":
-                        ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
-                        ypos = GetSystemMetrics(1) - ypos
-                    if absOrRelvoltage == "Absolute":  
-                        ypos=VoltageConverter.get_px_from_voltage(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)
-                        ypos = GetSystemMetrics(1) - ypos  
-
-                drawPlayer(ypos,r)
-                tempInput = InputData.InputData(voltage,ypos,gameTimeCounter)
-                inputs.AddInputData(tempInput)
+            drawPlayer(ypos,r)
+            tempInput = InputData.InputData(voltage,ypos,gameTimeCounter)
+            inputs.AddInputData(tempInput)
 
             events[eventIndex].inputDuringEvent.AddInputData(tempInput)
             
@@ -321,6 +310,3 @@ def RunGame(dpg, eventsData):
         clock.tick(120)
 
     pygame.quit()
-
-
-

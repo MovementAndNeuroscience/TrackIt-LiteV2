@@ -11,6 +11,9 @@ import SaveDataFiles as SaveFiles
 import TrackItStatistics as statistics
 import VoltageConverter
 import daqmxlib
+import serial
+import SerialBoardAPI
+import InputRepository as inRep
 
 def RunGame(dpg, sviptBlock):
     
@@ -27,7 +30,10 @@ def RunGame(dpg, sviptBlock):
     absOrRelvoltage = dpg.get_value("absOrRelVoltage")
     absoluteMaxVoltage = dpg.get_value("absMaxVoltage")
     feedbackLength = dpg.get_value("feedbackLength")
+    comport = dpg.get_value("comport")
+    experimentalMode = dpg.get_value("experimentMode")
 
+    serialObj = serial.Serial() 
     inputs = InputDatas.InputDatas()
     trials = sviptBlock.trials
 
@@ -35,8 +41,6 @@ def RunGame(dpg, sviptBlock):
 
     nidaqCh = dpg.get_value("nidaqCh")
     reader = 0
-    if inputMode == "NIDAQ":
-        reader = daqmxlib.Reader({nidaqCh:1})
 
     bl = (0,0,0)
     f = (0,0,0)
@@ -65,6 +69,19 @@ def RunGame(dpg, sviptBlock):
     tempPos = 0
     reacted = False 
     beginning = True
+    setupConnection = True
+
+
+    if inputMode == "NIDAQ":
+        reader = daqmxlib.Reader({nidaqCh:1})
+
+    if inputMode == "USB/ADAM":
+        if setupConnection == True:
+            serialObj = SerialBoardAPI.SetupSerialCommuniation(comport)
+            serialObj = SerialBoardAPI.testCommunication(serialObj)
+            SerialBoardAPI.OpenCommunication(serialObj)
+            reader = SerialBoardAPI.GetValueFromA0(serialObj)
+            setupConnection = False    
         
 
     font = pygame.font.Font('freesansbold.ttf', 40)
@@ -125,7 +142,7 @@ def RunGame(dpg, sviptBlock):
     clock = pygame.time.Clock()
 
     def drawPlayer(ypos, color):
-        pygame.draw.circle(gameDisplay, color, (GetSystemMetrics(0)/2, ypos), 5)
+        pygame.draw.circle(gameDisplay, color, (GetSystemMetrics(0)/2, ypos), 5) 
 
     def CollisionDetection(event, ypos, collisionDetected):
         if (ypos < event.targetHeight + event.targetPosition) and ypos > event.targetPosition and collisionDetected == False:
@@ -153,22 +170,6 @@ def RunGame(dpg, sviptBlock):
             reacted = True
             return reacted
         return reacted
-
-    def AdjustLevel(events, dpg):
-        visibleEvents = 0 
-        accumulatedAccuracy = 0
-        averageAccuracy = 0
-        if dpg.get_value("adaptiveDif") == True:
-            for event in events:
-                if event.eventType != "P":
-                    visibleEvents += 1
-                    accumulatedAccuracy += event.percentTimeOnTarget
-            averageAccuracy = accumulatedAccuracy / visibleEvents
-
-            if averageAccuracy >= dpg.get_value("addaptiveDifThreshold"):
-                dpg.configure_item("playerLevel", default_value = dpg.get_value("playerLevel") + 1)
-            else:
-                dpg.configure_item("playerLevel", default_value = dpg.get_value("playerLevel") - 1)  
     
     def EndOfATrial(trial):
         trials[trialIndex].completionTime = gameTimeCounter - trialStartTime
@@ -221,38 +222,11 @@ def RunGame(dpg, sviptBlock):
                 #events[eventIndex].targetTrigger
                 eventTriggerSend = True
 
-            if inputMode == "Mouse":                    
-                mx,my=pygame.mouse.get_pos()
-                drawPlayer(my,r)
-                tempInput = InputData.InputData(my,my,gameTimeCounter)
-                inputs.AddInputData(tempInput)
-                
-            if inputMode == "USB/ADAM":
-                voltage = 0
-                ypos=0 #USB/ADAM input goes here 
-                drawPlayer(ypos, r)
-                tempInput = InputData.InputData(voltage,ypos,gameTimeCounter)
-                inputs.AddInputData(tempInput)
+            voltage, ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader)
 
-            if inputMode == "NIDAQ":
-                voltage = reader.read()[0]
-                ypos = 0 
-                if forceDirection == "Downwards":
-                    if absOrRelvoltage == "Relative":
-                        ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
-                    if absOrRelvoltage == "Absolute":  
-                        ypos=VoltageConverter.get_px_from_voltage(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)  
-                if forceDirection == "Upwards":
-                    if absOrRelvoltage == "Relative":
-                        ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
-                        ypos = GetSystemMetrics(1) - ypos
-                    if absOrRelvoltage == "Absolute":  
-                        ypos=VoltageConverter.get_px_from_voltage(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)
-                        ypos = GetSystemMetrics(1) - ypos  
-
-                drawPlayer(ypos,r)
-                tempInput = InputData.InputData(voltage,ypos,gameTimeCounter)
-                inputs.AddInputData(tempInput)
+            drawPlayer(ypos,r)
+            tempInput = InputData.InputData(voltage,ypos,gameTimeCounter)
+            inputs.AddInputData(tempInput)
 
             trials[trialIndex].events[eventManager].inputDuringEvent.AddInputData(tempInput)
             
@@ -385,6 +359,3 @@ def RunGame(dpg, sviptBlock):
         clock.tick(120)
 
     pygame.quit()
-    
-
-#CONCLUDE THE GAME 

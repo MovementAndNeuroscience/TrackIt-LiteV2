@@ -23,6 +23,15 @@ def get_px_from_Potentiometer_calibration(voltage, max_voltage, min_voltage):
     result = (GetSystemMetrics(1)) * (voltage/(max_voltage/100))/100 # Top point of the screen * percentge diversion from Max_voltage
     return result 
 
+def get_px_from_Potentiometer(voltage, max_voltage, min_voltage, percentOfMax):
+    max_voltage = max_voltage*(percentOfMax/100)
+    result = (GetSystemMetrics(1)) * (voltage/(max_voltage/100))/100 # Top point of the screen * percentge diversion from Max_voltage
+    if result <= 0.00:
+        return 0.00
+    return result 
+
+
+
 def Calibrate_minAndMaxVoltage(voltage, calibrationData):
     if voltage < calibrationData.GetMinVoltage():
         calibrationData.SetMinVoltage(voltage)
