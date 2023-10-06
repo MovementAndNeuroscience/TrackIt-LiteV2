@@ -26,6 +26,7 @@ def RunGame(dpg, sviptBlock):
     percentageOfMaxVoltage = dpg.get_value("percentOfMaxCal")
     absOrRelvoltage = dpg.get_value("absOrRelVoltage")
     absoluteMaxVoltage = dpg.get_value("absMaxVoltage")
+    feedbackLength = dpg.get_value("feedbackLength")
 
     inputs = InputDatas.InputDatas()
     trials = sviptBlock.trials
@@ -49,7 +50,7 @@ def RunGame(dpg, sviptBlock):
     p = (255, 20, 147)  # pink
     o = (255,140,0) # orange
     gameOver = False
-    stopstarted = False
+    feedbackStarted = False
     gameStarted = False
     countdownStarted = False
     eventTriggerSend = False
@@ -57,26 +58,37 @@ def RunGame(dpg, sviptBlock):
     trialStartTime = 0
     firstEvent = True
     gameTimeCounter = 0
+    feedbackCounter = 0
     trialIndex = 0
     eventManager = 1
     eventVisibleTime = 0 
     tempPos = 0
     reacted = False 
+    beginning = True
         
 
     font = pygame.font.Font('freesansbold.ttf', 40)
     introText = font.render('Press Return to Start TrackIt', True, w)
-    stopText = font.render('Stop press enter to continue next trial', True, w)
+    stopFeedbackText = font.render('Stop', True, w)
+    compTimeFeedbackText = font.render('Din samlede Tid', True, w)
+    errorFeedbackText = font.render('Du skød', True, w)
     guidelineText = font.render("Hit the squares as fast and accurate as possible", True, w)
     rectNoTExt = font.render("1", True, r)
 
     textRect = introText.get_rect()
-    stopRect = stopText.get_rect()
+    stopFeedRect = stopFeedbackText.get_rect()
+    compTimeFeedbackTextRect = compTimeFeedbackText.get_rect()
+    errorFeedbackTextRect = errorFeedbackText.get_rect()
     guideTextRect = guidelineText.get_rect()
     rectNoTextRect =  rectNoTExt.get_rect()
     middleTextPos = (GetSystemMetrics(0) // 2, GetSystemMetrics(1) // 2)
     textRect.center = middleTextPos
-    stopRect.center = middleTextPos
+    stopFeedRect.x = GetSystemMetrics(0) // 2
+    stopFeedRect.y = GetSystemMetrics(1) // 2
+    compTimeFeedbackTextRect.x = GetSystemMetrics(0) // 2 - 200
+    compTimeFeedbackTextRect.y = GetSystemMetrics(1) // 2 + 50
+    errorFeedbackTextRect.x = GetSystemMetrics(0) // 2 - 200
+    errorFeedbackTextRect.y = GetSystemMetrics(1) // 2 + 100
     
     if forceDirection == "Upwards":
         for trial in trials:
@@ -269,12 +281,12 @@ def RunGame(dpg, sviptBlock):
                         else:
                             trials[trialIndex] = EndOfATrial(trials[trialIndex])
                             trialIndex += 1
-                            stopstarted = True
+                            feedbackStarted = True
                             gameStarted = False
                             if trialIndex >= len(trials):
                                 EndOfABlock(dpg, trials, inputs.inputdatas)
                                 inputs.inputdatas
-                                gameOver = True 
+                                feedbackStarted = True
                                 tempTimeOntarget = 0
                             else :
                                 print("next trial")
@@ -300,9 +312,57 @@ def RunGame(dpg, sviptBlock):
                 gameStarted = True
                 trialStartTime = gameTimeCounter
         
-        elif stopstarted == True:
-            gameDisplay.fill(bl)
-            gameDisplay.blit(stopText, stopRect)  
+        elif feedbackStarted == True:
+            if feedbackCounter < feedbackLength:
+                feedbackCounter += clock.get_time() 
+                prevTrial = trialIndex - 1
+                comparedToTrial = prevTrial - 1
+                if prevTrial == 0 :
+                    stopFeedbackText = font.render("Stop", True, w)
+                    compTimeFeedbackText =  font.render("Din totale tid var : " + str(trials[prevTrial].completionTime /1000) + " s", True, w)
+                    errorFeedbackText = font.render("Du skød " + str(trials[prevTrial].error) + " gange forbi målet", True, w )
+                    
+                else:
+                    compTimeFeedbackTextRect.x = GetSystemMetrics(0) // 2 - 500
+                    difCompletionTime = (trials[prevTrial].completionTime - trials[comparedToTrial].completionTime)/1000
+                    difErrors = trials[prevTrial].error - trials[comparedToTrial].error
+                    if difCompletionTime < 0.00 :
+                        if difErrors < 0 : 
+                            stopFeedbackText = font.render("Stop", True, w)
+                            compTimeFeedbackText =  font.render("Du klarede banen " + str(abs(difCompletionTime)) + " s langsommere end sidste omgang", True, w)
+                            errorFeedbackText = font.render("Du skød " + str(abs(difErrors)) + " flere gange forbi", True, w )
+                        else:
+                            stopFeedbackText = font.render("Stop", True, w)
+                            compTimeFeedbackText =  font.render("Du klarede banen " + str(abs(difCompletionTime)) + " s langsommere end sidste omgang", True, w)
+                            errorFeedbackText = font.render("Du skød " + str(abs(difErrors)) + " færre gange forbi", True, w )
+                    else:
+                        if difErrors < 0 : 
+                            stopFeedbackText = font.render("Stop", True, w)
+                            compTimeFeedbackText =  font.render("Du klarede banen " + str(abs(difCompletionTime)) + " s hurtigere end sidste omgang", True, w)
+                            errorFeedbackText = font.render("Du skød " + str(abs(difErrors)) + " flere gange forbi", True, w )
+                        else:
+                            stopFeedbackText = font.render("Stop", True, w)
+                            compTimeFeedbackText =  font.render("Du klarede banen " + str(abs(difCompletionTime)) + " s hurtigere end sidste omgang", True, w)
+                            errorFeedbackText = font.render("Du skød " + str(abs(difErrors)) + " færre gange forbi", True, w )
+
+                gameDisplay.fill(bl)
+                gameDisplay.blit(stopFeedbackText, stopFeedRect)
+                gameDisplay.blit(compTimeFeedbackText, compTimeFeedbackTextRect)
+                gameDisplay.blit(errorFeedbackText, errorFeedbackTextRect)
+            else: 
+                if trialIndex >= len(trials):
+                    eventManager = 1
+                    feedbackStarted = False
+                    gameOver = True 
+                else :
+                    eventManager = 1
+                    feedbackStarted = False
+                    countdownStarted = True                
+                    countDownCounter = 0
+                    feedbackCounter = 0 
+                    eventTriggerSend = False
+                    reacted = False 
+        
         else:
             gameDisplay.blit(introText, textRect)    
 
@@ -315,15 +375,9 @@ def RunGame(dpg, sviptBlock):
                     pygame.quit()
 
                 if event.key == pygame.K_RETURN:
-                    if stopstarted == True:
+                    if beginning == True:
                         countdownStarted = True
-                        countDownCounter = 0
-                        stopstarted = False
-                        eventTriggerSend = False
-                        reacted = False 
-                        eventManager = 1
-                    else:
-                        countdownStarted = True
+                        beginning = False
                         
 
 

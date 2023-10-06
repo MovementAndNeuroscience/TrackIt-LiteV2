@@ -5,8 +5,10 @@ developed with
 python 3.11.4
 
 pip install
-pygame
-dearpygui
+- pygame
+
+- dearpygui
+
 - PyDAQmx (pip install PyDAQmx, etc.)
 
 - numpy
@@ -16,3 +18,5 @@ dearpygui
 - desktopmagic
 
 - pywin32
+
+- pyserial

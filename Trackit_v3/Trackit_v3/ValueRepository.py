@@ -41,13 +41,16 @@ def SetupValueRepository(dpg):
         dpg.add_int_value(default_value = 50, tag = "maxRandomHeight")
         dpg.add_int_value(default_value = 0, tag = "calibrationInput")
         dpg.add_double_value(default_value = 1.0, tag = "maxVoltage") 
-        dpg.add_double_value(default_value = 0.0, tag = "minVoltage")
+        dpg.add_double_value(default_value = 4028.0, tag = "minVoltage")
         dpg.add_double_value(default_value = 5.0, tag = "absMaxVoltage")
         dpg.add_string_value(default_value= "Relative", tag="absOrRelVoltage")
         dpg.add_string_value(default_value= "ai1", tag="nidaqCh")  
         dpg.add_bool_value(default_value = False, tag = "svipt")
         dpg.add_int_value(default_value = 0, tag = "noSviptTrials")
         dpg.add_int_value(default_value = 0, tag = "noSviptEvents")
+        dpg.add_string_value(default_value = "COM5", tag = "comport")
+        dpg.add_string_value(default_value = "A0", tag = "analogIn")
+        dpg.add_string_value(default_value = "Dynamic", tag = "experimentMode")
 
 
 def SaveConfig(dpg):
@@ -97,7 +100,11 @@ def SaveConfig(dpg):
         "nidaqCh": str(dpg.get_value("nidaqCh")),
         "svipt": str(dpg.get_value("svipt")),
         "noSviptTrials": str(dpg.get_value("noSviptTrials")), 
-        "noSviptEvents": str(dpg.get_value("noSviptEvents"))  
+        "noSviptEvents": str(dpg.get_value("noSviptEvents")),  
+        "comport": str(dpg.get_value("comport")),
+        "analogIn": str(dpg.get_value("analogIn")),
+        "experimentMode": str(dpg.get_value("chooseExperimentMode"))
+
     }
     nameOfFile =  str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) +'_'+'conf.cfg'
     with open(nameOfFile, 'w') as c:
@@ -156,6 +163,9 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("svipt", default_value = (TrueOrFalse(data['svipt'])))
     dpg.configure_item("noSviptTrials", default_value = int(data["noSviptTrials"]))
     dpg.configure_item("noSviptEvents", default_value = int(data["noSviptEvents"]))
+    dpg.configure_item("comport", default_value = data['comport'])
+    dpg.configure_item("analogIn", default_value = data['analogIn'])
+    dpg.configure_item("experimentMode", default_value = data['experimentMode'])
 
     TrasferForceDirectionToForceD(dpg)
     TransferDeviceToInputDevice(dpg)
@@ -187,3 +197,9 @@ def TransferAbsOrRelVoltageToAbsOrRelVol(dpg):
         dpg.set_value("absOrRelVol", "Absolute")
     if dpg.get_value("absOrRelVoltage") == "Relative":
         dpg.set_value("absOrRelVol", "Relative")
+
+def TransfertrainingModeToexpTrainingMode(dpg):
+    if dpg.get_value("experimentMode") == "Dynamic":
+        dpg.set_value("chooseExperimentMode", "Dynamic")
+    if dpg.get_value("experimentMode") == "Isometric":
+        dpg.set_value("chooseExperimentMode", "Isometric")

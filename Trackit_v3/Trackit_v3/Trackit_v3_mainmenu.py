@@ -55,6 +55,10 @@ def Start_Calibration():
     dpg.set_value("maxVoltage", calibrationData.maxVoltage) 
     dpg.set_value("minVoltage", calibrationData.minVoltage) 
 
+def Reset_Calibration():
+    dpg.set_value("maxVoltage", 1.0) 
+    dpg.set_value("minVoltage", 4028)     
+
 def quit_trackit():
     dpg.destroy_context()
 
@@ -100,13 +104,18 @@ def _configuration_menu():
 
         dpg.add_input_int(label= "Feedback screen, time in ms (0 = non)", width=125, source="feedbackLength")
        
-        with dpg.group(horizontal=True,horizontal_spacing= 50):
-            dpg.add_text("Absolute or Relative (calibrated) Maximum Voltage")
-            dpg.add_radio_button(("Absolute", "Relative"), horizontal=True, source="absOrRelVoltage", tag = "absOrRelVol")
+        dpg.add_text("CALIBRATION OPTIONS")
 
         with dpg.group(horizontal=True,horizontal_spacing= 50):
             dpg.add_text("Max input Calibration")
             dpg.add_button(label="Start Calibration", width=200, callback=Start_Calibration)
+            dpg.add_button(label="Reset Calibration", width=200, callback=Reset_Calibration)
+            
+        with dpg.group(horizontal=True,horizontal_spacing= 50):
+            dpg.add_text("Absolute or Relative (calibrated) Maximum Voltage")
+            dpg.add_radio_button(("Absolute", "Relative"), horizontal=True, source="absOrRelVoltage", tag = "absOrRelVol")
+
+        with dpg.group(horizontal=True,horizontal_spacing= 50):   
             dpg.add_input_int(label="% of maximum input", width=100, source= "percentOfMaxCal")
             dpg.add_input_double(label="Absolute Max input voltage", width=100, source = "absMaxVoltage")
 
@@ -187,6 +196,15 @@ def _extrinsic_mot_conf():
         dpg.add_checkbox(label="Sound reward", source="soundRew")
         dpg.add_checkbox(label="Coin reward", source="coinRew")
 
+def _serial_conf_menu():
+    with dpg.window(label="Serial Communication Configuration", pos=[0,50]):
+        dpg.add_text("Configure the communication to the serialboard embedded in the equipment")
+        dpg.add_input_text(label="Communication Port",width=125, source = "comport")
+        dpg.add_input_text(label="Analog input channel",width=125, source = "analogIn")
+        dpg.add_text("Choose The expiment mode ")
+        dpg.add_radio_button(("Dynamic", "Isometric"), horizontal=True, source="experimentMode", tag = "chooseExperimentMode")
+
+
 dpg.create_context()
 
 with dpg.theme() as global_theme:
@@ -244,6 +262,7 @@ with dpg.window(label="Trackit V3",min_size=[1028,50]):
 
             dpg.add_menu_item(label="Show Base Configuration", callback= _configuration_menu)
             dpg.add_menu_item(label="Show Game Configuration", callback= _game_configuration_menu)
+            dpg.add_menu_item(label="Show Serial Configuration", callback= _serial_conf_menu)
     
 
 dpg.show_viewport()

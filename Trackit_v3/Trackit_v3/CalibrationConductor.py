@@ -3,8 +3,11 @@
 import pygame 
 from win32api import GetSystemMetrics
 import dearpygui.dearpygui as dpg
+import SerialBoardAPI
 import VoltageConverter
 import daqmxlib
+import serial
+import numpy as np
 
 def RunCalibration(dpg, calibrationDataClass):
 
@@ -20,16 +23,29 @@ def RunCalibration(dpg, calibrationDataClass):
     b = (0,0,255)
 
     clock = pygame.time.Clock()
+    serialObj = serial.Serial() 
     inputMode = dpg.get_value("device")
     forcedirection = dpg.get_value("forceDirection")
+    comport = dpg.get_value("comport")
     calibrated = False
     calibrationStarted = False
+    setupConnection = True
     calibrationCounter = 0
     reader = 0
     feedbackVoltage = 0 
+    serialConnection = 0
+    experimentalMode = dpg.get_value("experimentMode")
     nidaqCh = dpg.get_value("nidaqCh")
     if inputMode == "NIDAQ":
         reader = daqmxlib.Reader({nidaqCh:1})
+
+    if inputMode == "USB/ADAM":
+        if setupConnection == True:
+            serialObj = SerialBoardAPI.SetupSerialCommuniation(comport)
+            serialObj = SerialBoardAPI.testCommunication(serialObj)
+            SerialBoardAPI.OpenCommunication(serialObj)
+            reader = SerialBoardAPI.GetValueFromA0(serialObj)
+            setupConnection = False
 
     font = pygame.font.Font('freesansbold.ttf', 40)
     introText = font.render('Press Return to Start Calibration', True, w)
@@ -64,6 +80,17 @@ def RunCalibration(dpg, calibrationDataClass):
     def drawPlayer(ypos):
         pygame.draw.circle(gameDisplay, r, (GetSystemMetrics(0)/2, ypos), 5)
 
+    def DetermineADAMOutput(calibrationDataClass, experimentalMode, voltage):
+        if experimentalMode == "Dynamic":
+            if voltage <= 0.0:
+                voltage = 0.01
+            print("ADAM input : " + str(voltage) + " Max / 100 : " + str(calibrationDataClass.GetMaxVoltage()/100))
+            ypos=VoltageConverter.get_px_from_Potentiometer_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
+            print ("ypos " + str(ypos))
+        if experimentalMode == "Isometric":
+            ypos=VoltageConverter.get_px_from_voltage_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
+        return ypos
+
     #running calibtation
     while not calibrated:
 
@@ -80,7 +107,17 @@ def RunCalibration(dpg, calibrationDataClass):
                     calibrationDataClass.SetMaxInput(my)
             
             if inputMode == "USB/ADAM":
+                voltage = SerialBoardAPI.GetValueFromA0(serialObj)
+                voltage = int(voltage)
                 ypos=0 #USB/ADAM input goes here 
+                calibrationDataClass = VoltageConverter.Calibrate_minAndMaxVoltage(voltage, calibrationDataClass)
+                feedbackVoltage = voltage
+                if forcedirection == "Downwards":
+                    ypos = DetermineADAMOutput(calibrationDataClass, experimentalMode, voltage)
+                elif forcedirection == "Upwards":
+                    ypos = DetermineADAMOutput(calibrationDataClass, experimentalMode, voltage)
+                    ypos = GetSystemMetrics(1) - ypos
+                
                 drawPlayer(ypos)
                 if(ypos > calibrationDataClass.GetMaxInput()):
                     calibrationDataClass.SetMaxInput(ypos)
