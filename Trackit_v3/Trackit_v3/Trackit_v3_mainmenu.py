@@ -11,6 +11,7 @@ import Eventsdata
 import EventData 
 import EventDataGenerator
 import TriggerGenerator
+import HighscoreRepository as highRep
 
 calibrationData = caliDat.Calibrationdata()
 eventsData = Eventsdata.EventsData()
@@ -48,6 +49,32 @@ def start_game():
 def load_configuration(sender, app_data):
     
     valRep.LoadConfig(dpg, app_data)     
+
+def showHighScore():
+    if dpg.get_value("highscore") == True: 
+        with dpg.window(label="Highscore", width = 500, height = 300):
+            with dpg.table(header_row=True, resizable=True, policy=dpg.mvTable_SizingStretchProp,
+                   borders_outerH=True, borders_innerV=True, borders_innerH=True, borders_outerV=True):
+
+                names, scores = highRep.LoadHighscore()
+                # use add_table_column to add columns to the table,
+                # table columns use child slot 0
+                dpg.add_table_column(label = "Name")
+                dpg.add_table_column(label = "Score")
+
+                # add_table_next_column will jump to the next row
+                # once it reaches the end of the columns
+                # table next column use slot 1
+                for i in range(0, 10):
+                    with dpg.table_row():
+                        for j in range(0, 2):
+                            if j == 0 :
+                                dpg.add_text(str(names[i]))
+                            if j == 1 :
+                                dpg.add_text(str(scores[i]))
+    else :
+        with dpg.window(label="HighScore disabled", pos=[0,50]):
+            dpg.add_text("Please enable HighScore in the game configuration menu")
 
 def Start_Calibration():
     caliConductor.RunCalibration(dpg,calibrationData)
@@ -150,13 +177,9 @@ def _game_configuration_menu():
             dpg.add_checkbox(label="Target sustain on screen", source="TargetSustain")
             dpg.add_button(label= "Configure", callback=_targ_sustein_conf)
 
-        # with dpg.group(horizontal=True,horizontal_spacing= 142): 
-        #     dpg.add_checkbox(label="Show certain amount of \ntargets at a time", source= "moreTargets")
-        #     dpg.add_button(label= "Configure", callback=_visible_targs_conf)
-
-        # with dpg.group(horizontal=True,horizontal_spacing= 162): 
-        #     dpg.add_checkbox(label="Extrinsic motivation", source= "extrinsicMotivation")
-        #     dpg.add_button(label= "Configure", callback=_extrinsic_mot_conf)
+        with dpg.group(horizontal=True,horizontal_spacing= 162): 
+             dpg.add_checkbox(label="Extrinsic motivation", source= "extrinsicMotivation")
+             dpg.add_button(label= "Configure", callback=_extrinsic_mot_conf)
 
 
 
@@ -183,10 +206,6 @@ def _SVIPT_conf():
     with dpg.window(label="SVIPT Configuration", pos=[450,50]):
         dpg.add_input_int(label="Number of trials", width= 100, source="noSviptTrials")
         dpg.add_input_int(label="Number of gates per trial", width= 100, source="noSviptEvents")
-
-def _visible_targs_conf():
-     with dpg.window(label="Visible Targets Configuration", pos=[450,50]):
-        dpg.add_input_int(label="amount of targets \non screen", width= 100, source="targetsOnScreen")
 
 def _extrinsic_mot_conf():
      with dpg.window(label="Extrinsic Motivation Configuration", pos=[450,50]):
@@ -256,6 +275,7 @@ with dpg.window(label="Trackit V3",min_size=[1028,50]):
             dpg.add_menu_item(label="Start Trackit", callback= start_game)
             dpg.add_menu_item(label="Save Configuration", callback= save_configuration)
             dpg.add_menu_item(label="Load Configuration", callback=lambda: dpg.show_item("loadConfigWindow"))
+            dpg.add_menu_item(label="Highscore", callback= showHighScore)
             dpg.add_menu_item(label="Quit Trackit_v3", callback= quit_trackit)
 
         with dpg.menu(label="Configuration"):

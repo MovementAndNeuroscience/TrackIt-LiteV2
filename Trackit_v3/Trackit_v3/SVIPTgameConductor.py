@@ -14,6 +14,8 @@ import daqmxlib
 import serial
 import SerialBoardAPI
 import InputRepository as inRep
+import random
+import HighscoreRepository as highRep
 
 def RunGame(dpg, sviptBlock):
     
@@ -32,6 +34,9 @@ def RunGame(dpg, sviptBlock):
     feedbackLength = dpg.get_value("feedbackLength")
     comport = dpg.get_value("comport")
     experimentalMode = dpg.get_value("experimentMode")
+    level = dpg.get_value("playerLevel")
+    coinEnabled = dpg.get_value("coinRew")
+    SoundEnabled = dpg.get_value("soundRew")
 
     serialObj = serial.Serial() 
     inputs = InputDatas.InputDatas()
@@ -70,6 +75,22 @@ def RunGame(dpg, sviptBlock):
     reacted = False 
     beginning = True
     setupConnection = True
+    score = 0
+    coinAndSoundEnabled = False
+
+
+    coinImg = None
+    coinRect = None
+    imgAlpha = 255
+    coinpos = GetSystemMetrics(1) // 2
+    imgWidth = 0
+    towardsMinus = True
+    plingSound1 = None
+    plingSound2 = None
+    plingSound3 = None
+    plingSound4 = None
+    plingSound5 = None
+    playsound = True
 
 
     if inputMode == "NIDAQ":
@@ -139,6 +160,30 @@ def RunGame(dpg, sviptBlock):
     go_text_Rect.center = middleTextPos
     countDownCounter = 0 
 
+    # level and Score text
+    leveltext = font.render('Level : ', True, w )
+    level_rect = leveltext.get_rect()
+    level_rect.center = (100, 100)
+
+    scoretext = font.render('Score : ', True, w )
+    score_rect = scoretext.get_rect()
+    score_rect.center = (GetSystemMetrics(0) - 200, 100)
+
+    #Coin and SoundReward
+    if coinEnabled:
+        coinImg = pygame.image.load("Assets\images\smallcoin.png").convert_alpha()
+        coinRect = coinImg.get_rect()
+        coinRect.center = (GetSystemMetrics(0)// 2, 500)
+        coinImg.set_alpha(imgAlpha) 
+        imgWidth = coinImg.get_width()
+    
+    if SoundEnabled:
+        plingSound1 = pygame.mixer.Sound("Assets\sounds\pling_1.wav")
+        plingSound2 = pygame.mixer.Sound("Assets\sounds\pling_2.wav")
+        plingSound3 = pygame.mixer.Sound("Assets\sounds\pling_3.wav")
+        plingSound4 = pygame.mixer.Sound("Assets\sounds\pling_4.wav")
+        plingSound5 = pygame.mixer.Sound("Assets\sounds\pling_5.wav")
+
     clock = pygame.time.Clock()
 
     def drawPlayer(ypos, color):
@@ -151,11 +196,12 @@ def RunGame(dpg, sviptBlock):
             return collisionDetected, event
         return collisionDetected, event
             
-    def OverlapDetection(event, ypos, collisionDetected):
+    def OverlapDetection(event, ypos, collisionDetected, score):
         if collisionDetected == True:
+            score += 1
             event.timeOnTarget += clock.get_time()
             drawPlayer(ypos, g)
-        return event
+        return event, score
 
     def ExitDetection(event, ypos, collisionDetected):
         if (ypos > event.targetHeight + event.targetPosition or ypos < event.targetPosition) and collisionDetected == True:
@@ -171,16 +217,23 @@ def RunGame(dpg, sviptBlock):
             return reacted
         return reacted
     
-    def EndOfATrial(trial):
+    def EndOfATrial(trial, score, coinAndSoundEnabled):
         trials[trialIndex].completionTime = gameTimeCounter - trialStartTime
         trial.events = statistics.CalculateOverAndUndershoot(trial.events)
         for event in trial.events:
             if event.overshoot == True or event.undershoot == True:
                 trial.error += 1 
-        return trial
+            elif event.overshoot == False and event.undershoot == False:
+                score += 100
+                coinAndSoundEnabled = True
+
+        return trial, score, coinAndSoundEnabled
 
     def EndOfABlock(dpg, trials, inputs):
         SaveFiles.SaveSviptDataToFiles(dpg, trials, inputs)
+        if(dpg.get_value("visScore") == True):
+                name = str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) + '_SVIPT_' + str(len(trials))
+                highRep.UpdateHighScore(name, score)
 
 #RUN THE GAME 
     while not gameOver:
@@ -188,6 +241,17 @@ def RunGame(dpg, sviptBlock):
             #resets image
             gameTimeCounter += clock.get_time()
             gameDisplay.fill(bl)
+
+            if(dpg.get_value("visScore") == True):
+                scoretext = font.render('Score : ' + str(score), True, w )
+                gameDisplay.blit(scoretext, score_rect)
+
+            if(dpg.get_value("levels") == True):
+                leveltext = font.render('Level : ' + str(level), True, w )
+                gameDisplay.blit(leveltext, level_rect)
+
+            if(dpg.get_value("guidelines") == True):
+                gameDisplay.blit(guidelineText, guideTextRect)
 
             if trialIndex == 0 and firstEvent == True:
                 trialStartTime = gameTimeCounter
@@ -231,7 +295,7 @@ def RunGame(dpg, sviptBlock):
             trials[trialIndex].events[eventManager].inputDuringEvent.AddInputData(tempInput)
             
             collisionDetected, trials[trialIndex].events[eventManager] = CollisionDetection(trials[trialIndex].events[eventManager], tempInput.screenPosY, collisionDetected)
-            trials[trialIndex].events[eventManager] = OverlapDetection(trials[trialIndex].events[eventManager], tempInput.screenPosY, collisionDetected)
+            trials[trialIndex].events[eventManager], score = OverlapDetection(trials[trialIndex].events[eventManager], tempInput.screenPosY, collisionDetected, score)
             collisionDetected, trials[trialIndex].events[eventManager] = ExitDetection(trials[trialIndex].events[eventManager], tempInput.screenPosY, collisionDetected)
             
             reacted = CalculateReactionTime(trials[trialIndex].events[eventManager], tempPos, tempInput.screenPosY, reacted)
@@ -240,7 +304,6 @@ def RunGame(dpg, sviptBlock):
             eventVisibleTime += clock.get_time()
             
             if trials[trialIndex].events[eventManager].timeOnTarget > 150:
-                print("event manager : " + str(eventManager))
                 if eventManager != 0:
                     eventManager = 0
                     trials[trialIndex].events[eventManager].timeOnTarget = 0
@@ -251,9 +314,8 @@ def RunGame(dpg, sviptBlock):
                         index += 1 
                         if index < len(trials[trialIndex].events):
                             tempTimeOntarget = trials[trialIndex].events[index].timeOnTarget
-                            print("temptimeOnTarget : " + str(tempTimeOntarget))
                         else:
-                            trials[trialIndex] = EndOfATrial(trials[trialIndex])
+                            trials[trialIndex], score, coinAndSoundEnabled = EndOfATrial(trials[trialIndex], score, coinAndSoundEnabled)
                             trialIndex += 1
                             feedbackStarted = True
                             gameStarted = False
@@ -266,8 +328,6 @@ def RunGame(dpg, sviptBlock):
                                 print("next trial")
                                 tempTimeOntarget = 0
                     eventManager = index
-
-
 
 
         elif countdownStarted == True:
@@ -287,7 +347,42 @@ def RunGame(dpg, sviptBlock):
                 trialStartTime = gameTimeCounter
         
         elif feedbackStarted == True:
+            gameDisplay.fill(bl)
             if feedbackCounter < feedbackLength:
+
+                if coinAndSoundEnabled and coinEnabled:
+                    coinpos -= 3 
+                    imgAlpha -= 4
+                    if imgWidth > 1 and towardsMinus:
+                        imgWidth -= 2
+                    elif imgWidth <= 1 and towardsMinus:
+                        towardsMinus = False 
+                    elif imgWidth < 50 and towardsMinus == False:
+                        imgWidth += 2
+                    elif imgWidth >= 50 and towardsMinus == False:
+                        towardsMinus = True
+                    
+                    coinImg.set_alpha(imgAlpha)
+
+                    rotatingCoin = pygame.transform.scale(coinImg,(imgWidth,coinImg.get_height()))
+
+                    coinRect.center = (GetSystemMetrics(0)// 2, coinpos)
+                    gameDisplay.blit(rotatingCoin, coinRect)
+
+                    if SoundEnabled and playsound:
+                        playsound = False
+                        randSound = random.randint(0,4)
+                        if randSound == 0:
+                            pygame.mixer.Sound.play(plingSound1)
+                        elif randSound == 1:
+                            pygame.mixer.Sound.play(plingSound2)
+                        elif randSound == 2:
+                            pygame.mixer.Sound.play(plingSound3)
+                        elif randSound == 3:
+                            pygame.mixer.Sound.play(plingSound4)
+                        elif randSound == 4:
+                            pygame.mixer.Sound.play(plingSound5)    
+
                 feedbackCounter += clock.get_time() 
                 prevTrial = trialIndex - 1
                 comparedToTrial = prevTrial - 1
@@ -319,7 +414,7 @@ def RunGame(dpg, sviptBlock):
                             compTimeFeedbackText =  font.render("Du klarede banen " + str(abs(difCompletionTime)) + " s hurtigere end sidste omgang", True, w)
                             errorFeedbackText = font.render("Du skød " + str(abs(difErrors)) + " færre gange forbi", True, w )
 
-                gameDisplay.fill(bl)
+                
                 gameDisplay.blit(stopFeedbackText, stopFeedRect)
                 gameDisplay.blit(compTimeFeedbackText, compTimeFeedbackTextRect)
                 gameDisplay.blit(errorFeedbackText, errorFeedbackTextRect)
@@ -329,8 +424,12 @@ def RunGame(dpg, sviptBlock):
                     feedbackStarted = False
                     gameOver = True 
                 else :
+                    coinpos = GetSystemMetrics(1) // 2
                     eventManager = 1
                     feedbackStarted = False
+                    coinAndSoundEnabled = False
+                    imgAlpha = 255 
+                    playsound = True
                     countdownStarted = True                
                     countDownCounter = 0
                     feedbackCounter = 0 

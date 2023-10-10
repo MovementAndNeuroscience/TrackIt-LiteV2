@@ -14,6 +14,8 @@ import daqmxlib
 import serial
 import SerialBoardAPI
 import InputRepository as inRep
+import HighscoreRepository as highRep
+import random
  
 def RunGame(dpg, eventsData):
 
@@ -34,6 +36,9 @@ def RunGame(dpg, eventsData):
     comport = dpg.get_value("comport")
     experimentalMode = dpg.get_value("experimentMode")
     nidaqCh = dpg.get_value("nidaqCh")
+    level = dpg.get_value("playerLevel")
+    coinEnabled = dpg.get_value("coinRew")
+    SoundEnabled = dpg.get_value("soundRew")
 
     gameStarted = False
     countdownStarted = False
@@ -49,7 +54,22 @@ def RunGame(dpg, eventsData):
     eventTriggerSend = False
     tempPos = 0
     reader = 0
+    score = 0
     setupConnection = True
+
+    coinImg = None
+    coinRect = None
+    imgAlpha = 255
+    coinpos = 0
+    imgWidth = 0
+    towardsMinus = True
+    plingSound1 = None
+    plingSound2 = None
+    plingSound3 = None
+    plingSound4 = None
+    plingSound5 = None
+    playsound = True
+
 
     serialObj = serial.Serial() 
     inputs = InputDatas.InputDatas()
@@ -130,6 +150,31 @@ def RunGame(dpg, eventsData):
     text_2_Rect.center = middleTextPos
     text_3_Rect.center = middleTextPos
 
+    # level and Score text
+    leveltext = font.render('Level : ', True, w )
+    level_rect = leveltext.get_rect()
+    level_rect.center = (100, 100)
+
+    scoretext = font.render('Score : ', True, w )
+    score_rect = scoretext.get_rect()
+    score_rect.center = (GetSystemMetrics(0) - 200, 100)
+
+    #Coin and SoundReward
+    if coinEnabled:
+        coinImg = pygame.image.load("Assets\images\smallcoin.png").convert_alpha()
+        coinRect = coinImg.get_rect()
+        coinRect.center = (GetSystemMetrics(0)// 2, events[0].targetPosition)
+        coinImg.set_alpha(imgAlpha) 
+        imgWidth = coinImg.get_width()
+    
+    if SoundEnabled:
+        plingSound1 = pygame.mixer.Sound("Assets\sounds\pling_1.wav")
+        plingSound2 = pygame.mixer.Sound("Assets\sounds\pling_2.wav")
+        plingSound3 = pygame.mixer.Sound("Assets\sounds\pling_3.wav")
+        plingSound4 = pygame.mixer.Sound("Assets\sounds\pling_4.wav")
+        plingSound5 = pygame.mixer.Sound("Assets\sounds\pling_5.wav")
+
+
     def drawPlayer(ypos, color):
         pygame.draw.circle(gameDisplay, color, (GetSystemMetrics(0)/2, ypos), 5)
 
@@ -140,11 +185,13 @@ def RunGame(dpg, eventsData):
             return collisionDetected, event
         return collisionDetected, event
             
-    def OverlapDetection(event, ypos, collisionDetected):
+    def OverlapDetection(event, ypos, collisionDetected, dpg, score):
         if collisionDetected == True:
             event.timeOnTarget += clock.get_time()
+            if dpg.get_value("visScore") == True:
+                score += 1
             drawPlayer(ypos, g)
-        return event
+        return event, score
 
     def ExitDetection(event, ypos, collisionDetected):
         if (ypos > event.targetHeight + event.targetPosition or ypos < event.targetPosition) and collisionDetected == True:
@@ -186,6 +233,7 @@ def RunGame(dpg, eventsData):
 
         eventIndex += 1
         eventVisibleTime = 0
+
         if inputMode == "USB/ADAM" or inputMode == "NIDAQ" and eventIndex < len(events):
             TriggerSender.send_trigger(events[eventIndex].targetTrigger)
 
@@ -195,6 +243,9 @@ def RunGame(dpg, eventsData):
             events = statistics.CalculateOverAndUndershoot(events)
             meanAccuracy, stdAccuracy, meanTimeOnTarget, stdTimeOnTarget, totalTimeOnTargets  = statistics.CalculateDescriptiveStastics(events)
             SaveFiles.SaveDataToFile(events, inputs.inputdatas, meanAccuracy, stdAccuracy, meanTimeOnTarget, stdTimeOnTarget, totalTimeOnTargets, dpg)# Some data extraction senanegans 
+            if(dpg.get_value("visScore") == True):
+                name = str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) + 'No_Targets_' + str(len(events))
+                highRep.UpdateHighScore(name, score)
             gameOver = True
         else:
             events[eventIndex].targetVisibleFromTime = gameTimeCounter
@@ -213,6 +264,14 @@ def RunGame(dpg, eventsData):
             #resets image
             gameTimeCounter += clock.get_time()
             gameDisplay.fill(bl)
+
+            if(dpg.get_value("visScore") == True):
+                scoretext = font.render('Score : ' + str(score), True, w )
+                gameDisplay.blit(scoretext, score_rect)
+
+            if(dpg.get_value("levels") == True):
+                leveltext = font.render('Level : ' + str(level), True, w )
+                gameDisplay.blit(leveltext, level_rect)
 
             if(dpg.get_value("guidelines") == True):
                 gameDisplay.blit(guidelineText, guideTextRect)
@@ -236,13 +295,14 @@ def RunGame(dpg, eventsData):
             voltage,ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader)
 
             drawPlayer(ypos,r)
+
             tempInput = InputData.InputData(voltage,ypos,gameTimeCounter)
             inputs.AddInputData(tempInput)
 
             events[eventIndex].inputDuringEvent.AddInputData(tempInput)
             
             collisionDetected, events[eventIndex] = CollisionDetection(events[eventIndex], tempInput.screenPosY, collisionDetected)
-            events[eventIndex] = OverlapDetection(events[eventIndex], tempInput.screenPosY, collisionDetected)
+            events[eventIndex], score = OverlapDetection(events[eventIndex], tempInput.screenPosY, collisionDetected, dpg, score)
             collisionDetected, events[eventIndex] = ExitDetection(events[eventIndex], tempInput.screenPosY, collisionDetected)
             
             reacted = CalculateReactionTime(events[eventIndex], tempPos, tempInput.screenPosY, reacted)
@@ -251,8 +311,10 @@ def RunGame(dpg, eventsData):
             if useSustain == False:
                 eventVisibleTime += clock.get_time()
                 if eventVisibleTime >= events[eventIndex].targetTotalTime:
-
+                    imgAlpha = 255 
+                    playsound = True
                     eventVisibleTime, gameOver, reacted, eventTriggerSend, collisionDetected, events, eventIndex, meanAccuracy, meanTimeOnTarget = EndOfEvent(dpg, inputs, events, gameTimeCounter, eventIndex, collisionDetected, eventVisibleTime, gameOver, reacted, eventTriggerSend)
+                    coinpos = events[eventIndex-1].targetPosition
 
             elif useSustain == True:
                 eventVisibleTime += clock.get_time()
@@ -261,10 +323,45 @@ def RunGame(dpg, eventsData):
                     events[eventIndex].timeOnTarget += clock.get_time()
 
                 if events[eventIndex].timeOnTarget >= minSustainTime:
-
+                    imgAlpha = 255 
+                    playsound = True
                     events[eventIndex].targetTotalTime = eventVisibleTime    
                      
                     eventVisibleTime, gameOver, reacted, eventTriggerSend, collisionDetected, events, eventIndex, meanAccuracy, meanTimeOnTarget = EndOfEvent(dpg, inputs, events, gameTimeCounter, eventIndex, collisionDetected, eventVisibleTime, gameOver, reacted, eventTriggerSend) 
+
+            if events[eventIndex-1].percentTimeOnTarget > 60 and coinEnabled :
+                coinpos -= 3 
+                imgAlpha -= 4
+                if imgWidth > 1 and towardsMinus:
+                    imgWidth -= 2
+                elif imgWidth <= 1 and towardsMinus:
+                    towardsMinus = False 
+                elif imgWidth < 50 and towardsMinus == False:
+                    imgWidth += 2
+                elif imgWidth >= 50 and towardsMinus == False:
+                    towardsMinus = True
+                
+                coinImg.set_alpha(imgAlpha)
+
+                rotatingCoin = pygame.transform.scale(coinImg,(imgWidth,coinImg.get_height()))
+
+                coinRect.center = (GetSystemMetrics(0)// 2, coinpos)
+                gameDisplay.blit(rotatingCoin, coinRect)
+
+                if SoundEnabled and playsound:
+                    playsound = False
+                    randSound = random.randint(0,4)
+                    if randSound == 0:
+                        pygame.mixer.Sound.play(plingSound1)
+                    elif randSound == 1:
+                        pygame.mixer.Sound.play(plingSound2)
+                    elif randSound == 2:
+                        pygame.mixer.Sound.play(plingSound3)
+                    elif randSound == 3:
+                        pygame.mixer.Sound.play(plingSound4)
+                    elif randSound == 4:
+                        pygame.mixer.Sound.play(plingSound5)
+
         elif countdownStarted == True:
             countDownCounter += clock.get_time() 
             gameDisplay.fill(bl)
