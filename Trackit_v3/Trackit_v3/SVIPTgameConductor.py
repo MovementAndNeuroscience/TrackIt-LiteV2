@@ -16,6 +16,7 @@ import SerialBoardAPI
 import InputRepository as inRep
 import random
 import HighscoreRepository as highRep
+import TriggerSender
 
 def RunGame(dpg, sviptBlock):
     
@@ -37,6 +38,7 @@ def RunGame(dpg, sviptBlock):
     level = dpg.get_value("playerLevel")
     coinEnabled = dpg.get_value("coinRew")
     SoundEnabled = dpg.get_value("soundRew")
+    withSVIPTColors = dpg.get_value("sVIPTColors")
 
     serialObj = serial.Serial() 
     inputs = InputDatas.InputDatas()
@@ -51,8 +53,10 @@ def RunGame(dpg, sviptBlock):
     f = (0,0,0)
     w = (255,255,255)
     r = (255,0,0)
-    g = (0,255,0)
-    b = (0,0,255)
+    g = (0,255,0) # bright green
+    h = (0,128,0) # dark green
+    b = (0,0,255) # bright blue
+    d = (0,0,128) # dark blue
     y = (255, 255, 0)  # yellow
     v = (148, 0, 211)  # violet
     c = (0, 255, 255)  # cyan
@@ -77,6 +81,8 @@ def RunGame(dpg, sviptBlock):
     setupConnection = True
     score = 0
     coinAndSoundEnabled = False
+    startOfTrialTrigger = True
+    endOfTrialTrigger = False
 
 
     coinImg = None
@@ -123,9 +129,9 @@ def RunGame(dpg, sviptBlock):
     textRect.center = middleTextPos
     stopFeedRect.x = GetSystemMetrics(0) // 2
     stopFeedRect.y = GetSystemMetrics(1) // 2
-    compTimeFeedbackTextRect.x = GetSystemMetrics(0) // 2 - 200
+    compTimeFeedbackTextRect.x = GetSystemMetrics(0) // 2 
     compTimeFeedbackTextRect.y = GetSystemMetrics(1) // 2 + 50
-    errorFeedbackTextRect.x = GetSystemMetrics(0) // 2 - 200
+    errorFeedbackTextRect.x = GetSystemMetrics(0) // 2 
     errorFeedbackTextRect.y = GetSystemMetrics(1) // 2 + 100
     
     if forceDirection == "Upwards":
@@ -218,7 +224,7 @@ def RunGame(dpg, sviptBlock):
         return reacted
     
     def EndOfATrial(trial, score, coinAndSoundEnabled):
-        trials[trialIndex].completionTime = gameTimeCounter - trialStartTime
+        trials[trialIndex].completionTime = (gameTimeCounter - trialStartTime)/1000
         trial.events = statistics.CalculateOverAndUndershoot(trial.events)
         for event in trial.events:
             if event.overshoot == True or event.undershoot == True:
@@ -234,6 +240,22 @@ def RunGame(dpg, sviptBlock):
         if(dpg.get_value("visScore") == True):
                 name = str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) + '_SVIPT_' + str(len(trials))
                 highRep.UpdateHighScore(name, score)
+
+    def PlayPlingSound(plingSound1, plingSound2, plingSound3, plingSound4, plingSound5):
+        playsound = False
+        randSound = random.randint(0,4)
+        if randSound == 0:
+            pygame.mixer.Sound.play(plingSound1)
+        elif randSound == 1:
+            pygame.mixer.Sound.play(plingSound2)
+        elif randSound == 2:
+            pygame.mixer.Sound.play(plingSound3)
+        elif randSound == 3:
+            pygame.mixer.Sound.play(plingSound4)
+        elif randSound == 4:
+            pygame.mixer.Sound.play(plingSound5)
+
+        return playsound
 
 #RUN THE GAME 
     while not gameOver:
@@ -257,29 +279,40 @@ def RunGame(dpg, sviptBlock):
                 trialStartTime = gameTimeCounter
                 firstEvent = False
 
+                trials[trialIndex].events[1].targetVisibleFromTime = gameTimeCounter
+
+            if startOfTrialTrigger == True:
                 if inputMode == "USB/ADAM" or inputMode == "NIDAQ":
                     TriggerSender.send_trigger(trials[trialIndex].events[1].targetTrigger)
+                startOfTrialTrigger = False
 
-                trials[trialIndex].events[1].targetVisibleFromTime = gameTimeCounter
-                
-            eventToBeGenerated = 0 
-            for event in trials[trialIndex].events:
-                if event.eventType == "R" or event.eventType == "B": #create rect based on current Event
-                    if eventToBeGenerated == eventManager:
-                        event.eventColor = "g"
-                        pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],1)
-                        rectNoTExt = font.render(str(event.targetId), True, eval(event.eventColor))
-                        rectNoTextRect.center = (GetSystemMetrics(0)/2 + 100 ,event.targetPosition + event.targetHeight/2)
-                        gameDisplay.blit(rectNoTExt, rectNoTextRect)
-                    else : 
-                        event.eventColor = "r"
-                        pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],1)
-                        rectNoTExt = font.render(str(event.targetId), True, eval(event.eventColor))
-                        rectNoTextRect.center = (GetSystemMetrics(0)/2 + 200,event.targetPosition + event.targetHeight/2)
-                        gameDisplay.blit(rectNoTExt, rectNoTextRect)
+            if withSVIPTColors == False:
+                eventToBeGenerated = 0 
+                for event in trials[trialIndex].events:
+                    if event.eventType == "R" or event.eventType == "B": #create rect based on current Event
+                        if eventToBeGenerated == eventManager:
+                            event.eventColor = "g"
+                            pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],1)
+                            rectNoTExt = font.render(str(event.targetId), True, eval(event.eventColor))
+                            rectNoTextRect.center = (GetSystemMetrics(0)/2 + 100 ,event.targetPosition + event.targetHeight/2)
+                            gameDisplay.blit(rectNoTExt, rectNoTextRect)
+                        else : 
+                            event.eventColor = "r"
+                            pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],1)
+                            rectNoTExt = font.render(str(event.targetId), True, eval(event.eventColor))
+                            rectNoTextRect.center = (GetSystemMetrics(0)/2 + 200,event.targetPosition + event.targetHeight/2)
+                            gameDisplay.blit(rectNoTExt, rectNoTextRect)
 
-                    eventToBeGenerated += 1
-                    
+                        eventToBeGenerated += 1
+            
+            if withSVIPTColors == True:
+                eventToBeGenerated = 0 
+                for event in trials[trialIndex].events:
+                    if event.eventType == "R" or event.eventType == "B": #create rect based on current Event
+                            pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],1)
+                            rectNoTExt = font.render(str(event.targetId), True, eval(event.eventColor))
+                            rectNoTextRect.center = (GetSystemMetrics(0)/2 + 200,event.targetPosition + event.targetHeight/2)
+                            gameDisplay.blit(rectNoTExt, rectNoTextRect)
 
             if eventTriggerSend == False:
                 #send event trigger 
@@ -304,6 +337,10 @@ def RunGame(dpg, sviptBlock):
             eventVisibleTime += clock.get_time()
             
             if trials[trialIndex].events[eventManager].timeOnTarget > 150:
+                if SoundEnabled:
+                    playsound = True
+                    playsound = PlayPlingSound(plingSound1, plingSound2, plingSound3, plingSound4, plingSound5)  
+
                 if eventManager != 0:
                     eventManager = 0
                     trials[trialIndex].events[eventManager].timeOnTarget = 0
@@ -319,6 +356,11 @@ def RunGame(dpg, sviptBlock):
                             trialIndex += 1
                             feedbackStarted = True
                             gameStarted = False
+                            #End Of Trial Trigger
+                            if inputMode == "USB/ADAM" or inputMode == "NIDAQ":
+                                TriggerSender.send_trigger(trials[trialIndex].events[1].targetTrigger)
+                            startOfTrialTrigger = True
+
                             if trialIndex >= len(trials):
                                 EndOfABlock(dpg, trials, inputs.inputdatas)
                                 inputs.inputdatas
@@ -370,51 +412,14 @@ def RunGame(dpg, sviptBlock):
                     gameDisplay.blit(rotatingCoin, coinRect)
 
                     if SoundEnabled and playsound:
-                        playsound = False
-                        randSound = random.randint(0,4)
-                        if randSound == 0:
-                            pygame.mixer.Sound.play(plingSound1)
-                        elif randSound == 1:
-                            pygame.mixer.Sound.play(plingSound2)
-                        elif randSound == 2:
-                            pygame.mixer.Sound.play(plingSound3)
-                        elif randSound == 3:
-                            pygame.mixer.Sound.play(plingSound4)
-                        elif randSound == 4:
-                            pygame.mixer.Sound.play(plingSound5)    
+                        playsound = PlayPlingSound(plingSound1, plingSound2, plingSound3, plingSound4, plingSound5)    
 
                 feedbackCounter += clock.get_time() 
                 prevTrial = trialIndex - 1
-                comparedToTrial = prevTrial - 1
-                if prevTrial == 0 :
-                    stopFeedbackText = font.render("Stop", True, w)
-                    compTimeFeedbackText =  font.render("Din totale tid var : " + str(trials[prevTrial].completionTime /1000) + " s", True, w)
-                    errorFeedbackText = font.render("Du skød " + str(trials[prevTrial].error) + " gange forbi målet", True, w )
-                    
-                else:
-                    compTimeFeedbackTextRect.x = GetSystemMetrics(0) // 2 - 500
-                    difCompletionTime = (trials[prevTrial].completionTime - trials[comparedToTrial].completionTime)/1000
-                    difErrors = trials[prevTrial].error - trials[comparedToTrial].error
-                    if difCompletionTime < 0.00 :
-                        if difErrors < 0 : 
-                            stopFeedbackText = font.render("Stop", True, w)
-                            compTimeFeedbackText =  font.render("Du klarede banen " + str(abs(difCompletionTime)) + " s langsommere end sidste omgang", True, w)
-                            errorFeedbackText = font.render("Du skød " + str(abs(difErrors)) + " flere gange forbi", True, w )
-                        else:
-                            stopFeedbackText = font.render("Stop", True, w)
-                            compTimeFeedbackText =  font.render("Du klarede banen " + str(abs(difCompletionTime)) + " s langsommere end sidste omgang", True, w)
-                            errorFeedbackText = font.render("Du skød " + str(abs(difErrors)) + " færre gange forbi", True, w )
-                    else:
-                        if difErrors < 0 : 
-                            stopFeedbackText = font.render("Stop", True, w)
-                            compTimeFeedbackText =  font.render("Du klarede banen " + str(abs(difCompletionTime)) + " s hurtigere end sidste omgang", True, w)
-                            errorFeedbackText = font.render("Du skød " + str(abs(difErrors)) + " flere gange forbi", True, w )
-                        else:
-                            stopFeedbackText = font.render("Stop", True, w)
-                            compTimeFeedbackText =  font.render("Du klarede banen " + str(abs(difCompletionTime)) + " s hurtigere end sidste omgang", True, w)
-                            errorFeedbackText = font.render("Du skød " + str(abs(difErrors)) + " færre gange forbi", True, w )
+                stopFeedbackText = font.render("Stop", True, w)
+                compTimeFeedbackText =  font.render(str(trials[prevTrial].completionTime) + " s", True, w)
+                errorFeedbackText = font.render(str(trials[prevTrial].error) + " fejl", True, w )
 
-                
                 gameDisplay.blit(stopFeedbackText, stopFeedRect)
                 gameDisplay.blit(compTimeFeedbackText, compTimeFeedbackTextRect)
                 gameDisplay.blit(errorFeedbackText, errorFeedbackTextRect)

@@ -13,9 +13,7 @@ def DetermineADAMOutputCalibration(calibrationDataClass, experimentalMode, volta
         if experimentalMode == "Dynamic":
             if voltage <= 0.0:
                 voltage = 0.01
-            print("ADAM input : " + str(voltage) + " Max / 100 : " + str(calibrationDataClass.GetMaxVoltage()/100))
             ypos=VoltageConverter.get_px_from_Potentiometer_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
-            print ("ypos " + str(ypos))
         if experimentalMode == "Isometric":
             ypos=VoltageConverter.get_px_from_voltage_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
         return ypos

@@ -120,7 +120,7 @@ def _configuration_menu():
             dpg.add_input_text(label="TrackIt Events", width=500, source= "writtenEvents")
             dpg.add_button(label= "import event file", callback=lambda: dpg.show_item("importEventWindow"))
 
-        dpg.add_text("R=Rectancle, P=Pause, b=blue, g=green,\ny=yellow, v=violet, r=red, p=pink, c=cyan, f=black, o=orange ")
+        dpg.add_text("R= Rectancle, P= Pause, B= baseline, b= bright blue, d= dark blue, h= dark green g= bright green,\ny= yellow, v= violet, r= red, p= pink, c= cyan, f= black, o= orange ")
         
         with dpg.group(horizontal=True,horizontal_spacing= 50):
             dpg.add_input_int(label="stimuli display time (ms)", width=125, source= "stimDisplayTime")
@@ -206,6 +206,8 @@ def _SVIPT_conf():
     with dpg.window(label="SVIPT Configuration", pos=[450,50]):
         dpg.add_input_int(label="Number of trials", width= 100, source="noSviptTrials")
         dpg.add_input_int(label="Number of gates per trial", width= 100, source="noSviptEvents")
+        dpg.add_checkbox(label="Original SVIPT Colors", source = "sVIPTColors")
+        dpg.add_button(label= "Customize gate height", width=250, callback=_customizeGateHeight)
 
 def _extrinsic_mot_conf():
      with dpg.window(label="Extrinsic Motivation Configuration", pos=[450,50]):
@@ -223,7 +225,15 @@ def _serial_conf_menu():
         dpg.add_text("Choose The expiment mode ")
         dpg.add_radio_button(("Dynamic", "Isometric"), horizontal=True, source="experimentMode", tag = "chooseExperimentMode")
 
+def _customizeGateHeight():
+    gates = dpg.get_value("noSviptEvents")
+    gate = 0
+    with dpg.window(label="Costumize Gate Height", pos=[0,50]):
+        while gate < gates:
 
+            dpg.add_input_int(label = "Gate height : gate " + str(gate+1), width= 100, source= "gateHeight" + str(gate+1) )
+            gate += 1
+    
 dpg.create_context()
 
 with dpg.theme() as global_theme:
@@ -256,8 +266,6 @@ with dpg.theme() as global_theme:
 dpg.bind_theme(global_theme)
 
 valRep.SetupValueRepository(dpg)
-
-
 
 dpg.create_viewport(title= "Trackit_v3", width= 1050, height= 800)
 dpg.setup_dearpygui()

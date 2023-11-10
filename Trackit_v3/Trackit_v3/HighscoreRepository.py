@@ -1,8 +1,4 @@
-import dearpygui.dearpygui as dpg
 import json
-import datetime
-import os
-import shutil
 
 def LoadHighscore():
     names = []

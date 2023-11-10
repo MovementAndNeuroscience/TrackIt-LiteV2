@@ -30,8 +30,7 @@ def get_px_from_Potentiometer(voltage, max_voltage, min_voltage, percentOfMax):
         return 0.00
     return result 
 
-
-
+#GENERAL CALIBRATION
 def Calibrate_minAndMaxVoltage(voltage, calibrationData):
     if voltage < calibrationData.GetMinVoltage():
         calibrationData.SetMinVoltage(voltage)

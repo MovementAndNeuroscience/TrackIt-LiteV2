@@ -20,31 +20,45 @@ def CalculateInaccuracyAndStd(events):
 def CalculateOverAndUndershoot(events):
         
     for i, event in enumerate(events):
-        slope = []
         firstSlopeDiversion = False
-        print("event nr : " + str(i))
+        positiveForce = False
+        negativeForce = False
 
         for j, input in enumerate(events[i].inputDuringEvent.inputdatas):
-            if j+1 < len(events[i].inputDuringEvent.inputdatas):
+            if j+1 < len(events[i].inputDuringEvent.inputdatas) and j+2 < len(events[i].inputDuringEvent.inputdatas) and j+3 < len(events[i].inputDuringEvent.inputdatas) and j-1 > 0:
+                
+                prevSlope = events[i].inputDuringEvent.inputdatas[j-1].screenPosY - events[i].inputDuringEvent.inputdatas[j].screenPosY
                 currentSlope = events[i].inputDuringEvent.inputdatas[j].screenPosY - events[i].inputDuringEvent.inputdatas[j+1].screenPosY
-                if events[i].inputDuringEvent.inputdatas[j].time > events[i].reactionTime and currentSlope != 0:
-                    slope.append(np.abs(currentSlope))
-                    meanSlope = np.mean(slope)
-                    stdSlope = np.std(slope)
-                    #print ("Slope : "  + str(np.abs(currentSlope)) + " avr : " + str(meanSlope) + " std : " + str(stdSlope) + " Found slope diversion : " + str(firstSlopeDiversion) + " At time : " + str(events[i].inputDuringEvent.inputdatas[j].time))
+                nextSlope = events[i].inputDuringEvent.inputdatas[j+1].screenPosY - events[i].inputDuringEvent.inputdatas[j+2].screenPosY
+                nextControlSlope = nextSlope = events[i].inputDuringEvent.inputdatas[j+2].screenPosY - events[i].inputDuringEvent.inputdatas[j+3].screenPosY
 
-                    if np.abs(currentSlope) < meanSlope - stdSlope and firstSlopeDiversion == False: 
-                        firstSlopeDiversion = True
-                        if events[i].inputDuringEvent.inputdatas[j].screenPosY > events[i].targetHeight + events[i].targetPosition:
-                            events[i].overshoot = True
-                            events[i].overshootTime = events[i].inputDuringEvent.inputdatas[j].time
-                            print("overshoot time : "  + str(events[i].inputDuringEvent.inputdatas[j].time) + "  " +str(j))
+                if prevSlope > 0.0 and currentSlope > 0.0 and nextSlope > 0.0 and nextControlSlope > 0.0:
+                    positiveForce = True
+                    negativeForce = False
 
-                        if events[i].inputDuringEvent.inputdatas[j].screenPosY < events[i].targetPosition:
-                            events[i].undershoot = True
-                            events[i].undershootTime = events[i].inputDuringEvent.inputdatas[j].time
-                            print("undershoot time : "  + str(events[i].inputDuringEvent.inputdatas[j].time)+ "  " +str(j))
+                if prevSlope < 0.0 and currentSlope < 0.0 and nextSlope < 0.0 and nextControlSlope < 0.0:
+                    positiveForce = False
+                    negativeForce = True
+
+                if events[i].inputDuringEvent.inputdatas[j].time > events[i].reactionTime and nextSlope != 0 and firstSlopeDiversion == False:
+
+                    if positiveForce and nextSlope < 0.0 and nextControlSlope < 0.0:
+                        events, firstSlopeDiversion = OverOrUndershoot(events, i, j+1, firstSlopeDiversion)
+                    elif negativeForce and nextSlope > 0.0 and nextControlSlope > 0.0:
+                        events, firstSlopeDiversion = OverOrUndershoot(events, i, j+1, firstSlopeDiversion)
     return events
+
+def OverOrUndershoot(events, i, j, firstSlopeDiversion):
+    firstSlopeDiversion = True
+    if events[i].inputDuringEvent.inputdatas[j].screenPosY > events[i].targetHeight + events[i].targetPosition:
+        events[i].overshoot = True
+        events[i].overshootTime = events[i].inputDuringEvent.inputdatas[j].time
+
+    if events[i].inputDuringEvent.inputdatas[j].screenPosY < events[i].targetPosition:
+        events[i].undershoot = True
+        events[i].undershootTime = events[i].inputDuringEvent.inputdatas[j].time
+    
+    return events, firstSlopeDiversion
 
 def CalculateDescriptiveStastics(events):
     acc = []

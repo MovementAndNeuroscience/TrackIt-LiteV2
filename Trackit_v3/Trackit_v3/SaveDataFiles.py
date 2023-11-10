@@ -3,23 +3,26 @@ import datetime
 import os
 import shutil
 
-def SaveDataToFile(events, inputs, meanAccuracy, stdAccuracy, meanTimeOnTarget, stdTimeOnTarget, totalTimeOnTargets, dpg):
+def SaveDataToFile(events, inputs, meanAccuracy, stdAccuracy, meanTimeOnTarget, stdTimeOnTarget, totalTimeOnTargets, gameTimeCounter, dpg):
+    errors = 0
     file_name = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '_' + str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) + "_Events"
     with open('{}.txt'.format(file_name), 'w') as r:
         r.write("Rect_no\tEventType\tTrigger\tHeight\tPosition\ttotal_time_visible\t Visible_From" +
-                "\tEntry_time(ms)\tTime_on_target(ms)\tSD_outside_Target(px)\tMean_Inaccuracy(px_outside_target)\tExit_time(ms)"+
-                "\tPercent_Time_On_Target(%)\tReaction_Time(ms)\ttime_Off_Target(ms)\t overshoot?"+
+                "\tEntry_time_ms\t Calculated_Entry_time\tTime_on_target_ms\tSD_outside_Target_px\tMean_Inaccuracy_px_outside_target\tExit_time_ms"+
+                "\tPercent_Time_On_Target\tReaction_Time_ms\ttime_Off_Target_ms\t overshoot?"+
                 "\t overshoot_time\t undershoot?\t undershoot_time\n")
         for i , evt in enumerate(events):
-            r.write("{i}\t{evt}\t{tr}\t{h}\t{pos}\t{ttv}\t{vf}\t{et}\t{tot}\t{sd}\t{inac}\t{ext}\t{ptot}\t{rt}\t{tofft}\t{os}\t{ost}\t{us}\t{ust}\n".format
+            r.write("{i}\t{evt}\t{tr}\t{h}\t{pos}\t{ttv}\t{vf}\t{et}\t{cet}\t{tot}\t{sd}\t{inac}\t{ext}\t{ptot}\t{rt}\t{tofft}\t{os}\t{ost}\t{us}\t{ust}\n".format
                 (i=events[i].targetId, evt=events[i].eventType, tr=events[i].targetTrigger,
                     h = events[i].targetHeight, pos = events[i].targetPosition, ttv = events[i].targetTotalTime, 
-                    vf = events[i].targetVisibleFromTime ,et=events[i].targetEntryTime, 
+                    vf = events[i].targetVisibleFromTime ,et=events[i].targetEntryTime, cet = events[i].targetEntryTime - events[i].targetVisibleFromTime,
                     tot=events[i].timeOnTarget,sd= events[i].stdOfInput
                     ,inac= events[i].meanDistanceAwayFromTarget, 
                     ext=events[i].targetExitTime, ptot = events[i].percentTimeOnTarget, rt = events[i].reactionTime, 
                     tofft= events[i].timeOffTarget, os = events[i].overshoot, ost = events[i].overshootTime,
                     us = events[i].undershoot, ust = events[i].undershootTime))
+            if events[i].undershoot == True or events[i].overshoot == True:
+                errors += 1
                 
     file_name_inputdata = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '_' + str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) + "_InputData"
     with open('{}.txt'.format(file_name_inputdata), 'w') as r:
@@ -30,9 +33,9 @@ def SaveDataToFile(events, inputs, meanAccuracy, stdAccuracy, meanTimeOnTarget, 
 
     file_name_statistic = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '_' + str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) + "_Statistics"
     with open('{}.txt'.format(file_name_statistic), 'w') as r:
-        r.write("Mean_Accuracy\t Std_Accuracy\tMean_Time_On_Target\t Std_Time_On_Target\t Total_Time_On_Target\n")
-        r.write("{macc}\t{sacc}\t{mtot}\t{stot}\t{ttot}\n".format
-            (macc=meanAccuracy, sacc=stdAccuracy, mtot = meanTimeOnTarget, stot = stdTimeOnTarget,ttot = totalTimeOnTargets))             
+        r.write("Mean_Accuracy\t Std_Accuracy\tMean_Time_On_Target\t Std_Time_On_Target\t Total_Time_On_Target\t CompletionTime\t errors\n")
+        r.write("{macc}\t{sacc}\t{mtot}\t{stot}\t{ttot}\t{ct}\t{err}\n".format
+            (macc=meanAccuracy, sacc=stdAccuracy, mtot = meanTimeOnTarget, stot = stdTimeOnTarget,ttot = totalTimeOnTargets, ct = gameTimeCounter, err = errors))             
                     
     try:
         dir_name = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '_' + str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId"))+'_'+ str(dpg.get_value("blockNo"))
@@ -52,16 +55,16 @@ def SaveSviptDataToFiles(dpg, trials, inputs):
     file_name = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '_' + str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) + "_SVIPTEvents"
     with open('{}.txt'.format(file_name), 'w') as r:
         r.write("Rect_no\tEventType\tTrigger\tHeight\tPosition\ttotal_time_visible\t Visible_From" +
-                "\tEntry_time(ms)\tTime_on_target(ms)\tSD_outside_Target(px)\tMean_Inaccuracy(px_outside_target)\tExit_time(ms)"+
+                "\tEntry_time_ms\tCalculated_Entry_time\tTime_on_target_ms\tSD_outside_Target(px)\tMean_Inaccuracy(px_outside_target)\tExit_time(ms)"+
                 "\tPercent_Time_On_Target(%)\tReaction_Time(ms)\ttime_Off_Target(ms)\t overshoot?"+
                 "\t overshoot_time\t undershoot?\t undershoot_time\n")
             
         for trialindex , evt in enumerate(trials):
             for i, evt in enumerate(trials[trialindex].events):
-                r.write("{i}\t{evt}\t{tr}\t{h}\t{pos}\t{ttv}\t{vf}\t{et}\t{tot}\t{sd}\t{inac}\t{ext}\t{ptot}\t{rt}\t{tofft}\t{os}\t{ost}\t{us}\t{ust}\n".format
+                r.write("{i}\t{evt}\t{tr}\t{h}\t{pos}\t{ttv}\t{vf}\t{et}\t{cet}\t{tot}\t{sd}\t{inac}\t{ext}\t{ptot}\t{rt}\t{tofft}\t{os}\t{ost}\t{us}\t{ust}\n".format
                     (i=trials[trialindex].events[i].targetId, evt=trials[trialindex].events[i].eventType, tr=trials[trialindex].events[i].targetTrigger,
                         h = trials[trialindex].events[i].targetHeight, pos = trials[trialindex].events[i].targetPosition, ttv = trials[trialindex].events[i].targetTotalTime, 
-                        vf = trials[trialindex].events[i].targetVisibleFromTime ,et=trials[trialindex].events[i].targetEntryTime, 
+                        vf = trials[trialindex].events[i].targetVisibleFromTime ,et=trials[trialindex].events[i].targetEntryTime, cet = trials[trialindex].events[i].targetEntryTime - trials[trialindex].events[i].targetVisibleFromTime,
                         tot=trials[trialindex].events[i].timeOnTarget,sd= trials[trialindex].events[i].stdOfInput
                         ,inac= trials[trialindex].events[i].meanDistanceAwayFromTarget, 
                         ext=trials[trialindex].events[i].targetExitTime, ptot = trials[trialindex].events[i].percentTimeOnTarget, rt = trials[trialindex].events[i].reactionTime, 

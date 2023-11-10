@@ -79,8 +79,10 @@ def RunGame(dpg, eventsData):
     f = (0,0,0)
     w = (255,255,255)
     r = (255,0,0)
-    g = (0,255,0)
-    b = (0,0,255)
+    g = (0,255,0) # bright green
+    h = (0,128,0) # dark green
+    b = (0,0,255) # bright blue
+    d = (0,0,128) # dark blue
     y = (255, 255, 0)  # yellow
     v = (148, 0, 211)  # violet
     c = (0, 255, 255)  # cyan
@@ -242,7 +244,7 @@ def RunGame(dpg, eventsData):
             events = statistics.CalculateInaccuracyAndStd(events)
             events = statistics.CalculateOverAndUndershoot(events)
             meanAccuracy, stdAccuracy, meanTimeOnTarget, stdTimeOnTarget, totalTimeOnTargets  = statistics.CalculateDescriptiveStastics(events)
-            SaveFiles.SaveDataToFile(events, inputs.inputdatas, meanAccuracy, stdAccuracy, meanTimeOnTarget, stdTimeOnTarget, totalTimeOnTargets, dpg)# Some data extraction senanegans 
+            SaveFiles.SaveDataToFile(events, inputs.inputdatas, meanAccuracy, stdAccuracy, meanTimeOnTarget, stdTimeOnTarget, totalTimeOnTargets, gameTimeCounter, dpg)# Some data extraction senanegans 
             if(dpg.get_value("visScore") == True):
                 name = str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) + 'No_Targets_' + str(len(events))
                 highRep.UpdateHighScore(name, score)

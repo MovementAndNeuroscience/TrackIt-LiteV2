@@ -51,6 +51,18 @@ def SetupValueRepository(dpg):
         dpg.add_string_value(default_value = "COM5", tag = "comport")
         dpg.add_string_value(default_value = "A0", tag = "analogIn")
         dpg.add_string_value(default_value = "Dynamic", tag = "experimentMode")
+        dpg.add_bool_value(default_value = True, tag = "sVIPTColors")
+        dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight1")
+        dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight2")
+        dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight3")
+        dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight4")
+        dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight5")
+        dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight6")
+        dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight7")
+        dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight8")
+        dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight9")
+        dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight10")
+
 
 
 def SaveConfig(dpg):
@@ -103,7 +115,18 @@ def SaveConfig(dpg):
         "noSviptEvents": str(dpg.get_value("noSviptEvents")),  
         "comport": str(dpg.get_value("comport")),
         "analogIn": str(dpg.get_value("analogIn")),
-        "experimentMode": str(dpg.get_value("chooseExperimentMode"))
+        "experimentMode": str(dpg.get_value("chooseExperimentMode")),
+        "sVIPTColors":str(dpg.get_value("sVIPTColors")),
+        "gateHeight1":str(dpg.get_value("gateHeight1")),
+        "gateHeight2":str(dpg.get_value("gateHeight2")),
+        "gateHeight3":str(dpg.get_value("gateHeight3")),
+        "gateHeight4":str(dpg.get_value("gateHeight4")),
+        "gateHeight5":str(dpg.get_value("gateHeight5")),
+        "gateHeight6":str(dpg.get_value("gateHeight6")),
+        "gateHeight7":str(dpg.get_value( "gateHeight7")),
+        "gateHeight8":str(dpg.get_value("gateHeight8")),
+        "gateHeight9":str(dpg.get_value("gateHeight9")),
+        "gateHeight10":str(dpg.get_value("gateHeight10"))
 
     }
     nameOfFile =  str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) +'_'+'conf.cfg'
@@ -166,6 +189,17 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("comport", default_value = data['comport'])
     dpg.configure_item("analogIn", default_value = data['analogIn'])
     dpg.configure_item("experimentMode", default_value = data['experimentMode'])
+    dpg.configure_item("sVIPTColors", default_value = (TrueOrFalse(data['sVIPTColors'])))
+    dpg.configure_item("gateHeight1", default_value = int(data["gateHeight1"]))
+    dpg.configure_item("gateHeight2", default_value = int(data["gateHeight2"]))
+    dpg.configure_item("gateHeight3", default_value = int(data["gateHeight3"]))
+    dpg.configure_item("gateHeight4", default_value = int(data["gateHeight4"]))
+    dpg.configure_item("gateHeight5", default_value = int(data["gateHeight5"]))
+    dpg.configure_item("gateHeight6", default_value = int(data["gateHeight6"]))
+    dpg.configure_item("gateHeight7", default_value = int(data["gateHeight8"]))
+    dpg.configure_item("gateHeight8", default_value = int(data["gateHeight8"]))
+    dpg.configure_item("gateHeight9", default_value = int(data["gateHeight9"]))
+    dpg.configure_item("gateHeight10", default_value = int(data["gateHeight10"]))
 
     TrasferForceDirectionToForceD(dpg)
     TransferDeviceToInputDevice(dpg)
