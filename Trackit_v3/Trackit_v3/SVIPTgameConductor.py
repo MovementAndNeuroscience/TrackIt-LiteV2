@@ -358,7 +358,7 @@ def RunGame(dpg, sviptBlock):
                             gameStarted = False
                             #End Of Trial Trigger
                             if inputMode == "USB/ADAM" or inputMode == "NIDAQ":
-                                TriggerSender.send_trigger(trials[trialIndex].events[1].targetTrigger)
+                                TriggerSender.send_trigger(trials[trialIndex-1].events[1].targetTrigger)
                             startOfTrialTrigger = True
 
                             if trialIndex >= len(trials):

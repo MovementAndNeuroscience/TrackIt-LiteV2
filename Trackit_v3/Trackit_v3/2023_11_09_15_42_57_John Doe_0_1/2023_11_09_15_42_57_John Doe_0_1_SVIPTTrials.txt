@@ -1,4 +1,0 @@
-Trial_no	CompletionTime	Error
-0	10.57	5
-1	11.512	6
-2	10.143	5
