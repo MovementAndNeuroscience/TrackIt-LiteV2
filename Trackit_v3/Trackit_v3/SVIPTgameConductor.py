@@ -206,7 +206,6 @@ def RunGame(dpg, sviptBlock):
         if collisionDetected == True:
             score += 1
             event.timeOnTarget += clock.get_time()
-            drawPlayer(ypos, g)
         return event, score
 
     def ExitDetection(event, ypos, collisionDetected):
@@ -336,6 +335,8 @@ def RunGame(dpg, sviptBlock):
 
             eventVisibleTime += clock.get_time()
             
+            if trials[trialIndex].events[eventManager].timeOnTarget > 130:
+                drawPlayer(ypos, g)
             if trials[trialIndex].events[eventManager].timeOnTarget > 150:
                 if SoundEnabled:
                     playsound = True
