@@ -48,6 +48,7 @@ def RunGame(dpg, sviptBlock):
 
     nidaqCh = dpg.get_value("nidaqCh")
     reader = 0
+    rectBorderWidth = 2
 
     bl = (0,0,0)
     f = (0,0,0)
@@ -291,13 +292,13 @@ def RunGame(dpg, sviptBlock):
                     if event.eventType == "R" or event.eventType == "B": #create rect based on current Event
                         if eventToBeGenerated == eventManager:
                             event.eventColor = "g"
-                            pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],1)
+                            pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],rectBorderWidth)
                             rectNoTExt = font.render(str(event.targetId), True, eval(event.eventColor))
                             rectNoTextRect.center = (GetSystemMetrics(0)/2 + 100 ,event.targetPosition + event.targetHeight/2)
                             gameDisplay.blit(rectNoTExt, rectNoTextRect)
                         else : 
                             event.eventColor = "r"
-                            pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],1)
+                            pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],rectBorderWidth)
                             rectNoTExt = font.render(str(event.targetId), True, eval(event.eventColor))
                             rectNoTextRect.center = (GetSystemMetrics(0)/2 + 200,event.targetPosition + event.targetHeight/2)
                             gameDisplay.blit(rectNoTExt, rectNoTextRect)
@@ -308,7 +309,7 @@ def RunGame(dpg, sviptBlock):
                 eventToBeGenerated = 0 
                 for event in trials[trialIndex].events:
                     if event.eventType == "R" or event.eventType == "B": #create rect based on current Event
-                            pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],1)
+                            pygame.draw.rect(gameDisplay, eval(event.eventColor),[0, event.targetPosition, GetSystemMetrics(0), event.targetHeight],rectBorderWidth)
                             rectNoTExt = font.render(str(event.targetId), True, eval(event.eventColor))
                             rectNoTextRect.center = (GetSystemMetrics(0)/2 + 200,event.targetPosition + event.targetHeight/2)
                             gameDisplay.blit(rectNoTExt, rectNoTextRect)

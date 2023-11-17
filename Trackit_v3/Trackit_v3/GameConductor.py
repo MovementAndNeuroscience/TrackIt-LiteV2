@@ -56,6 +56,7 @@ def RunGame(dpg, eventsData):
     reader = 0
     score = 0
     setupConnection = True
+    rectBorderWidth = 2
 
     coinImg = None
     coinRect = None
@@ -287,7 +288,7 @@ def RunGame(dpg, eventsData):
                 events[eventIndex].targetVisibleFromTime = gameTimeCounter
 
             if events[eventIndex].eventType == "R" or events[eventIndex].eventType == "B": #create rect based on current Event
-                    pygame.draw.rect(gameDisplay, eval(events[eventIndex].eventColor),[0, events[eventIndex].targetPosition, GetSystemMetrics(0), events[eventIndex].targetHeight],1)
+                    pygame.draw.rect(gameDisplay, eval(events[eventIndex].eventColor),[0, events[eventIndex].targetPosition, GetSystemMetrics(0), events[eventIndex].targetHeight],rectBorderWidth)
 
             if eventTriggerSend == False:
                 #send event trigger 
