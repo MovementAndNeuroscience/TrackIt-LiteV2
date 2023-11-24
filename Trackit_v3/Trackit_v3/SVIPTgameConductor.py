@@ -225,7 +225,7 @@ def RunGame(dpg, sviptBlock):
     
     def EndOfATrial(trial, score, coinAndSoundEnabled):
         trials[trialIndex].completionTime = (gameTimeCounter - trialStartTime)/1000
-        trial.events = statistics.CalculateOverAndUndershoot(trial.events)
+        trial.events = statistics.CalculateOverAndUndershoot(trial.events, forceDirection)
         for event in trial.events:
             if event.overshoot == True or event.undershoot == True:
                 trial.error += 1 

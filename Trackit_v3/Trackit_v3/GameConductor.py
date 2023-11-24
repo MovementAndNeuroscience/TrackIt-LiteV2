@@ -243,7 +243,7 @@ def RunGame(dpg, eventsData):
         if eventIndex == len(events):
             AdjustLevel(events, dpg)
             events = statistics.CalculateInaccuracyAndStd(events)
-            events = statistics.CalculateOverAndUndershoot(events)
+            events = statistics.CalculateOverAndUndershoot(events, forceDirection)
             meanAccuracy, stdAccuracy, meanTimeOnTarget, stdTimeOnTarget, totalTimeOnTargets  = statistics.CalculateDescriptiveStastics(events)
             SaveFiles.SaveDataToFile(events, inputs.inputdatas, meanAccuracy, stdAccuracy, meanTimeOnTarget, stdTimeOnTarget, totalTimeOnTargets, gameTimeCounter, dpg)# Some data extraction senanegans 
             if(dpg.get_value("visScore") == True):
