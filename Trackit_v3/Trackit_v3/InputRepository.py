@@ -41,10 +41,10 @@ def CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, exp
             ypos = DetermineADAMOutputCalibration(calibrationDataClass, experimentalMode, voltage, ypos)
             ypos = GetSystemMetrics(1) - ypos
                 
-            if(ypos > calibrationDataClass.GetMaxInput()):
-                calibrationDataClass.SetMaxInput(ypos)
+        if(ypos > calibrationDataClass.GetMaxInput()):
+            calibrationDataClass.SetMaxInput(ypos)
             
-            return(ypos, calibrationDataClass, feedbackVoltage)
+        return(ypos, calibrationDataClass, feedbackVoltage)
 
     if inputMode == "NIDAQ":
         voltage = reader.read()[0]
