@@ -108,8 +108,14 @@ def RunGame(dpg, sviptBlock):
             serialObj = SerialBoardAPI.SetupSerialCommuniation(comport)
             serialObj = SerialBoardAPI.testCommunication(serialObj)
             SerialBoardAPI.OpenCommunication(serialObj)
-            reader = SerialBoardAPI.GetValueFromA0(serialObj)
-            setupConnection = False    
+            if experimentalMode == "Dynamic":
+                SerialBoardAPI.EnableDynamicMeasurement(serialObj)
+                reader = SerialBoardAPI.GetPotValue(serialObj)
+            if experimentalMode == "Isometric":
+                SerialBoardAPI.EnableIsomeetricMeasurement(serialObj)
+                reader = SerialBoardAPI.GetLoaValue(serialObj)
+            SerialBoardAPI.ResetTimer(serialObj)
+            setupConnection = False 
         
 
     font = pygame.font.Font('freesansbold.ttf', 40)

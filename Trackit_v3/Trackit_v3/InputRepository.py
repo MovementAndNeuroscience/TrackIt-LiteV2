@@ -15,6 +15,8 @@ def DetermineADAMOutputCalibration(calibrationDataClass, experimentalMode, volta
                 voltage = 0.01
             ypos=VoltageConverter.get_px_from_Potentiometer_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
         if experimentalMode == "Isometric":
+            if voltage <= 0.0:
+                voltage = 0.01
             ypos=VoltageConverter.get_px_from_voltage_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
         return ypos
 
@@ -30,8 +32,13 @@ def CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, exp
         return(my, calibrationDataClass, feedbackVoltage)
             
     if inputMode == "USB/ADAM":
-        voltage = SerialBoardAPI.GetValueFromA0(serialObj)
-        voltage = int(voltage)
+        voltage = 0 
+        if experimentalMode == "Dynamic":
+            voltage = SerialBoardAPI.GetPotValue(serialObj)
+            voltage = int(voltage)
+        if experimentalMode == "Isometric":
+            voltage = SerialBoardAPI.GetLoaValue(serialObj)
+            voltage = int(voltage)
         ypos=0 #USB/ADAM input goes here 
         calibrationDataClass = VoltageConverter.Calibrate_minAndMaxVoltage(voltage, calibrationDataClass)
         feedbackVoltage = voltage
@@ -75,6 +82,8 @@ def DetermineADAMOutput(maxVoltage, minVoltage, percentageOfMaxVoltage, experime
             ypos=VoltageConverter.get_px_from_Potentiometer(voltage,absoluteMaxVoltage, minVoltage, percentageOfMaxVoltage)
         return ypos 
     if experimentalMode == "Isometric":
+        if voltage <= 0.0:
+            voltage = 0.01
         if absOrRelvoltage == "Relative":
             ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
         elif absOrRelvoltage == "Absolute":
@@ -89,8 +98,13 @@ def InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, exp
         return(my,my)
                 
     if inputMode == "USB/ADAM":
-        voltage = SerialBoardAPI.GetValueFromA0(serialObj)
-        voltage = int(voltage)
+        voltage = 0 
+        if experimentalMode == "Dynamic":
+            voltage = SerialBoardAPI.GetPotValue(serialObj)
+            voltage = int(voltage)
+        if experimentalMode == "Isometric":
+            voltage = SerialBoardAPI.GetLoaValue(serialObj)
+            voltage = int(voltage)
         ypos=0 #USB/ADAM input goes here 
         if forceDirection == "Downwards":
             ypos = DetermineADAMOutput(maxVoltage, minVoltage, percentageOfMaxVoltage, experimentalMode, voltage, absoluteMaxVoltage, absOrRelvoltage, ypos)

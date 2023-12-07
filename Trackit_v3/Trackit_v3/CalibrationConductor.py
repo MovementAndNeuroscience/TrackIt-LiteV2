@@ -45,7 +45,12 @@ def RunCalibration(dpg, calibrationDataClass):
             serialObj = SerialBoardAPI.SetupSerialCommuniation(comport)
             serialObj = SerialBoardAPI.testCommunication(serialObj)
             SerialBoardAPI.OpenCommunication(serialObj)
-            reader = SerialBoardAPI.GetValueFromA0(serialObj)
+            if experimentalMode == "Dynamic":
+                SerialBoardAPI.EnableDynamicMeasurement(serialObj)
+                reader = SerialBoardAPI.GetPotValue(serialObj)
+            if experimentalMode == "Isometric":
+                SerialBoardAPI.EnableIsomeetricMeasurement(serialObj)
+                reader = SerialBoardAPI.GetLoaValue(serialObj)
             setupConnection = False
 
     font = pygame.font.Font('freesansbold.ttf', 40)
