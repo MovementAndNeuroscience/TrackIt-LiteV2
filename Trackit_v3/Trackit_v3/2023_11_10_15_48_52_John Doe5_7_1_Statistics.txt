@@ -1,2 +1,0 @@
-Mean_Accuracy	 Std_Accuracy	Mean_Time_On_Target	 Std_Time_On_Target	 Total_Time_On_Target	 CompletionTime	 errors
-66.795	7.985845290262013	1335.9	159.7169058052403	13359.0	30066	4
