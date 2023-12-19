@@ -17,7 +17,7 @@ import InputRepository as inRep
 import HighscoreRepository as highRep
 import random
  
-def RunGame(dpg, eventsData):
+def RunGame(dpg, eventsData, smoothingFilter):
 
     pygame.init()
     #Setup calibration space and such 
@@ -243,7 +243,7 @@ def RunGame(dpg, eventsData):
         eventIndex += 1
         eventVisibleTime = 0
 
-        if inputMode == "USB/ADAM" or inputMode == "NIDAQ" and eventIndex < len(events):
+        if (inputMode == "USB/ADAM" or inputMode == "NIDAQ") and eventIndex < len(events)-1:
             TriggerSender.send_trigger(events[eventIndex].targetTrigger)
 
         if eventIndex == len(events):
@@ -301,7 +301,7 @@ def RunGame(dpg, eventsData):
                 events[eventIndex].targetTrigger
                 eventTriggerSend = True
 
-            voltage,ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader)
+            voltage,ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter)
 
             drawPlayer(ypos,r)
 
@@ -388,10 +388,14 @@ def RunGame(dpg, eventsData):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                smoothingFilter.ResetFilter()
+                SerialBoardAPI.CloseCommunication(serialObj)
                 pygame.quit()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    smoothingFilter.ResetFilter()
+                    SerialBoardAPI.CloseCommunication(serialObj)
                     pygame.quit()
 
                 if event.key == pygame.K_RETURN:
@@ -415,4 +419,6 @@ def RunGame(dpg, eventsData):
         pygame.display.update()
         clock.tick(120)
 
+    smoothingFilter.ResetFilter()
+    SerialBoardAPI.CloseCommunication(serialObj)
     pygame.quit()

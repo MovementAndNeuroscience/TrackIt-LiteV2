@@ -10,7 +10,7 @@ import serial
 import numpy as np
 import InputRepository as inRep
 
-def RunCalibration(dpg, calibrationDataClass):
+def RunCalibration(dpg, calibrationDataClass, smoothingFilter):
 
     pygame.init()
     #Setup calibration space and such 
@@ -50,6 +50,7 @@ def RunCalibration(dpg, calibrationDataClass):
                 reader = SerialBoardAPI.GetPotValue(serialObj)
             if experimentalMode == "Isometric":
                 SerialBoardAPI.EnableIsomeetricMeasurement(serialObj)
+                ##SerialBoardAPI.OffsetLoadCell(serialObj)
                 reader = SerialBoardAPI.GetLoaValue(serialObj)
             setupConnection = False
 
@@ -94,7 +95,7 @@ def RunCalibration(dpg, calibrationDataClass):
             calibrationCounter += clock.get_time()
             gameDisplay.fill(bl)
 
-            ypos, calibrationDataClass, feedbackVoltage = inRep.CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, experimentalMode, forcedirection, reader)
+            ypos, calibrationDataClass, feedbackVoltage = inRep.CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, experimentalMode, forcedirection, reader, smoothingFilter)
             drawPlayer(ypos)
 
             if(calibrationCounter < 1000):
@@ -123,10 +124,14 @@ def RunCalibration(dpg, calibrationDataClass):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 calibrated = True
+                smoothingFilter.ResetFilter()
+                SerialBoardAPI.CloseCommunication(serialObj)
                 pygame.quit()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    smoothingFilter.ResetFilter()
+                    SerialBoardAPI.CloseCommunication(serialObj)
                     pygame.quit()
 
                 if event.key == pygame.K_RETURN:
@@ -134,4 +139,6 @@ def RunCalibration(dpg, calibrationDataClass):
 
         pygame.display.update()
         clock.tick(120)
+    smoothingFilter.ResetFilter()
+    SerialBoardAPI.CloseCommunication(serialObj)
     pygame.quit()

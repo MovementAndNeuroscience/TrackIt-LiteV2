@@ -9,19 +9,15 @@ import numpy as np
 #Calibraition Input calculations 
 
 
-def DetermineADAMOutputCalibration(calibrationDataClass, experimentalMode, voltage, ypos):
-        if experimentalMode == "Dynamic":
-            if voltage <= 0.0:
-                voltage = 0.01
-            ypos=VoltageConverter.get_px_from_Potentiometer_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
-        if experimentalMode == "Isometric":
-            if voltage <= 0.0:
-                voltage = 0.01
-            ypos=VoltageConverter.get_px_from_voltage_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
+def DetermineADAMOutputCalibration(calibrationDataClass, voltage, ypos):
+        if voltage <= 0.0:
+            voltage = 0.01
+        ypos=VoltageConverter.get_px_from_Potentiometer_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
+
         return ypos
 
 
-def CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, experimentalMode, forcedirection, reader):
+def CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, experimentalMode, forcedirection, reader, smoothingFilter):
                 
     if inputMode == "Mouse":
         mx,my=pygame.mouse.get_pos()
@@ -35,17 +31,26 @@ def CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, exp
         voltage = 0 
         if experimentalMode == "Dynamic":
             voltage = SerialBoardAPI.GetPotValue(serialObj)
-            voltage = int(voltage)
+            voltage = int(voltage)        
+            calibrationDataClass = VoltageConverter.Calibrate_minAndMaxVoltage_ADAM(voltage, calibrationDataClass)
+            smoothingFilter.InsertInput(voltage)
+            voltage = smoothingFilter.AverageInput()
         if experimentalMode == "Isometric":
             voltage = SerialBoardAPI.GetLoaValue(serialObj)
             voltage = int(voltage)
+            voltage = np.round(voltage/10)
+            smoothingFilter.InsertInput(voltage)
+            voltage = smoothingFilter.AverageInput()
+            print("input Voltage : " + str(voltage))
+            if voltage > 12700:
+                calibrationDataClass = VoltageConverter.Calibrate_minAndMaxVoltage_ADAM(voltage, calibrationDataClass)
         ypos=0 #USB/ADAM input goes here 
-        calibrationDataClass = VoltageConverter.Calibrate_minAndMaxVoltage(voltage, calibrationDataClass)
         feedbackVoltage = voltage
+
         if forcedirection == "Downwards":
-            ypos = DetermineADAMOutputCalibration(calibrationDataClass, experimentalMode, voltage, ypos)
+            ypos = DetermineADAMOutputCalibration(calibrationDataClass, voltage, ypos)
         elif forcedirection == "Upwards":
-            ypos = DetermineADAMOutputCalibration(calibrationDataClass, experimentalMode, voltage, ypos)
+            ypos = DetermineADAMOutputCalibration(calibrationDataClass, voltage, ypos)
             ypos = GetSystemMetrics(1) - ypos
                 
         if(ypos > calibrationDataClass.GetMaxInput()):
@@ -85,13 +90,13 @@ def DetermineADAMOutput(maxVoltage, minVoltage, percentageOfMaxVoltage, experime
         if voltage <= 0.0:
             voltage = 0.01
         if absOrRelvoltage == "Relative":
-            ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
+            ypos=VoltageConverter.get_px_from_Potentiometer(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
         elif absOrRelvoltage == "Absolute":
-            ypos=VoltageConverter.get_px_from_voltage(voltage,absoluteMaxVoltage, minVoltage, percentageOfMaxVoltage)
+            ypos=VoltageConverter.get_px_from_Potentiometer(voltage,absoluteMaxVoltage, minVoltage, percentageOfMaxVoltage)
         return ypos    
 
 
-def InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader):
+def InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter):
     if inputMode == "Mouse":                    
         mx,my=pygame.mouse.get_pos()
 
@@ -105,6 +110,10 @@ def InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, exp
         if experimentalMode == "Isometric":
             voltage = SerialBoardAPI.GetLoaValue(serialObj)
             voltage = int(voltage)
+            voltage = np.round(voltage/10)
+            print("Voltage" + str(voltage))
+        smoothingFilter.InsertInput(voltage)
+        voltage = smoothingFilter.AverageInput()
         ypos=0 #USB/ADAM input goes here 
         if forceDirection == "Downwards":
             ypos = DetermineADAMOutput(maxVoltage, minVoltage, percentageOfMaxVoltage, experimentalMode, voltage, absoluteMaxVoltage, absOrRelvoltage, ypos)

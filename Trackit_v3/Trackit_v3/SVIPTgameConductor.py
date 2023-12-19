@@ -18,7 +18,7 @@ import random
 import HighscoreRepository as highRep
 import TriggerSender
 
-def RunGame(dpg, sviptBlock):
+def RunGame(dpg, sviptBlock, smoothingFilter):
     
 #SETUP THE GAME
     pygame.init()
@@ -325,7 +325,7 @@ def RunGame(dpg, sviptBlock):
                 #events[eventIndex].targetTrigger
                 eventTriggerSend = True
 
-            voltage, ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader)
+            voltage, ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter)
 
             drawPlayer(ypos,r)
             tempInput = InputData.InputData(voltage,ypos,gameTimeCounter)
@@ -454,10 +454,14 @@ def RunGame(dpg, sviptBlock):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                smoothingFilter.ResetFilter()
+                SerialBoardAPI.CloseCommunication(serialObj)
                 pygame.quit()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    smoothingFilter.ResetFilter()
+                    SerialBoardAPI.CloseCommunication(serialObj)
                     pygame.quit()
 
                 if event.key == pygame.K_RETURN:
@@ -470,4 +474,6 @@ def RunGame(dpg, sviptBlock):
         pygame.display.update()
         clock.tick(120)
 
+    smoothingFilter.ResetFilter()
+    SerialBoardAPI.CloseCommunication(serialObj)
     pygame.quit()

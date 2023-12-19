@@ -11,10 +11,15 @@ import Eventsdata
 import EventData 
 import EventDataGenerator
 import TriggerGenerator
+import SmoothingFilterClass as smooFilter
 import HighscoreRepository as highRep
 
 calibrationData = caliDat.Calibrationdata()
 eventsData = Eventsdata.EventsData()
+smoothingFilter = smooFilter.SmoothingFilterClass()
+## smoothingFilter.SetWindowSize(5) ## Filter window for Dynamic Setting 
+
+smoothingFilter.SetWindowSize(12) 
 
 
 def save_configuration():
@@ -23,7 +28,7 @@ def save_configuration():
     
 def start_game():
     print("starting game")
-    print(calibrationData.GetMaxInput())
+    print(str(dpg.get_value("maxVoltage")))
 
     if dpg.get_value("adaptiveDif") == True:
         adaptDifConductor.changeDifficulty(dpg)
@@ -42,9 +47,9 @@ def start_game():
                 dpg.add_text("The Computer tried too many times to generate your SVIPT level please try again")
         else:
             print("lengths of SVIPT : "  + str(len(sviptBlock.trials)))
-            SVIPTgameConductor.RunGame(dpg,sviptBlock)
+            SVIPTgameConductor.RunGame(dpg,sviptBlock, smoothingFilter)
     else:
-        GameConductor.RunGame(dpg,eventsData)
+        GameConductor.RunGame(dpg,eventsData, smoothingFilter)
 
 def load_configuration(sender, app_data):
     
@@ -77,14 +82,17 @@ def showHighScore():
             dpg.add_text("Please enable HighScore in the game configuration menu")
 
 def Start_Calibration():
-    caliConductor.RunCalibration(dpg,calibrationData)
+    caliConductor.RunCalibration(dpg,calibrationData, smoothingFilter)
     dpg.set_value("calibrationInput", calibrationData.maxinput)
     dpg.set_value("maxVoltage", calibrationData.maxVoltage) 
+    print(str(dpg.get_value("maxVoltage")) + " : Max Volt")
     dpg.set_value("minVoltage", calibrationData.minVoltage) 
 
 def Reset_Calibration():
     dpg.set_value("maxVoltage", 1.0) 
-    dpg.set_value("minVoltage", 4028)     
+    dpg.set_value("minVoltage", 500000)
+    calibrationData.SetMinVoltage(500000)
+    calibrationData.SetMaxVoltage(1)
 
 def quit_trackit():
     dpg.destroy_context()

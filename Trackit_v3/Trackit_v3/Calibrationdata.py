@@ -6,8 +6,8 @@ class Calibrationdata():
 
     def __init__(self):
         self.maxinput = 0
-        self.maxVoltage = 0
-        self.minVoltage = 10
+        self.maxVoltage = 10
+        self.minVoltage = 500000
 
     def SetMaxInput(self, maxinput):
         self.maxinput = maxinput

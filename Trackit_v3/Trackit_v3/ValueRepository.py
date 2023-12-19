@@ -41,14 +41,14 @@ def SetupValueRepository(dpg):
         dpg.add_int_value(default_value = 50, tag = "maxRandomHeight")
         dpg.add_int_value(default_value = 0, tag = "calibrationInput")
         dpg.add_double_value(default_value = 1.0, tag = "maxVoltage") 
-        dpg.add_double_value(default_value = 4028.0, tag = "minVoltage")
+        dpg.add_double_value(default_value = 500000.0, tag = "minVoltage")
         dpg.add_double_value(default_value = 5.0, tag = "absMaxVoltage")
         dpg.add_string_value(default_value= "Relative", tag="absOrRelVoltage")
         dpg.add_string_value(default_value= "ai1", tag="nidaqCh")  
         dpg.add_bool_value(default_value = False, tag = "svipt")
         dpg.add_int_value(default_value = 0, tag = "noSviptTrials")
         dpg.add_int_value(default_value = 0, tag = "noSviptEvents")
-        dpg.add_string_value(default_value = "COM5", tag = "comport")
+        dpg.add_string_value(default_value = "COM6", tag = "comport")
         dpg.add_string_value(default_value = "A0", tag = "analogIn")
         dpg.add_string_value(default_value = "Dynamic", tag = "experimentMode")
         dpg.add_bool_value(default_value = True, tag = "sVIPTColors")
@@ -62,6 +62,7 @@ def SetupValueRepository(dpg):
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight8")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight9")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight10")
+
 
 
 
