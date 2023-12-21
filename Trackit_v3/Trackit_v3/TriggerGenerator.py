@@ -14,6 +14,8 @@ def GenerateTriggers(events):
         # violet Rectance Trigger = 24
         # cyan Rectance Trigger = 25
         # pink Rectance Trigger = 26
+        # SVIPT START Trial Trigger = 1 
+        # SVIPT END Trial Trigger = 2
 
         if events.eventDatas[i].eventType == "B":
             events.eventDatas[i].targetTrigger = 10

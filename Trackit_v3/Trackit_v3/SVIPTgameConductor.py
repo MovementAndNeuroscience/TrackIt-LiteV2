@@ -16,7 +16,6 @@ import SerialBoardAPI
 import InputRepository as inRep
 import random
 import HighscoreRepository as highRep
-import TriggerSender
 
 def RunGame(dpg, sviptBlock, smoothingFilter):
     
@@ -289,7 +288,7 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
 
             if startOfTrialTrigger == True:
                 if inputMode == "USB/ADAM" or inputMode == "NIDAQ":
-                    TriggerSender.send_trigger(trials[trialIndex].events[1].targetTrigger)
+                    TriggerSender.send_trigger(1)
                 startOfTrialTrigger = False
 
             if withSVIPTColors == False:
@@ -371,7 +370,7 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
                             gameStarted = False
                             #End Of Trial Trigger
                             if inputMode == "USB/ADAM" or inputMode == "NIDAQ":
-                                TriggerSender.send_trigger(trials[trialIndex-1].events[1].targetTrigger)
+                                TriggerSender.send_trigger(2)
                             startOfTrialTrigger = True
 
                             if trialIndex >= len(trials):

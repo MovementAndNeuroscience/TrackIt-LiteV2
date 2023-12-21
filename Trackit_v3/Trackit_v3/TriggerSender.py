@@ -13,6 +13,10 @@ def send_trigger(TriggerNo):
      task = Task()
      task.CreateDOChan(dev_port_line, "", PyDAQmx.DAQmx_Val_ChanForAllLines)
      task.StartTask()
-     task.WriteDigitalLines(1, 1, 1.0, PyDAQmx.DAQmx_Val_GroupByChannel, np.array([1], dtype=np.uint8), None, None)
-     task.WriteDigitalLines(1, 1, 5.0, PyDAQmx.DAQmx_Val_GroupByChannel, np.array([0], dtype=np.uint8), None, None)
+     i = 0 
+     while i < TriggerNo:
+        task.WriteDigitalLines(1, 1, 1.0, PyDAQmx.DAQmx_Val_GroupByChannel, np.array([1], dtype=np.uint8), None, None)
+        task.WriteDigitalLines(1, 1, 1.0, PyDAQmx.DAQmx_Val_GroupByChannel, np.array([0], dtype=np.uint8), None, None)
+        i += 1
      task.StopTask()
+
