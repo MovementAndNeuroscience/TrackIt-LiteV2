@@ -28,6 +28,7 @@ def RunCalibration(dpg, calibrationDataClass, smoothingFilter):
     inputMode = dpg.get_value("device")
     forcedirection = dpg.get_value("forceDirection")
     comport = dpg.get_value("comport")
+    minIsoCalibrationValue = dpg.get_value("minIsometricCaliVal")
     calibrated = False
     calibrationStarted = False
     setupConnection = True
@@ -85,7 +86,7 @@ def RunCalibration(dpg, calibrationDataClass, smoothingFilter):
     text_feedback_rect.center = feedbackPos
 
     def drawPlayer(ypos):
-        pygame.draw.circle(gameDisplay, r, (GetSystemMetrics(0)/2, ypos), 5)
+        pygame.draw.circle(gameDisplay, r, (GetSystemMetrics(0)/2, ypos), 6)
 
     #running calibtation
     while not calibrated:
@@ -95,7 +96,7 @@ def RunCalibration(dpg, calibrationDataClass, smoothingFilter):
             calibrationCounter += clock.get_time()
             gameDisplay.fill(bl)
 
-            ypos, calibrationDataClass, feedbackVoltage = inRep.CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, experimentalMode, forcedirection, reader, smoothingFilter)
+            ypos, calibrationDataClass, feedbackVoltage = inRep.CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, experimentalMode, forcedirection, reader, smoothingFilter, minIsoCalibrationValue)
             drawPlayer(ypos)
 
             if(calibrationCounter < 1000):

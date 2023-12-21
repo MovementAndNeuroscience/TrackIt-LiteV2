@@ -6,7 +6,12 @@ def SetupValueRepository(dpg):
         dpg.add_string_value(default_value="John Doe", tag="investName")
         dpg.add_int_value(default_value= 0, tag="subjectId")
         dpg.add_string_value(default_value= "Mouse", tag="device")
+        dpg.add_bool_value(default_value = False, tag = "Mouse")
+        dpg.add_bool_value(default_value = False, tag = "USBADAM")
+        dpg.add_bool_value(default_value = False, tag = "NIDAQ")
         dpg.add_string_value(default_value= "Downwards", tag="forceDirection")
+        dpg.add_bool_value(default_value = False, tag = "Downwards")
+        dpg.add_bool_value(default_value = False, tag = "Upwards")
         dpg.add_string_value(default_value= "R300r P400 R200b P200", tag="writtenEvents")
         dpg.add_int_value(default_value= 1000, tag="stimDisplayTime")
         dpg.add_int_value(default_value= 2000, tag="baseDisplayTime")
@@ -44,6 +49,8 @@ def SetupValueRepository(dpg):
         dpg.add_double_value(default_value = 500000.0, tag = "minVoltage")
         dpg.add_double_value(default_value = 5.0, tag = "absMaxVoltage")
         dpg.add_string_value(default_value= "Relative", tag="absOrRelVoltage")
+        dpg.add_bool_value(default_value = False, tag = "Relative")
+        dpg.add_bool_value(default_value = False, tag = "Absolute")
         dpg.add_string_value(default_value= "ai1", tag="nidaqCh")  
         dpg.add_bool_value(default_value = False, tag = "svipt")
         dpg.add_int_value(default_value = 0, tag = "noSviptTrials")
@@ -51,6 +58,8 @@ def SetupValueRepository(dpg):
         dpg.add_string_value(default_value = "COM6", tag = "comport")
         dpg.add_string_value(default_value = "A0", tag = "analogIn")
         dpg.add_string_value(default_value = "Dynamic", tag = "experimentMode")
+        dpg.add_bool_value(default_value = False, tag = "Dynamic")
+        dpg.add_bool_value(default_value = False, tag = "Isometric")
         dpg.add_bool_value(default_value = True, tag = "sVIPTColors")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight1")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight2")
@@ -62,6 +71,7 @@ def SetupValueRepository(dpg):
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight8")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight9")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight10")
+        dpg.add_int_value(default_value = 100, tag = "minIsometricCaliVal")
 
 
 
@@ -71,8 +81,13 @@ def SaveConfig(dpg):
         "blockNo": str(dpg.get_value("blockNo")),
         "investName": str(dpg.get_value("investName")),
         "subjectId": str(dpg.get_value("subjectId")),
-        "device": str(dpg.get_value("inputDevice")),
-        "forceDirection": str(dpg.get_value("forceD")),
+        "device": str(dpg.get_value("device")),
+        "Mouse": str(dpg.get_value("Mouse")),
+        "USBADAM": str(dpg.get_value("USBADAM")),
+        "NIDAQ": str(dpg.get_value("NIDAQ")),
+        "forceDirection": str(dpg.get_value("forceDirection")),
+        "Downwards": str(dpg.get_value("Downwards")),
+        "Upwards": str(dpg.get_value("Upwards")),      
         "writtenEvents": str(dpg.get_value("writtenEvents")),
         "stimDisplayTime": str(dpg.get_value("stimDisplayTime")),
         "baseDisplayTime": str(dpg.get_value("baseDisplayTime")),
@@ -109,14 +124,18 @@ def SaveConfig(dpg):
         "maxVoltage": str(dpg.get_value("maxVoltage") ),
         "minVoltage": str(dpg.get_value("minVoltage") ),
         "absMaxVoltage": str(dpg.get_value("absMaxVoltage")),
-        "absOrRelVoltage": str(dpg.get_value("absOrRelVol")),
+        "absOrRelVoltage": str(dpg.get_value("absOrRelVoltage")),
+        "Relative": str(dpg.get_value("Relative")),
+        "Absolute": str(dpg.get_value("Absolute")),
         "nidaqCh": str(dpg.get_value("nidaqCh")),
         "svipt": str(dpg.get_value("svipt")),
         "noSviptTrials": str(dpg.get_value("noSviptTrials")), 
         "noSviptEvents": str(dpg.get_value("noSviptEvents")),  
         "comport": str(dpg.get_value("comport")),
         "analogIn": str(dpg.get_value("analogIn")),
-        "experimentMode": str(dpg.get_value("chooseExperimentMode")),
+        "experimentMode": str(dpg.get_value("experimentMode")),
+        "Dynamic": str(dpg.get_value("Dynamic")),
+        "Isometric": str(dpg.get_value("Isometric")),
         "sVIPTColors":str(dpg.get_value("sVIPTColors")),
         "gateHeight1":str(dpg.get_value("gateHeight1")),
         "gateHeight2":str(dpg.get_value("gateHeight2")),
@@ -127,7 +146,8 @@ def SaveConfig(dpg):
         "gateHeight7":str(dpg.get_value( "gateHeight7")),
         "gateHeight8":str(dpg.get_value("gateHeight8")),
         "gateHeight9":str(dpg.get_value("gateHeight9")),
-        "gateHeight10":str(dpg.get_value("gateHeight10"))
+        "gateHeight10":str(dpg.get_value("gateHeight10")),
+        "minIsometricCaliVal":str(dpg.get_value("minIsometricCaliVal"))
 
     }
     nameOfFile =  str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) +'_'+'conf.cfg'
@@ -145,7 +165,12 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("investName", default_value = data['investName'])
     dpg.configure_item("subjectId", default_value = int(data['subjectId']))
     dpg.configure_item("device", default_value = data['device'])
+    dpg.configure_item("Mouse", default_value = (TrueOrFalse(data['Mouse'])))
+    dpg.configure_item("USBADAM", default_value = (TrueOrFalse(data['USBADAM'])))
+    dpg.configure_item("NIDAQ", default_value = (TrueOrFalse(data['NIDAQ'])))
     dpg.configure_item("forceDirection", default_value = data['forceDirection'])
+    dpg.configure_item("Downwards", default_value = (TrueOrFalse(data['Downwards'])))
+    dpg.configure_item("Upwards", default_value = (TrueOrFalse(data['Upwards'])))
     dpg.configure_item("writtenEvents", default_value = data['writtenEvents'])
     dpg.configure_item("stimDisplayTime", default_value = int(data['stimDisplayTime']))
     dpg.configure_item("baseDisplayTime", default_value = int(data['baseDisplayTime']))
@@ -183,6 +208,8 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("minVoltage", default_value = float(data["minVoltage"]))
     dpg.configure_item("absMaxVoltage", default_value = float(data["absMaxVoltage"]))
     dpg.configure_item("absOrRelVoltage", default_value = data["absOrRelVoltage"])
+    dpg.configure_item("Absolute", default_value = (TrueOrFalse(data['Absolute'])))
+    dpg.configure_item("Relative", default_value = (TrueOrFalse(data['Relative'])))
     dpg.configure_item("nidaqCh", default_value = data["nidaqCh"])
     dpg.configure_item("svipt", default_value = (TrueOrFalse(data['svipt'])))
     dpg.configure_item("noSviptTrials", default_value = int(data["noSviptTrials"]))
@@ -190,6 +217,8 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("comport", default_value = data['comport'])
     dpg.configure_item("analogIn", default_value = data['analogIn'])
     dpg.configure_item("experimentMode", default_value = data['experimentMode'])
+    dpg.configure_item("Dynamic", default_value = (TrueOrFalse(data["Dynamic"])))
+    dpg.configure_item("Isometric", default_value = (TrueOrFalse(data["Isometric"])))
     dpg.configure_item("sVIPTColors", default_value = (TrueOrFalse(data['sVIPTColors'])))
     dpg.configure_item("gateHeight1", default_value = int(data["gateHeight1"]))
     dpg.configure_item("gateHeight2", default_value = int(data["gateHeight2"]))
@@ -201,10 +230,12 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("gateHeight8", default_value = int(data["gateHeight8"]))
     dpg.configure_item("gateHeight9", default_value = int(data["gateHeight9"]))
     dpg.configure_item("gateHeight10", default_value = int(data["gateHeight10"]))
+    dpg.configure_item("minIsometricCaliVal", default_value = int(data["minIsometricCaliVal"]))
 
     TrasferForceDirectionToForceD(dpg)
     TransferDeviceToInputDevice(dpg)
     TransferAbsOrRelVoltageToAbsOrRelVol(dpg)
+    TransfertrainingModeToexpTrainingMode(dpg)
 
 
 def TrueOrFalse(data):
@@ -214,27 +245,27 @@ def TrueOrFalse(data):
         return True
     
 def TrasferForceDirectionToForceD(dpg):
-    if dpg.get_value("forceDirection") == "Upwards":
-        dpg.set_value("forceD", "Upwards")
-    if dpg.get_value("forceDirection") == "Downwards":
-        dpg.set_value("forceD", "Downwards")
+    if dpg.get_value("Upwards") == True:
+        dpg.set_value("forceDirection", "Upwards")
+    if dpg.get_value("Downwards") == True:
+        dpg.set_value("forceDirection", "Downwards")
 
 def TransferDeviceToInputDevice(dpg):
-    if dpg.get_value("device") == "Mouse":
-        dpg.set_value("inputDevice", "Mouse")
-    if dpg.get_value("device") == "NIDAQ":
-        dpg.set_value("inputDevice", "NIDAQ")
-    if dpg.get_value("device") == "USB/ADAM":
-        dpg.set_value("inputDevice", "USB/ADAM")
+    if dpg.get_value("Mouse") == True:
+        dpg.set_value("device", "Mouse")
+    if dpg.get_value("NIDAQ") == True:
+        dpg.set_value("device", "NIDAQ")
+    if dpg.get_value("USBADAM") == True:
+        dpg.set_value("device", "USB/ADAM")
 
 def TransferAbsOrRelVoltageToAbsOrRelVol(dpg):
-    if dpg.get_value("absOrRelVoltage") == "Absolute":
-        dpg.set_value("absOrRelVol", "Absolute")
-    if dpg.get_value("absOrRelVoltage") == "Relative":
-        dpg.set_value("absOrRelVol", "Relative")
+    if dpg.get_value("Absolute") == True:
+        dpg.set_value("absOrRelVoltage", "Absolute")
+    if dpg.get_value("Relative") == True:
+        dpg.set_value("absOrRelVoltage", "Relative")
 
 def TransfertrainingModeToexpTrainingMode(dpg):
-    if dpg.get_value("experimentMode") == "Dynamic":
-        dpg.set_value("chooseExperimentMode", "Dynamic")
-    if dpg.get_value("experimentMode") == "Isometric":
-        dpg.set_value("chooseExperimentMode", "Isometric")
+    if dpg.get_value("Dynamic") == True:
+        dpg.set_value("ExperimentMode", "Dynamic")
+    if dpg.get_value("Isometric") == False:
+        dpg.set_value("ExperimentMode", "Isometric")

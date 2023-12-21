@@ -185,7 +185,7 @@ def RunGame(dpg, eventsData, smoothingFilter):
 
 
     def drawPlayer(ypos, color):
-        pygame.draw.circle(gameDisplay, color, (GetSystemMetrics(0)/2, ypos), 5)
+        pygame.draw.circle(gameDisplay, color, (GetSystemMetrics(0)/2, ypos), 6)
 
     def CollisionDetection(event, ypos, collisionDetected):
         if (ypos < event.targetHeight + event.targetPosition) and ypos > event.targetPosition and collisionDetected == False:

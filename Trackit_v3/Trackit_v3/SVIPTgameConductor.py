@@ -200,7 +200,7 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
     clock = pygame.time.Clock()
 
     def drawPlayer(ypos, color):
-        pygame.draw.circle(gameDisplay, color, (GetSystemMetrics(0)/2, ypos), 5) 
+        pygame.draw.circle(gameDisplay, color, (GetSystemMetrics(0)/2, ypos), 6) 
 
     def CollisionDetection(event, ypos, collisionDetected):
         if (ypos < event.targetHeight + event.targetPosition) and ypos > event.targetPosition and collisionDetected == False:
@@ -327,7 +327,14 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
 
             voltage, ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter)
 
-            drawPlayer(ypos,r)
+            if withSVIPTColors == True:
+                drawPlayer(ypos, eval(trials[trialIndex].events[eventManager].eventColor))
+            else:
+                drawPlayer(ypos,r)
+                if trials[trialIndex].events[eventManager].timeOnTarget > 130:
+                    drawPlayer(ypos, g)
+
+
             tempInput = InputData.InputData(voltage,ypos,gameTimeCounter)
             inputs.AddInputData(tempInput)
 
@@ -342,8 +349,6 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
 
             eventVisibleTime += clock.get_time()
             
-            if trials[trialIndex].events[eventManager].timeOnTarget > 130:
-                drawPlayer(ypos, g)
             if trials[trialIndex].events[eventManager].timeOnTarget > 150:
                 if SoundEnabled:
                     playsound = True

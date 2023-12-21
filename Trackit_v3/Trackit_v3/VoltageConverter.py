@@ -25,7 +25,6 @@ def get_px_from_Potentiometer_calibration(voltage, max_voltage, min_voltage):
         max_voltage = 10 
     if voltage <= 1:
         voltage = 2
-    print("% of MAxVolt : " + str(voltage /(max_voltage/100)))
     result = (GetSystemMetrics(1)) * (voltage/(max_voltage/100))/100 # Top point of the screen * percentge diversion from Max_voltage
     return result 
 
@@ -36,7 +35,6 @@ def get_px_from_Potentiometer(voltage, max_voltage, min_voltage, percentOfMax):
         max_voltage = 10 
     if voltage <= 1:
         voltage = 1
-    print("% of MAxVolt : " + str(voltage /(max_voltage/100)))
     if voltage /(max_voltage/100) < 2.2/(percentOfMax/100):
         voltage = 2
 

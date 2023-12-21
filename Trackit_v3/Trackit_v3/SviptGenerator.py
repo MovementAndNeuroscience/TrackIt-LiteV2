@@ -33,7 +33,7 @@ def GenerateSVIPT(dpg):
 
     if random_events:
         
-        baselineEvent = EventData.EventData(len(sviptTrial.events),event_height,10,'B','w',60000, InputDatas.InputDatas())
+        baselineEvent = EventData.EventData(len(sviptTrial.events),event_height,0,'B','w',60000, InputDatas.InputDatas())
         sviptTrial.AddEvent(baselineEvent)
 
         i = 0

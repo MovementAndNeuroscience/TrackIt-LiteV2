@@ -17,6 +17,7 @@ import HighscoreRepository as highRep
 calibrationData = caliDat.Calibrationdata()
 eventsData = Eventsdata.EventsData()
 smoothingFilter = smooFilter.SmoothingFilterClass()
+experimentalModeSelector = {}
 ## smoothingFilter.SetWindowSize(5) ## Filter window for Dynamic Setting 
 
 smoothingFilter.SetWindowSize(12) 
@@ -53,7 +54,8 @@ def start_game():
 
 def load_configuration(sender, app_data):
     
-    valRep.LoadConfig(dpg, app_data)     
+    valRep.LoadConfig(dpg, app_data)
+         
 
 def showHighScore():
     if dpg.get_value("highscore") == True: 
@@ -101,12 +103,48 @@ def Import_event_callback(sender, app_data):
         data = open(app_data["file_path_name"], 'r')
         dpg.configure_item("writtenEvents", default_value = data.read())
 
-def _configuration_menu():
+def _updateInputDevice(sender, app_data):
+    print(f"sender: {sender}, \t app_data: {app_data}")
+    radio_button_name = dpg.get_item_label(sender)
+    if radio_button_name == "Mouse" and app_data == True:
+        dpg.set_value("device", "Mouse")
+        dpg.set_value("USBADAM", False)
+        dpg.set_value("NIDAQ", False)
 
-    with dpg.file_dialog(directory_selector=False, show=False, callback=Import_event_callback, id="importEventWindow", width=700 ,height=400):
-        dpg.add_file_extension(".txt")
-        dpg.add_file_extension("", color=(150, 255, 150, 255))
-        dpg.add_file_extension(".txt", color=(0, 255, 0, 255), custom_text="[TrackItv3_Events]")   
+    if radio_button_name == "USB/ADAM" and app_data == True:
+        dpg.set_value("device", "USB/ADAM")
+        dpg.set_value("Mouse", False)
+        dpg.set_value("NIDAQ", False)
+
+    if radio_button_name == "NIDAQ" and app_data == True:
+        dpg.set_value("device", "NIDAQ")
+        dpg.set_value("USBADAM", False)
+        dpg.set_value("Mouse", False)
+
+def _updateFroceD(sender, app_data):
+    print(f"sender: {sender}, \t app_data: {app_data}")
+    radio_button_name = dpg.get_item_label(sender)
+    if radio_button_name == "Downwards" and app_data == True:
+        dpg.set_value("forceDirection", "Downwards")
+        dpg.set_value("Upwards", False)
+
+    if radio_button_name == "Upwards" and app_data == True:
+        dpg.set_value("forceDirection", "Upwards")
+        dpg.set_value("Downwards", False)
+
+def _updateMaxvolt(sender, app_data):
+    print(f"sender: {sender}, \t app_data: {app_data}")
+    radio_button_name = dpg.get_item_label(sender)
+    if radio_button_name == "Absolute" and app_data == True:
+        dpg.set_value("absOrRelVoltage", "Absolute")
+        dpg.set_value("Relative", False)
+
+    if radio_button_name == "Relative" and app_data == True:
+        dpg.set_value("absOrRelVoltage", "Relative")
+        dpg.set_value("Absolute", False)
+
+
+def _configuration_menu():  
 
     with dpg.window(label="Base Configuration", pos=[0,50]):
 
@@ -117,12 +155,15 @@ def _configuration_menu():
 
         with dpg.group(horizontal=True,horizontal_spacing= 50):
             dpg.add_text("Input Device")
-            dpg.add_radio_button(("Mouse", "USB/ADAM", "NIDAQ"), horizontal=True, source="device", tag = "inputDevice")
+            dpg.add_checkbox(label="Mouse", source = "Mouse", callback= _updateInputDevice)
+            dpg.add_checkbox(label="USB/ADAM", source = "USBADAM", callback= _updateInputDevice)
+            dpg.add_checkbox(label="NIDAQ", source = "NIDAQ", callback= _updateInputDevice)
             dpg.add_input_text(label="NIDAQ input channel", width=50,indent= 450, source= "nidaqCh")
         
         with dpg.group(horizontal=True,horizontal_spacing= 50):   
             dpg.add_text("Direction of the force")
-            dpg.add_radio_button(("Downwards","Upwards"), horizontal=True, source="forceDirection", tag = "forceD")
+            dpg.add_checkbox(label="Downwards", source = "Downwards", callback= _updateFroceD)
+            dpg.add_checkbox(label="Upwards", source = "Upwards", callback= _updateFroceD)
 
         with dpg.group(horizontal=True,horizontal_spacing= 50):
             dpg.add_input_text(label="TrackIt Events", width=500, source= "writtenEvents")
@@ -148,7 +189,8 @@ def _configuration_menu():
             
         with dpg.group(horizontal=True,horizontal_spacing= 50):
             dpg.add_text("Absolute or Relative (calibrated) Maximum Voltage")
-            dpg.add_radio_button(("Absolute", "Relative"), horizontal=True, source="absOrRelVoltage", tag = "absOrRelVol")
+            dpg.add_checkbox(label="Absolute", source = "Absolute", callback= _updateMaxvolt)
+            dpg.add_checkbox(label="Relative", source = "Relative", callback= _updateMaxvolt)
 
         with dpg.group(horizontal=True,horizontal_spacing= 50):   
             dpg.add_input_int(label="% of maximum input", width=100, source= "percentOfMaxCal")
@@ -225,13 +267,28 @@ def _extrinsic_mot_conf():
         dpg.add_checkbox(label="Sound reward", source="soundRew")
         dpg.add_checkbox(label="Coin reward", source="coinRew")
 
+def _updateExperimentalMode(sender, app_data):
+    print(f"sender: {sender}, \t app_data: {app_data}")
+    radio_button_name = dpg.get_item_label(sender)
+    if radio_button_name == "Dynamic" and app_data == True:
+        dpg.set_value("experimentMode", "Dynamic")
+        dpg.set_value("Isometric", False)
+
+    if radio_button_name == "Isometric" and app_data == True:
+        dpg.set_value("experimentMode", "Isometric")
+        dpg.set_value("Dynamic", False)
+
 def _serial_conf_menu():
     with dpg.window(label="Serial Communication Configuration", pos=[0,50]):
         dpg.add_text("Configure the communication to the serialboard embedded in the equipment")
         dpg.add_input_text(label="Communication Port",width=125, source = "comport")
-        dpg.add_input_text(label="Analog input channel",width=125, source = "analogIn")
         dpg.add_text("Choose The expiment mode ")
-        dpg.add_radio_button(("Dynamic", "Isometric"), horizontal=True, source="experimentMode", tag = "chooseExperimentMode")
+        with dpg.group(horizontal=True):
+            dpg.add_checkbox(label="Dynamic", source= "Dynamic", callback= _updateExperimentalMode)
+            dpg.add_checkbox(label="Isometric", source= "Isometric", callback= _updateExperimentalMode)
+        dpg.add_text("insert lower threshold for Isometric calibration, as the sensor might change dependent on location")
+        dpg.add_input_int(label="Minimum calibration value",width=125, source="minIsometricCaliVal")
+
 
 def _customizeGateHeight():
     gates = dpg.get_value("noSviptEvents")
@@ -278,6 +335,11 @@ valRep.SetupValueRepository(dpg)
 dpg.create_viewport(title= "Trackit_v3", width= 1050, height= 800)
 dpg.setup_dearpygui()
 #dpg.show_style_editor()
+with dpg.file_dialog(directory_selector=False, show=False, callback=Import_event_callback, id="importEventWindow", width=700 ,height=400):
+    dpg.add_file_extension(".txt")
+    dpg.add_file_extension("", color=(150, 255, 150, 255))
+    dpg.add_file_extension(".txt", color=(0, 255, 0, 255), custom_text="[TrackItv3_Events]") 
+
 with dpg.file_dialog(directory_selector=False, show=False, callback=load_configuration, id="loadConfigWindow", width=700 ,height=400):
     dpg.add_file_extension(".cfg")
     dpg.add_file_extension("", color=(150, 255, 150, 255))

@@ -17,7 +17,7 @@ def DetermineADAMOutputCalibration(calibrationDataClass, voltage, ypos):
         return ypos
 
 
-def CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, experimentalMode, forcedirection, reader, smoothingFilter):
+def CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, experimentalMode, forcedirection, reader, smoothingFilter, minIsoCalibrationValue):
                 
     if inputMode == "Mouse":
         mx,my=pygame.mouse.get_pos()
@@ -41,8 +41,7 @@ def CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, exp
             voltage = np.round(voltage/10)
             smoothingFilter.InsertInput(voltage)
             voltage = smoothingFilter.AverageInput()
-            print("input Voltage : " + str(voltage))
-            if voltage > 12700:
+            if voltage > minIsoCalibrationValue:
                 calibrationDataClass = VoltageConverter.Calibrate_minAndMaxVoltage_ADAM(voltage, calibrationDataClass)
         ypos=0 #USB/ADAM input goes here 
         feedbackVoltage = voltage
@@ -60,7 +59,6 @@ def CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, exp
 
     if inputMode == "NIDAQ":
         voltage = reader.read()[0]
-        print("Voltage : " + str(voltage))
         ypos=0
         calibrationDataClass = VoltageConverter.Calibrate_minAndMaxVoltage(voltage, calibrationDataClass)
         feedbackVoltage = voltage
@@ -111,7 +109,6 @@ def InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, exp
             voltage = SerialBoardAPI.GetLoaValue(serialObj)
             voltage = int(voltage)
             voltage = np.round(voltage/10)
-            print("Voltage" + str(voltage))
         smoothingFilter.InsertInput(voltage)
         voltage = smoothingFilter.AverageInput()
         ypos=0 #USB/ADAM input goes here 
