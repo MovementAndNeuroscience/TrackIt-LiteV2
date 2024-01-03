@@ -18,9 +18,7 @@ calibrationData = caliDat.Calibrationdata()
 eventsData = Eventsdata.EventsData()
 smoothingFilter = smooFilter.SmoothingFilterClass()
 experimentalModeSelector = {}
-## smoothingFilter.SetWindowSize(5) ## Filter window for Dynamic Setting 
 
-smoothingFilter.SetWindowSize(12) 
 
 
 def save_configuration():
@@ -36,7 +34,11 @@ def start_game():
 
     eventsData = EventDataGenerator.GenerateEvents(dpg)
     eventsData = TriggerGenerator.GenerateTriggers(eventsData)
-
+    
+    if dpg.get_value("Dynamic") == True: ## Filter window for Dynamic Setting 
+        smoothingFilter.SetWindowSize(5)
+    if dpg.get_value("Isometric") == True: ## Filter window for Isometric Setting 
+        smoothingFilter.SetWindowSize(12)
 
     print(str(len(eventsData.eventDatas)) + " amount of data ")
 
@@ -104,7 +106,6 @@ def Import_event_callback(sender, app_data):
         dpg.configure_item("writtenEvents", default_value = data.read())
 
 def _updateInputDevice(sender, app_data):
-    print(f"sender: {sender}, \t app_data: {app_data}")
     radio_button_name = dpg.get_item_label(sender)
     if radio_button_name == "Mouse" and app_data == True:
         dpg.set_value("device", "Mouse")
@@ -122,7 +123,6 @@ def _updateInputDevice(sender, app_data):
         dpg.set_value("Mouse", False)
 
 def _updateFroceD(sender, app_data):
-    print(f"sender: {sender}, \t app_data: {app_data}")
     radio_button_name = dpg.get_item_label(sender)
     if radio_button_name == "Downwards" and app_data == True:
         dpg.set_value("forceDirection", "Downwards")
@@ -133,7 +133,6 @@ def _updateFroceD(sender, app_data):
         dpg.set_value("Downwards", False)
 
 def _updateMaxvolt(sender, app_data):
-    print(f"sender: {sender}, \t app_data: {app_data}")
     radio_button_name = dpg.get_item_label(sender)
     if radio_button_name == "Absolute" and app_data == True:
         dpg.set_value("absOrRelVoltage", "Absolute")
@@ -215,10 +214,6 @@ def _game_configuration_menu():
         dpg.add_checkbox(label="Radnom target height", source="randomTargetHeight")
         dpg.add_checkbox(label="Write Your Own Sequence", source= "ownSequence")
         
-        # with dpg.group(horizontal=True,horizontal_spacing= 213): 
-        #     dpg.add_checkbox(label="Training mode", source="trainingMode")
-        #     dpg.add_button(label= "Configure", callback=_training_conf)
-        
         with dpg.group(horizontal=True,horizontal_spacing= 135): 
             dpg.add_checkbox(label="SVIPT - show all targets", source = "svipt")#need its own variable 
             dpg.add_button(label= "Configure", callback=_SVIPT_conf)
@@ -243,10 +238,6 @@ def _rand_target_conf():
 def _adaptive_conf():
      with dpg.window(label="Adaptive Difficulty Configuration", pos=[450,50]):
         dpg.add_input_int(label="% accuracy threshold \nto increase level", width= 100, source="addaptiveDifThreshold")
-
-def _training_conf():
-     with dpg.window(label="Training Mode Configuration", pos=[450,50]):
-        dpg.add_input_int(label="% accuracy threshold \nto beat training mode", width= 100, source="trainingThreshold")
 
 def _targ_sustein_conf():
      with dpg.window(label="Target Sustain Configuration", pos=[450,50]):
