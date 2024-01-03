@@ -267,5 +267,5 @@ def TransferAbsOrRelVoltageToAbsOrRelVol(dpg):
 def TransfertrainingModeToexpTrainingMode(dpg):
     if dpg.get_value("Dynamic") == True:
         dpg.set_value("ExperimentMode", "Dynamic")
-    if dpg.get_value("Isometric") == False:
+    if dpg.get_value("Isometric") == True:
         dpg.set_value("ExperimentMode", "Isometric")
