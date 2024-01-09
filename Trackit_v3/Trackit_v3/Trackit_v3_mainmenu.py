@@ -142,6 +142,14 @@ def _updateMaxvolt(sender, app_data):
         dpg.set_value("absOrRelVoltage", "Relative")
         dpg.set_value("Absolute", False)
 
+def _updatePushPull(sender, app_data):
+    checkbox_button_name = dpg.get_item_label(sender)
+    if checkbox_button_name == "Pull" and app_data == True: 
+        dpg.set_value("pushPull", "Pull")
+        dpg.set_value("push", False)
+    if checkbox_button_name == "Push" and app_data == True: 
+        dpg.set_value("pushPull", "Push")
+        dpg.set_value("pull", False)
 
 def _configuration_menu():  
 
@@ -277,6 +285,9 @@ def _serial_conf_menu():
         with dpg.group(horizontal=True):
             dpg.add_checkbox(label="Dynamic", source= "Dynamic", callback= _updateExperimentalMode)
             dpg.add_checkbox(label="Isometric", source= "Isometric", callback= _updateExperimentalMode)
+        with dpg.group(horizontal=True):
+            dpg.add_checkbox(label="Pull", source= "pull", callback=_updatePushPull)
+            dpg.add_checkbox(label="Push", source= "push", callback=_updatePushPull)
         dpg.add_text("insert lower threshold for Isometric calibration, as the sensor might change dependent on location")
         dpg.add_input_int(label="Minimum calibration value",width=125, source="minIsometricCaliVal")
 

@@ -39,6 +39,7 @@ def RunGame(dpg, eventsData, smoothingFilter):
     level = dpg.get_value("playerLevel")
     coinEnabled = dpg.get_value("coinRew")
     SoundEnabled = dpg.get_value("soundRew")
+    pushPull = dpg.get_value("pushPull")
 
     gameStarted = False
     countdownStarted = False
@@ -301,7 +302,7 @@ def RunGame(dpg, eventsData, smoothingFilter):
                 events[eventIndex].targetTrigger
                 eventTriggerSend = True
 
-            voltage,ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter)
+            voltage,ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter, pushPull)
 
             drawPlayer(ypos,r)
 

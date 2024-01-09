@@ -51,6 +51,9 @@ def SetupValueRepository(dpg):
         dpg.add_string_value(default_value= "Relative", tag="absOrRelVoltage")
         dpg.add_bool_value(default_value = False, tag = "Relative")
         dpg.add_bool_value(default_value = False, tag = "Absolute")
+        dpg.add_string_value(default_value= "Pull", tag="pushPull")
+        dpg.add_bool_value(default_value = False, tag = "push")
+        dpg.add_bool_value(default_value = False, tag = "pull")
         dpg.add_string_value(default_value= "ai1", tag="nidaqCh")  
         dpg.add_bool_value(default_value = False, tag = "svipt")
         dpg.add_int_value(default_value = 0, tag = "noSviptTrials")
@@ -127,6 +130,9 @@ def SaveConfig(dpg):
         "absOrRelVoltage": str(dpg.get_value("absOrRelVoltage")),
         "Relative": str(dpg.get_value("Relative")),
         "Absolute": str(dpg.get_value("Absolute")),
+        "pushPull": str(dpg.get_value("pushPull")),
+        "pull": str(dpg.get_value("pull")),
+        "push": str(dpg.get_value("push")),
         "nidaqCh": str(dpg.get_value("nidaqCh")),
         "svipt": str(dpg.get_value("svipt")),
         "noSviptTrials": str(dpg.get_value("noSviptTrials")), 
@@ -210,6 +216,9 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("absOrRelVoltage", default_value = data["absOrRelVoltage"])
     dpg.configure_item("Absolute", default_value = (TrueOrFalse(data['Absolute'])))
     dpg.configure_item("Relative", default_value = (TrueOrFalse(data['Relative'])))
+    dpg.configure_item("pushPull", default_value = data["pushPull"])
+    dpg.configure_item("push", default_value = (TrueOrFalse(data['push'])))
+    dpg.configure_item("pull", default_value = (TrueOrFalse(data['pull'])))
     dpg.configure_item("nidaqCh", default_value = data["nidaqCh"])
     dpg.configure_item("svipt", default_value = (TrueOrFalse(data['svipt'])))
     dpg.configure_item("noSviptTrials", default_value = int(data["noSviptTrials"]))

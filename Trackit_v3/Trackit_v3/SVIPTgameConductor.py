@@ -38,6 +38,7 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
     coinEnabled = dpg.get_value("coinRew")
     SoundEnabled = dpg.get_value("soundRew")
     withSVIPTColors = dpg.get_value("sVIPTColors")
+    pushPull = dpg.get_value("pushPull")
 
     serialObj = serial.Serial() 
     inputs = InputDatas.InputDatas()
@@ -324,7 +325,7 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
                 #events[eventIndex].targetTrigger
                 eventTriggerSend = True
 
-            voltage, ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter)
+            voltage, ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter, pushPull)
 
             if withSVIPTColors == True:
                 drawPlayer(ypos, eval(trials[trialIndex].events[eventManager].eventColor))
