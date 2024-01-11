@@ -165,7 +165,13 @@ def _configuration_menu():
             dpg.add_checkbox(label="Mouse", source = "Mouse", callback= _updateInputDevice)
             dpg.add_checkbox(label="USB/ADAM", source = "USBADAM", callback= _updateInputDevice)
             dpg.add_checkbox(label="NIDAQ", source = "NIDAQ", callback= _updateInputDevice)
-            dpg.add_input_text(label="NIDAQ input channel", width=50,indent= 450, source= "nidaqCh")
+            dpg.add_input_text(label="NIDAQ input channel", width=50, source= "nidaqCh")
+
+        with dpg.group(horizontal=True,horizontal_spacing= 50):
+            dpg.add_text("If you are recording EEG through Biosemi please specify the Comport")
+            dpg.add_checkbox(label="Biosemi", source = "Biosemi")
+            dpg.add_input_text(label="Biosemi Compoprt", width=50, source= "biosemiComport")
+            
         
         with dpg.group(horizontal=True,horizontal_spacing= 50):   
             dpg.add_text("Direction of the force")

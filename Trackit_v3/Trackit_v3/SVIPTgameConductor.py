@@ -33,6 +33,8 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
     absoluteMaxVoltage = dpg.get_value("absMaxVoltage")
     feedbackLength = dpg.get_value("feedbackLength")
     comport = dpg.get_value("comport")
+    bioComport = dpg.get_value("biosemiComport")
+    biosemi = dpg.get_value("Biosemi")
     experimentalMode = dpg.get_value("experimentMode")
     level = dpg.get_value("playerLevel")
     coinEnabled = dpg.get_value("coinRew")
@@ -40,7 +42,8 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
     withSVIPTColors = dpg.get_value("sVIPTColors")
     pushPull = dpg.get_value("pushPull")
 
-    serialObj = serial.Serial() 
+    serialObj = serial.Serial()
+    bioSerialObj = serial.Serial() 
     inputs = InputDatas.InputDatas()
     trials = sviptBlock.trials
 
@@ -80,6 +83,7 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
     reacted = False 
     beginning = True
     setupConnection = True
+    setupBioConnection = True
     score = 0
     coinAndSoundEnabled = False
     startOfTrialTrigger = True
@@ -115,7 +119,12 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
                 SerialBoardAPI.EnableIsomeetricMeasurement(serialObj)
                 reader = SerialBoardAPI.GetLoaValue(serialObj)
             SerialBoardAPI.ResetTimer(serialObj)
-            setupConnection = False 
+            setupConnection = False
+            
+    if biosemi == True and  setupBioConnection == True:
+        bioSerialObj = SerialBoardAPI.SetupSerialCommuniation(bioComport)
+        SerialBoardAPI.OpenCommunication(bioSerialObj)
+        setupBioConnection == False
         
 
     font = pygame.font.Font('freesansbold.ttf', 40)
@@ -288,8 +297,12 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
                 trials[trialIndex].events[1].targetVisibleFromTime = gameTimeCounter
 
             if startOfTrialTrigger == True:
+                if biosemi == True:
+                    SerialBoardAPI.SendTrigger(bioSerialObj, 1)
+                    
                 if inputMode == "USB/ADAM" or inputMode == "NIDAQ":
                     TriggerSender.send_trigger(1)
+                    
                 startOfTrialTrigger = False
 
             if withSVIPTColors == False:
@@ -370,6 +383,8 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
                             feedbackStarted = True
                             gameStarted = False
                             #End Of Trial Trigger
+                            if biosemi == True:
+                                SerialBoardAPI.SendTrigger(bioSerialObj, 2)
                             if inputMode == "USB/ADAM" or inputMode == "NIDAQ":
                                 TriggerSender.send_trigger(2)
                             startOfTrialTrigger = True
@@ -461,12 +476,14 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
             if event.type == pygame.QUIT:
                 smoothingFilter.ResetFilter()
                 SerialBoardAPI.CloseCommunication(serialObj)
+                SerialBoardAPI.CloseCommunication(bioSerialObj)
                 pygame.quit()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     smoothingFilter.ResetFilter()
                     SerialBoardAPI.CloseCommunication(serialObj)
+                    SerialBoardAPI.CloseCommunication(bioSerialObj)
                     pygame.quit()
 
                 if event.key == pygame.K_RETURN:
@@ -481,4 +498,5 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
 
     smoothingFilter.ResetFilter()
     SerialBoardAPI.CloseCommunication(serialObj)
+    SerialBoardAPI.CloseCommunication(bioSerialObj)
     pygame.quit()

@@ -59,6 +59,8 @@ def SetupValueRepository(dpg):
         dpg.add_int_value(default_value = 0, tag = "noSviptTrials")
         dpg.add_int_value(default_value = 0, tag = "noSviptEvents")
         dpg.add_string_value(default_value = "COM6", tag = "comport")
+        dpg.add_string_value(default_value = "COM3", tag = "biosemiComport")
+        dpg.add_bool_value(default_value = False, tag = "Biosemi")
         dpg.add_string_value(default_value = "A0", tag = "analogIn")
         dpg.add_string_value(default_value = "Dynamic", tag = "experimentMode")
         dpg.add_bool_value(default_value = False, tag = "Dynamic")
@@ -138,6 +140,8 @@ def SaveConfig(dpg):
         "noSviptTrials": str(dpg.get_value("noSviptTrials")), 
         "noSviptEvents": str(dpg.get_value("noSviptEvents")),  
         "comport": str(dpg.get_value("comport")),
+        "biosemiComport": str(dpg.get_value("biosemiComport")),
+        "Biosemi": str(dpg.get_value("Biosemi")),
         "analogIn": str(dpg.get_value("analogIn")),
         "experimentMode": str(dpg.get_value("experimentMode")),
         "Dynamic": str(dpg.get_value("Dynamic")),
@@ -224,6 +228,8 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("noSviptTrials", default_value = int(data["noSviptTrials"]))
     dpg.configure_item("noSviptEvents", default_value = int(data["noSviptEvents"]))
     dpg.configure_item("comport", default_value = data['comport'])
+    dpg.configure_item("biosemiComport", default_value = data["biosemiComport"]),
+    dpg.configure_item("Biosemi", default_value = (TrueOrFalse(data['Biosemi'])))
     dpg.configure_item("analogIn", default_value = data['analogIn'])
     dpg.configure_item("experimentMode", default_value = data['experimentMode'])
     dpg.configure_item("Dynamic", default_value = (TrueOrFalse(data["Dynamic"])))
