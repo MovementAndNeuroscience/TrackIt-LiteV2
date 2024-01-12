@@ -29,6 +29,7 @@ def RunCalibration(dpg, calibrationDataClass, smoothingFilter):
     forcedirection = dpg.get_value("forceDirection")
     comport = dpg.get_value("comport")
     minIsoCalibrationValue = dpg.get_value("minIsometricCaliVal")
+    pushPull = dpg.get_value("pushPull")
     calibrated = False
     calibrationStarted = False
     setupConnection = True
@@ -96,7 +97,7 @@ def RunCalibration(dpg, calibrationDataClass, smoothingFilter):
             calibrationCounter += clock.get_time()
             gameDisplay.fill(bl)
 
-            ypos, calibrationDataClass, feedbackVoltage = inRep.CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, experimentalMode, forcedirection, reader, smoothingFilter, minIsoCalibrationValue)
+            ypos, calibrationDataClass, feedbackVoltage = inRep.CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, experimentalMode, forcedirection, reader, smoothingFilter, minIsoCalibrationValue, pushPull)
             drawPlayer(ypos)
 
             if(calibrationCounter < 1000):

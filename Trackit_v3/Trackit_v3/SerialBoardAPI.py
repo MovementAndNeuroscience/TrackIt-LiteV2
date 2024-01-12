@@ -85,6 +85,9 @@ def GetValueFromA0(serialObj):
 
     return output
 
+def SendTrigger (SerialObj, triggerNo):
+    SerialObj.write(str.encode(chr(triggerNo)))
+    
 def CloseCommunication(serialObj):
     isPortOpen = serialObj.isOpen()
     if isPortOpen:

@@ -34,11 +34,14 @@ def RunGame(dpg, eventsData, smoothingFilter):
     absOrRelvoltage = dpg.get_value("absOrRelVoltage")
     absoluteMaxVoltage = dpg.get_value("absMaxVoltage")
     comport = dpg.get_value("comport")
+    bioComport = dpg.get_value("biosemiComport")
+    biosemi = dpg.get_value("Biosemi")
     experimentalMode = dpg.get_value("experimentMode")
     nidaqCh = dpg.get_value("nidaqCh")
     level = dpg.get_value("playerLevel")
     coinEnabled = dpg.get_value("coinRew")
     SoundEnabled = dpg.get_value("soundRew")
+    pushPull = dpg.get_value("pushPull")
 
     gameStarted = False
     countdownStarted = False
@@ -56,6 +59,7 @@ def RunGame(dpg, eventsData, smoothingFilter):
     reader = 0
     score = 0
     setupConnection = True
+    setupBioConnection = True
     rectBorderWidth = 2
 
     coinImg = None
@@ -108,8 +112,12 @@ def RunGame(dpg, eventsData, smoothingFilter):
                 SerialBoardAPI.EnableIsomeetricMeasurement(serialObj)
                 reader = SerialBoardAPI.GetLoaValue(serialObj)
             SerialBoardAPI.ResetTimer(serialObj)
-            setupConnection = False 
-
+            setupConnection = False
+            
+    if biosemi == True and setupBioConnection == True:
+        bioSerialObj = SerialBoardAPI.SetupSerialCommuniation(bioComport)
+        SerialBoardAPI.OpenCommunication(bioSerialObj)
+        setupBioConnection == False
 
     font = pygame.font.Font('freesansbold.ttf', 40)
     introText = font.render('Press Return to Start TrackIt', True, w)
@@ -245,6 +253,8 @@ def RunGame(dpg, eventsData, smoothingFilter):
 
         if (inputMode == "USB/ADAM" or inputMode == "NIDAQ") and eventIndex < len(events)-1:
             TriggerSender.send_trigger(events[eventIndex].targetTrigger)
+        if biosemi == True and eventIndex < len(events)-1:
+            SerialBoardAPI.SendTrigger(bioSerialObj, events[eventIndex].targetTrigger)
 
         if eventIndex == len(events):
             AdjustLevel(events, dpg)
@@ -290,6 +300,8 @@ def RunGame(dpg, eventsData, smoothingFilter):
 
                 if inputMode == "USB/ADAM" or inputMode == "NIDAQ":
                     TriggerSender.send_trigger(events[eventIndex].targetTrigger)
+                if biosemi == True:
+                    SerialBoardAPI.SendTrigger(bioSerialObj, events[eventIndex].targetTrigger)
 
                 events[eventIndex].targetVisibleFromTime = gameTimeCounter
 
@@ -301,7 +313,7 @@ def RunGame(dpg, eventsData, smoothingFilter):
                 events[eventIndex].targetTrigger
                 eventTriggerSend = True
 
-            voltage,ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter)
+            voltage,ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter, pushPull)
 
             drawPlayer(ypos,r)
 
@@ -390,12 +402,14 @@ def RunGame(dpg, eventsData, smoothingFilter):
             if event.type == pygame.QUIT:
                 smoothingFilter.ResetFilter()
                 SerialBoardAPI.CloseCommunication(serialObj)
+                SerialBoardAPI.CloseCommunication(bioSerialObj)
                 pygame.quit()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     smoothingFilter.ResetFilter()
                     SerialBoardAPI.CloseCommunication(serialObj)
+                    SerialBoardAPI.CloseCommunication(bioSerialObj)
                     pygame.quit()
 
                 if event.key == pygame.K_RETURN:
@@ -421,4 +435,5 @@ def RunGame(dpg, eventsData, smoothingFilter):
 
     smoothingFilter.ResetFilter()
     SerialBoardAPI.CloseCommunication(serialObj)
+    SerialBoardAPI.CloseCommunication(bioSerialObj)
     pygame.quit()
