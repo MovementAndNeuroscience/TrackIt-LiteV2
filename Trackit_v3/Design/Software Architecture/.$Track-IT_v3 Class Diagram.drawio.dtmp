@@ -1,4 +1,4 @@
-<mxfile host="Electron" modified="2024-01-05T10:30:35.673Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.1 Chrome/112.0.5615.204 Electron/24.6.1 Safari/537.36" etag="wHZzpEFw0fzeaiKN80Ex" version="21.6.1" type="device">
+<mxfile host="Electron" modified="2024-01-05T11:07:40.800Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.1 Chrome/112.0.5615.204 Electron/24.6.1 Safari/537.36" etag="8mHRhwxn48Rgg-ugbZ4j" version="21.6.1" type="device">
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
     <mxGraphModel dx="6753" dy="5778" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -1456,6 +1456,9 @@
             <mxPoint x="1658" y="1250" as="sourcePoint" />
             <mxPoint x="1725" y="-908" as="targetPoint" />
           </mxGeometry>
+        </mxCell>
+        <mxCell id="Qe6A8xr-W3cLVD8JRcxP-332" value="import EventData as event&#xa;class EventsData(): &#xa;    def __init__(self):&#xa;        self.eventDatas = []&#xa;&#xa;    def AddEventData(self, event):&#xa;        self.eventDatas.append(event)" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="2040" y="-2170" width="200" height="120" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
