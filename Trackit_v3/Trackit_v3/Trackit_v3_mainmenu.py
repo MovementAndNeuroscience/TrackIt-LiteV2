@@ -263,6 +263,9 @@ def _SVIPT_conf():
         dpg.add_input_int(label="Number of gates per trial", width= 100, source="noSviptEvents")
         dpg.add_checkbox(label="Original SVIPT Colors", source = "sVIPTColors")
         dpg.add_button(label= "Customize gate height", width=250, callback=_customizeGateHeight)
+        with dpg.group(horizontal=True,horizontal_spacing= 162): 
+            dpg.add_checkbox(label="SVIPT Time Trial", source="SVIPTTimeTrial")
+            dpg.add_input_int(label="Time trial interval (ms)", source="SVIPTTrialInterval")
 
 def _extrinsic_mot_conf():
      with dpg.window(label="Extrinsic Motivation Configuration", pos=[450,50]):

@@ -66,6 +66,8 @@ def SetupValueRepository(dpg):
         dpg.add_bool_value(default_value = False, tag = "Dynamic")
         dpg.add_bool_value(default_value = False, tag = "Isometric")
         dpg.add_bool_value(default_value = True, tag = "sVIPTColors")
+        dpg.add_bool_value(default_value = False, tag = "SVIPTTimeTrial")
+        dpg.add_int_value(default_value = 1000, tag = "SVIPTTrialInterval")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight1")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight2")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight3")
@@ -146,6 +148,8 @@ def SaveConfig(dpg):
         "experimentMode": str(dpg.get_value("experimentMode")),
         "Dynamic": str(dpg.get_value("Dynamic")),
         "Isometric": str(dpg.get_value("Isometric")),
+        "SVIPTTimeTrial": str(dpg.get_value("SVIPTTimeTrial")),
+        "SVIPTTrialInterval": str(dpg.get_value("SVIPTTrialInterval")),
         "sVIPTColors":str(dpg.get_value("sVIPTColors")),
         "gateHeight1":str(dpg.get_value("gateHeight1")),
         "gateHeight2":str(dpg.get_value("gateHeight2")),
@@ -235,6 +239,8 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("Dynamic", default_value = (TrueOrFalse(data["Dynamic"])))
     dpg.configure_item("Isometric", default_value = (TrueOrFalse(data["Isometric"])))
     dpg.configure_item("sVIPTColors", default_value = (TrueOrFalse(data['sVIPTColors'])))
+    dpg.configure_item("SVIPTTimeTrial", default_value = (TrueOrFalse(data['SVIPTTimeTrial'])))
+    dpg.configure_item("SVIPTTrialInterval", default_value = int(data["SVIPTTrialInterval"]))
     dpg.configure_item("gateHeight1", default_value = int(data["gateHeight1"]))
     dpg.configure_item("gateHeight2", default_value = int(data["gateHeight2"]))
     dpg.configure_item("gateHeight3", default_value = int(data["gateHeight3"]))

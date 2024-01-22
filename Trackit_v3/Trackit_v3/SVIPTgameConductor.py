@@ -41,6 +41,9 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
     SoundEnabled = dpg.get_value("soundRew")
     withSVIPTColors = dpg.get_value("sVIPTColors")
     pushPull = dpg.get_value("pushPull")
+    timeTrial = dpg.get_value("SVIPTTimeTrial")
+    timeTrialInterval = dpg.get_value("SVIPTTrialInterval")
+
 
     serialObj = serial.Serial()
     bioSerialObj = serial.Serial() 
@@ -88,7 +91,8 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
     coinAndSoundEnabled = False
     startOfTrialTrigger = True
     endOfTrialTrigger = False
-
+    timeTrialintervalReacher = 0 
+    visitedEvents = []
 
     coinImg = None
     coinRect = None
@@ -271,6 +275,11 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
             pygame.mixer.Sound.play(plingSound5)
 
         return playsound
+    
+    def PlayPlingSound(plingSound):
+        playsound = False
+        pygame.mixer.Sound.play(plingSound)
+        return playsound
 
 #RUN THE GAME 
     while not gameOver:
@@ -278,6 +287,9 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
             #resets image
             gameTimeCounter += clock.get_time()
             gameDisplay.fill(bl)
+
+            if(timeTrial):
+                timeTrialintervalReacher += clock.get_time()
 
             if(dpg.get_value("visScore") == True):
                 scoretext = font.render('Score : ' + str(score), True, w )
@@ -363,6 +375,7 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
             eventVisibleTime += clock.get_time()
             
             if trials[trialIndex].events[eventManager].timeOnTarget > 150:
+                timeTrialintervalReacher = 0
                 if SoundEnabled:
                     playsound = True
                     playsound = PlayPlingSound(plingSound1, plingSound2, plingSound3, plingSound4, plingSound5)  
@@ -397,6 +410,47 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
                             else :
                                 print("next trial")
                                 tempTimeOntarget = 0
+                    visitedEvents.append(index)
+                    eventManager = index
+                    
+            if timeTrialintervalReacher > timeTrialInterval and timeTrial:
+                timeTrialintervalReacher = 0 
+
+                if SoundEnabled:
+                    playsound = True
+                    playsound = PlayPlingSound(plingSound1)
+                
+                if eventManager != 0:
+                    eventManager = 0
+                    trials[trialIndex].events[eventManager].timeOnTarget = 0    
+                else:
+                    index = 1
+
+                    while index in visitedEvents:
+                        index += 1
+                        if index < len(trials[trialIndex].events):
+                            tempTimeOntarget = trials[trialIndex].events[index].timeOnTarget
+                        else:
+                            trials[trialIndex], score, coinAndSoundEnabled = EndOfATrial(trials[trialIndex], score, coinAndSoundEnabled)
+                            trialIndex += 1
+                            feedbackStarted = True
+                            gameStarted = False
+                            #End Of Trial Trigger
+                            if biosemi == True:
+                                SerialBoardAPI.SendTrigger(bioSerialObj, 2)
+                            if inputMode == "USB/ADAM" or inputMode == "NIDAQ":
+                                TriggerSender.send_trigger(2)
+                            startOfTrialTrigger = True
+
+                            if trialIndex >= len(trials):
+                                EndOfABlock(dpg, trials, inputs.inputdatas)
+                                inputs.inputdatas
+                                feedbackStarted = True
+                                tempTimeOntarget = 0
+                            else :
+                                print("next trial")
+                                tempTimeOntarget = 0
+                    visitedEvents.append(index)
                     eventManager = index
 
 
