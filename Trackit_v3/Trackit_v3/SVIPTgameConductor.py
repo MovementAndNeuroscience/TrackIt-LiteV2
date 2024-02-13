@@ -93,6 +93,7 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
     endOfTrialTrigger = False
     timeTrialintervalReacher = 0 
     visitedEvents = []
+    visitedEvents.append(eventManager)
 
     coinImg = None
     coinRect = None
@@ -374,85 +375,89 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
 
             eventVisibleTime += clock.get_time()
             
-            if trials[trialIndex].events[eventManager].timeOnTarget > 150:
+            if ((trials[trialIndex].events[eventManager].timeOnTarget > 150 and timeTrial == False)  or (timeTrialintervalReacher > timeTrialInterval and timeTrial)):
                 timeTrialintervalReacher = 0
+                nextTarget = False
                 if SoundEnabled:
                     playsound = True
                     playsound = PlayPlingSound(plingSound1, plingSound2, plingSound3, plingSound4, plingSound5)  
 
                 if eventManager != 0:
+                    print("old event : " + str(eventManager))
                     eventManager = 0
+                    print("new event : " + str(eventManager))
                     trials[trialIndex].events[eventManager].timeOnTarget = 0
                 else:
                     index = 1 
                     tempTimeOntarget = 100
-                    while tempTimeOntarget > 0:
-                        index += 1 
-                        if index < len(trials[trialIndex].events):
-                            tempTimeOntarget = trials[trialIndex].events[index].timeOnTarget
-                        else:
-                            trials[trialIndex], score, coinAndSoundEnabled = EndOfATrial(trials[trialIndex], score, coinAndSoundEnabled)
-                            trialIndex += 1
-                            feedbackStarted = True
-                            gameStarted = False
-                            #End Of Trial Trigger
-                            if biosemi == True:
-                                SerialBoardAPI.SendTrigger(bioSerialObj, 2)
-                            if inputMode == "USB/ADAM" or inputMode == "NIDAQ":
-                                TriggerSender.send_trigger(2)
-                            startOfTrialTrigger = True
+                    if timeTrial:
+                        while index in visitedEvents:
+                            index += 1
+                            print("Trial index : " + str(trialIndex))
+                            if trialIndex < len(trials):
+                                if index < len(trials[trialIndex].events):
+                                    tempTimeOntarget = trials[trialIndex].events[index].timeOnTarget
+                                else:
+                                    print("next Trial 1 1 ")
+                                    trials[trialIndex], score, coinAndSoundEnabled = EndOfATrial(trials[trialIndex], score, coinAndSoundEnabled)
+                                    trialIndex += 1
+                                    print("new Trial ")
+                                    feedbackStarted = True
+                                    gameStarted = False
+                                    #End Of Trial Trigger
+                                    if biosemi == True:
+                                        SerialBoardAPI.SendTrigger(bioSerialObj, 2)
+                                    if inputMode == "USB/ADAM" or inputMode == "NIDAQ":
+                                        TriggerSender.send_trigger(2)
+                                    startOfTrialTrigger = True
 
-                            if trialIndex >= len(trials):
-                                EndOfABlock(dpg, trials, inputs.inputdatas)
-                                inputs.inputdatas
+                                    if trialIndex >= len(trials):
+                                        print("Block Ended")
+                                        EndOfABlock(dpg, trials, inputs.inputdatas)
+                                        inputs.inputdatas
+                                        feedbackStarted = True
+                                        gameStarted = False
+                                        tempTimeOntarget = 0
+                                    else :
+                                        print("next trial")
+                                        tempTimeOntarget = 0
+                                        visitedEvents.clear()
+                                        visitedEvents.append(1)
+                        visitedEvents.append(index)
+                        nextTarget = True 
+                        print("old event : " + str(eventManager))
+                        eventManager = index
+                        print("new event : " + str(eventManager))
+                    elif timeTrial == False : 
+                        while tempTimeOntarget > 0:
+                            index += 1 
+                            if index < len(trials[trialIndex].events):
+                                tempTimeOntarget = trials[trialIndex].events[index].timeOnTarget
+                            else:
+                                trials[trialIndex], score, coinAndSoundEnabled = EndOfATrial(trials[trialIndex], score, coinAndSoundEnabled)
+                                trialIndex += 1
                                 feedbackStarted = True
-                                tempTimeOntarget = 0
-                            else :
-                                print("next trial")
-                                tempTimeOntarget = 0
-                    visitedEvents.append(index)
-                    eventManager = index
-                    
-            if timeTrialintervalReacher > timeTrialInterval and timeTrial:
-                timeTrialintervalReacher = 0 
+                                gameStarted = False
+                                #End Of Trial Trigger
+                                if biosemi == True:
+                                    SerialBoardAPI.SendTrigger(bioSerialObj, 2)
+                                if inputMode == "USB/ADAM" or inputMode == "NIDAQ":
+                                    TriggerSender.send_trigger(2)
+                                startOfTrialTrigger = True
 
-                if SoundEnabled:
-                    playsound = True
-                    playsound = PlayPlingSound(plingSound1)
-                
-                if eventManager != 0:
-                    eventManager = 0
-                    trials[trialIndex].events[eventManager].timeOnTarget = 0    
-                else:
-                    index = 1
-
-                    while index in visitedEvents:
-                        index += 1
-                        if index < len(trials[trialIndex].events):
-                            tempTimeOntarget = trials[trialIndex].events[index].timeOnTarget
-                        else:
-                            trials[trialIndex], score, coinAndSoundEnabled = EndOfATrial(trials[trialIndex], score, coinAndSoundEnabled)
-                            trialIndex += 1
-                            feedbackStarted = True
-                            gameStarted = False
-                            #End Of Trial Trigger
-                            if biosemi == True:
-                                SerialBoardAPI.SendTrigger(bioSerialObj, 2)
-                            if inputMode == "USB/ADAM" or inputMode == "NIDAQ":
-                                TriggerSender.send_trigger(2)
-                            startOfTrialTrigger = True
-
-                            if trialIndex >= len(trials):
-                                EndOfABlock(dpg, trials, inputs.inputdatas)
-                                inputs.inputdatas
-                                feedbackStarted = True
-                                tempTimeOntarget = 0
-                            else :
-                                print("next trial")
-                                tempTimeOntarget = 0
-                    visitedEvents.append(index)
-                    eventManager = index
-
+                                if trialIndex >= len(trials):
+                                    EndOfABlock(dpg, trials, inputs.inputdatas)
+                                    inputs.inputdatas
+                                    feedbackStarted = True
+                                    gameStarted = False
+                                    tempTimeOntarget = 0
+                                else :
+                                    print("next trial")
+                                    tempTimeOntarget = 0
+                        visitedEvents.append(index)
+                        print("old event : " + str(eventManager))
+                        eventManager = index
+                        print("new event : " + str(eventManager))
 
         elif countdownStarted == True:
             countDownCounter += clock.get_time() 

@@ -32,17 +32,41 @@ def CalculateOverAndUndershoot(events, forceDirection):
                     if (j+1 < len(events[i].inputDuringEvent.inputdatas) and j+2 < len(events[i].inputDuringEvent.inputdatas) and
                      j+3 < len(events[i].inputDuringEvent.inputdatas) and j-1 > 0):
                         events, firstSlopeDiversion, positiveForce, negativeForce = DirectionCalculation(events, i, firstSlopeDiversion, j, positiveForce, negativeForce, forceDirection)
-                        
+                    
+                    elif (firstSlopeDiversion == False and j+3 == len(events[i].inputDuringEvent.inputdatas) and events[i].timeOnTarget < 130):
+                        events = NoMovementUndershoot(events, i, j)
+
                 elif baselinePos > GetSystemMetrics(1)-300:
                     if (j+1 < len(events[i].inputDuringEvent.inputdatas) and j+2 < len(events[i].inputDuringEvent.inputdatas) and
                      j+3 < len(events[i].inputDuringEvent.inputdatas) and j-1 > 0 and events[i].inputDuringEvent.inputdatas[j].screenPosY < baselinePos):
                         events, firstSlopeDiversion, positiveForce, negativeForce = DirectionCalculation(events, i, firstSlopeDiversion, j, positiveForce, negativeForce, forceDirection)
+                    
+                    elif (firstSlopeDiversion == False and j+3 == len(events[i].inputDuringEvent.inputdatas)and events[i].timeOnTarget < 130):
+
+                        events = NoMovementUndershoot(events, i, j)
                         
                 elif baselinePos < 300:
-                   if (j+1 < len(events[i].inputDuringEvent.inputdatas) and j+2 < len(events[i].inputDuringEvent.inputdatas) and
+                    if (j+1 < len(events[i].inputDuringEvent.inputdatas) and j+2 < len(events[i].inputDuringEvent.inputdatas) and
                      j+3 < len(events[i].inputDuringEvent.inputdatas) and j-1 > 0 and events[i].inputDuringEvent.inputdatas[j].screenPosY > baselinePos):
                         events, firstSlopeDiversion, positiveForce, negativeForce = DirectionCalculation(events, i, firstSlopeDiversion, j, positiveForce, negativeForce, forceDirection)
+
+                    elif (firstSlopeDiversion == False and j+3 == len(events[i].inputDuringEvent.inputdatas)and events[i].timeOnTarget < 130):
+                        events = NoMovementUndershoot(events, i, j)
+
+                
                     
+    return events
+
+def NoMovementUndershoot(events, i, j):
+    prevSlope = events[i].inputDuringEvent.inputdatas[j-2].screenPosY - events[i].inputDuringEvent.inputdatas[j-1].screenPosY
+    currentSlope = events[i].inputDuringEvent.inputdatas[j-1].screenPosY - events[i].inputDuringEvent.inputdatas[j].screenPosY
+    nextSlope = events[i].inputDuringEvent.inputdatas[j].screenPosY - events[i].inputDuringEvent.inputdatas[j+1].screenPosY
+    nextControlSlope = events[i].inputDuringEvent.inputdatas[j+1].screenPosY - events[i].inputDuringEvent.inputdatas[j+2].screenPosY
+    print("slopes : " + str(prevSlope) + " , " + str(currentSlope) + " , " + str(nextSlope) + " , " + str(nextControlSlope))
+
+    if(prevSlope == 0.0 and currentSlope == 0.0 and nextSlope == 0.0 and nextControlSlope == 0.0):
+        events[i].undershoot = True
+        events[i].undershootTime = events[i].inputDuringEvent.inputdatas[j+2].time
     return events
 
 def DetermineBaselineHeight(events):
