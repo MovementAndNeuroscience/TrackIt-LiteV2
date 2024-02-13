@@ -62,7 +62,6 @@ def NoMovementUndershoot(events, i, j):
     currentSlope = events[i].inputDuringEvent.inputdatas[j-1].screenPosY - events[i].inputDuringEvent.inputdatas[j].screenPosY
     nextSlope = events[i].inputDuringEvent.inputdatas[j].screenPosY - events[i].inputDuringEvent.inputdatas[j+1].screenPosY
     nextControlSlope = events[i].inputDuringEvent.inputdatas[j+1].screenPosY - events[i].inputDuringEvent.inputdatas[j+2].screenPosY
-    print("slopes : " + str(prevSlope) + " , " + str(currentSlope) + " , " + str(nextSlope) + " , " + str(nextControlSlope))
 
     if(prevSlope == 0.0 and currentSlope == 0.0 and nextSlope == 0.0 and nextControlSlope == 0.0):
         events[i].undershoot = True

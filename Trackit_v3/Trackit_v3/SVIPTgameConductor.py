@@ -50,8 +50,6 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
     inputs = InputDatas.InputDatas()
     trials = sviptBlock.trials
 
-    print ("Trials " + str(len(trials)))
-
     nidaqCh = dpg.get_value("nidaqCh")
     reader = 0
     rectBorderWidth = 2
@@ -165,7 +163,6 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
                         rectPos = 10
                 elif event.eventType == "B" or event.eventType == "P":
                     rectPos = (GetSystemMetrics(1)-  event.targetHeight  ) - event.targetPosition
-                print("RECT POS : " + str(rectPos))
                 event.targetPosition = rectPos
             
             guideTextRect.center = (GetSystemMetrics(0) // 2, 50)
@@ -383,9 +380,7 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
                     playsound = PlayPlingSound(plingSound1, plingSound2, plingSound3, plingSound4, plingSound5)  
 
                 if eventManager != 0:
-                    print("old event : " + str(eventManager))
                     eventManager = 0
-                    print("new event : " + str(eventManager))
                     trials[trialIndex].events[eventManager].timeOnTarget = 0
                 else:
                     index = 1 
@@ -393,15 +388,13 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
                     if timeTrial:
                         while index in visitedEvents:
                             index += 1
-                            print("Trial index : " + str(trialIndex))
                             if trialIndex < len(trials):
                                 if index < len(trials[trialIndex].events):
                                     tempTimeOntarget = trials[trialIndex].events[index].timeOnTarget
                                 else:
-                                    print("next Trial 1 1 ")
                                     trials[trialIndex], score, coinAndSoundEnabled = EndOfATrial(trials[trialIndex], score, coinAndSoundEnabled)
                                     trialIndex += 1
-                                    print("new Trial ")
+
                                     feedbackStarted = True
                                     gameStarted = False
                                     #End Of Trial Trigger
@@ -412,22 +405,17 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
                                     startOfTrialTrigger = True
 
                                     if trialIndex >= len(trials):
-                                        print("Block Ended")
                                         EndOfABlock(dpg, trials, inputs.inputdatas)
                                         inputs.inputdatas
                                         feedbackStarted = True
                                         gameStarted = False
                                         tempTimeOntarget = 0
                                     else :
-                                        print("next trial")
                                         tempTimeOntarget = 0
                                         visitedEvents.clear()
                                         visitedEvents.append(1)
                         visitedEvents.append(index)
-                        nextTarget = True 
-                        print("old event : " + str(eventManager))
                         eventManager = index
-                        print("new event : " + str(eventManager))
                     elif timeTrial == False : 
                         while tempTimeOntarget > 0:
                             index += 1 
@@ -452,12 +440,10 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
                                     gameStarted = False
                                     tempTimeOntarget = 0
                                 else :
-                                    print("next trial")
                                     tempTimeOntarget = 0
                         visitedEvents.append(index)
-                        print("old event : " + str(eventManager))
                         eventManager = index
-                        print("new event : " + str(eventManager))
+
 
         elif countdownStarted == True:
             countDownCounter += clock.get_time() 

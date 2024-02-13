@@ -27,7 +27,6 @@ def save_configuration():
     
 def start_game():
     print("starting game")
-    print(str(dpg.get_value("maxVoltage")))
 
     if dpg.get_value("adaptiveDif") == True:
         adaptDifConductor.changeDifficulty(dpg)
@@ -42,8 +41,7 @@ def start_game():
 
     print(str(len(eventsData.eventDatas)) + " amount of data ")
 
-    if dpg.get_value("svipt") == True:
-        print("svipt activated")    
+    if dpg.get_value("svipt") == True: 
         sviptBlock = SviptGenerator.GenerateSVIPT(dpg)
         if sviptBlock.noTrials == 99999:
             with dpg.window(label="SVIPT creation failed", pos=[0,50]):
