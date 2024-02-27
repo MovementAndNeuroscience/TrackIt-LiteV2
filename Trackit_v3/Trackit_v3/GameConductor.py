@@ -60,7 +60,7 @@ def RunGame(dpg, eventsData, smoothingFilter):
     score = 0
     setupConnection = True
     setupBioConnection = True
-    rectBorderWidth = 2
+    rectBorderWidth = 4
 
     coinImg = None
     coinRect = None
@@ -193,7 +193,7 @@ def RunGame(dpg, eventsData, smoothingFilter):
 
 
     def drawPlayer(ypos, color):
-        pygame.draw.circle(gameDisplay, color, (GetSystemMetrics(0)/2, ypos), 6)
+        pygame.draw.circle(gameDisplay, color, (GetSystemMetrics(0)/2, ypos), 8)
 
     def CollisionDetection(event, ypos, collisionDetected):
         if (ypos < event.targetHeight + event.targetPosition) and ypos > event.targetPosition and collisionDetected == False:
@@ -274,7 +274,6 @@ def RunGame(dpg, eventsData, smoothingFilter):
             meanTimeOnTarget = 0 
         
         return eventVisibleTime, gameOver, reacted, eventTriggerSend, collisionDetected, events, eventIndex, meanAccuracy, meanTimeOnTarget
-
 
     while not gameOver:
 
@@ -401,15 +400,19 @@ def RunGame(dpg, eventsData, smoothingFilter):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 smoothingFilter.ResetFilter()
-                SerialBoardAPI.CloseCommunication(serialObj)
-                SerialBoardAPI.CloseCommunication(bioSerialObj)
+                if inputMode == "USB/ADAM":
+                    SerialBoardAPI.CloseCommunication(serialObj)
+                if biosemi == True:
+                    SerialBoardAPI.CloseCommunication(bioSerialObj)
                 pygame.quit()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     smoothingFilter.ResetFilter()
-                    SerialBoardAPI.CloseCommunication(serialObj)
-                    SerialBoardAPI.CloseCommunication(bioSerialObj)
+                    if inputMode == "USB/ADAM":
+                        SerialBoardAPI.CloseCommunication(serialObj)
+                    if biosemi == True:
+                        SerialBoardAPI.CloseCommunication(bioSerialObj)
                     pygame.quit()
 
                 if event.key == pygame.K_RETURN:
@@ -434,6 +437,8 @@ def RunGame(dpg, eventsData, smoothingFilter):
         clock.tick(120)
 
     smoothingFilter.ResetFilter()
-    SerialBoardAPI.CloseCommunication(serialObj)
-    SerialBoardAPI.CloseCommunication(bioSerialObj)
+    if inputMode == "USB/ADAM":
+        SerialBoardAPI.CloseCommunication(serialObj)
+    if biosemi == True:
+        SerialBoardAPI.CloseCommunication(bioSerialObj)
     pygame.quit()

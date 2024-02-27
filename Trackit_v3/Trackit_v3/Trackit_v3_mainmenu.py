@@ -13,11 +13,22 @@ import EventDataGenerator
 import TriggerGenerator
 import SmoothingFilterClass as smooFilter
 import HighscoreRepository as highRep
+import os
 
 calibrationData = caliDat.Calibrationdata()
 eventsData = Eventsdata.EventsData()
 smoothingFilter = smooFilter.SmoothingFilterClass()
 experimentalModeSelector = {}
+
+if os.getcwd() == "C:\WINDOWS\system32":
+    os.chdir('../')
+    os.chdir('../')
+    if os.path.isdir('C:/Github/TrackIt-LiteV2/Trackit_v3/Trackit_v3'):
+        os.chdir('C:/Github/TrackIt-LiteV2/Trackit_v3/Trackit_v3')
+    elif os.path.isdir('C:/github/TrackIt-LiteV2/Trackit_v3/Trackit_v3'):
+        os.chdir('C:/github/TrackIt-LiteV2/Trackit_v3/Trackit_v3')
+    elif os.path.isdir('C:/TrackIt-LiteV2/Trackit_v3/Trackit_v3'):
+        os.chdir('C:/TrackIt-LiteV2/Trackit_v3/Trackit_v3')
 
 
 

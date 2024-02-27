@@ -20,7 +20,10 @@ def UpdateHighScore(name, score):
     indexZeroIsNew = False
 
     names, scores = LoadHighscore()
-
+    if names[0] == None and scores[0] == None:
+        for i, evt in enumerate(names):
+            names[i] = "Unknown Player"
+            scores[i] = 1
 
     indexForNewScore = 0 
     for i , evt in enumerate(scores):

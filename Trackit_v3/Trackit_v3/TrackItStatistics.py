@@ -26,8 +26,27 @@ def CalculateOverAndUndershoot(events, forceDirection):
         firstSlopeDiversion = False
         positiveForce = False
         negativeForce = False
+        enteredTarget = False
+        exitTarget = False
+        enteringTime = 0 
+        exitingTime = 0
+
         if events[i].eventType == 'R':
             for j, input in enumerate(events[i].inputDuringEvent.inputdatas):
+                
+                if events[i].inputDuringEvent.inputdatas[j].screenPosY < events[i].targetHeight + events[i].targetPosition and events[i].inputDuringEvent.inputdatas[j].screenPosY < events[i].targetPosition and enteredTarget == False:
+                    enteredTarget = True
+                    enteringTime = events[i].inputDuringEvent.inputdatas[j].time
+
+                if (events[i].inputDuringEvent.inputdatas[j].screenPosY > events[i].targetHeight + events[i].targetPosition or events[i].inputDuringEvent.inputdatas[j].screenPosY > events[i].targetPosition) and enteredTarget == True:
+                    exitTarget = True
+                    exitingTime = events[i].inputDuringEvent.inputdatas[j].time
+
+                if exitingTime - enteringTime < 150 and firstSlopeDiversion == True and exitTarget == True and enteredTarget == True:
+                    print("False Directionn Diversion Detected ")
+                    print("Time on target : " + str(exitingTime - enteringTime ))
+                    firstSlopeDiversion = False
+
                 if baselinePos == 0:
                     if (j+1 < len(events[i].inputDuringEvent.inputdatas) and j+2 < len(events[i].inputDuringEvent.inputdatas) and
                      j+3 < len(events[i].inputDuringEvent.inputdatas) and j-1 > 0):
@@ -42,7 +61,6 @@ def CalculateOverAndUndershoot(events, forceDirection):
                         events, firstSlopeDiversion, positiveForce, negativeForce = DirectionCalculation(events, i, firstSlopeDiversion, j, positiveForce, negativeForce, forceDirection)
                     
                     elif (firstSlopeDiversion == False and j+3 == len(events[i].inputDuringEvent.inputdatas)and events[i].timeOnTarget < 130):
-
                         events = NoMovementUndershoot(events, i, j)
                         
                 elif baselinePos < 300:
