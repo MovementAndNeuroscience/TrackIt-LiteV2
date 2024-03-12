@@ -6,15 +6,38 @@ import numpy as np
 def get_px_from_voltage(voltage, max_voltage, min_voltage, percentOfMax):
 
     min_voltage = min_voltage*(percentOfMax/100)
-    result =  (GetSystemMetrics(1)) * (voltage/(min_voltage/100))/100 # middle point on screen added by middle point on screen * percentge diversion from Min_voltage 
+    result =  (GetSystemMetrics(1)) * (voltage/(min_voltage/100))/100 # middle point on screen added by middle point on screen * percentge diversion from Min_voltage
+    
     if result <= 0.00:
 
         return 0.00
     return result
 
+def get_px_from_voltage_NIDAQ_Potentiometer(voltage, max_voltage, min_voltage, percentOfMax):
+
+    voltage = voltage - min_voltage
+    max_voltage = (max_voltage - min_voltage)*(percentOfMax/100)
+    result =  (GetSystemMetrics(1)) * (voltage/(max_voltage/100))/100 # Top point of the screen * percentge diversion from Max_voltage
+    
+    if result <= 0.00:
+
+        return 0.00
+    return result
+
+def get_px_from_NIDAQ_Potentiometer_calibration(voltage, max_voltage, min_voltage):
+
+    voltage = voltage - min_voltage
+    max_voltage = max_voltage - min_voltage
+    if voltage == 0.00:
+        voltage = 0.01
+    if max_voltage == 0.00:
+        max_voltage = 0.01
+    result =  (GetSystemMetrics(1)) * (voltage/(max_voltage/100))/100 # Top point of the screen * percentge diversion from Max_voltage
+    return result 
+
 def get_px_from_voltage_calibration(voltage, max_voltage, min_voltage):
 
-    result =  (GetSystemMetrics(1)) * (voltage/(min_voltage/100))/100 # middle point on screen added by middle point on screen * percentge diversion from Min_voltage
+    result =  (GetSystemMetrics(1)) * (voltage/(min_voltage/100))/100 # Low point of the screen * percentge diversion from Max_voltage
     return result 
 
 #ADAM POTENTIOMETER 

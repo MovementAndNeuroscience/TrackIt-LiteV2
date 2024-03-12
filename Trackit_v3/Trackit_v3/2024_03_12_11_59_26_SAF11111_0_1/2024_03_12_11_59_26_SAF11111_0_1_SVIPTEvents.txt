@@ -1,0 +1,13 @@
+Rect_no	EventType	Trigger	Height	Position	total_time_visible	 Visible_From	Entry_time_ms	Calculated_Entry_time	Time_on_target_ms	SD_outside_Target(px)	Mean_Inaccuracy(px_outside_target)	Exit_time(ms)	Percent_Time_On_Target(%)	Reaction_Time(ms)	time_Off_Target(ms)	 overshoot?	 overshoot_time	 undershoot?	 undershoot_time
+0	B	0	100	1340	100	0.0	519	519.0	0	0	0.0	635	0	0.0	0.0	False	0.0	False	0.0
+1	R	0	80	790	10000	9	0.0	-9.0	0.0	0	0.0	0.0	0	9	0.0	False	0.0	True	503
+2	R	0	80	40	10000	0.0	0.0	0.0	0.0	0	0.0	0.0	0	0.0	0.0	False	0.0	True	1270
+3	R	0	80	540	10000	0.0	2521	2521.0	50.0	0	0.0	2554	0	0.0	0.0	True	2304	False	0.0
+4	R	0	80	1040	10000	0.0	0.0	0.0	0.0	0	0.0	0.0	0	0.0	0.0	True	3138	False	0.0
+5	R	0	50	290	10000	0.0	0.0	0.0	0.0	0	0.0	0.0	0	0.0	0.0	False	0.0	True	4205
+0	B	0	100	1340	100	0.0	0.0	0.0	0	0	0.0	5653	0	0.0	0.0	False	0.0	False	0.0
+1	R	0	80	790	10000	0.0	5519	5519.0	133.0	0	0.0	0.0	0	5132	0.0	False	0.0	True	5269
+2	R	0	80	40	10000	0.0	0.0	0.0	0.0	0	0.0	0.0	0	0.0	0.0	False	0.0	True	6638
+3	R	0	80	540	10000	0.0	0.0	0.0	0.0	0	0.0	0.0	0	0.0	0.0	False	0.0	True	7655
+4	R	0	80	1040	10000	0.0	0.0	0.0	0.0	0	0.0	0.0	0	0.0	0.0	False	0.0	True	8673
+5	R	0	50	290	10000	0.0	0.0	0.0	0.0	0	0.0	0.0	0	0.0	0.0	False	0.0	False	0.0

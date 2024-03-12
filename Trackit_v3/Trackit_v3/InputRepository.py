@@ -77,13 +77,14 @@ def CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, exp
 
     if inputMode == "NIDAQ":
         voltage = reader.read()[0]
+        voltage = abs(voltage)
         ypos=0
         calibrationDataClass = VoltageConverter.Calibrate_minAndMaxVoltage(voltage, calibrationDataClass)
         feedbackVoltage = voltage
         if forcedirection == "Downwards":
-            ypos=VoltageConverter.get_px_from_voltage_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
+            ypos=VoltageConverter.get_px_from_NIDAQ_Potentiometer_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage()) # Edited to work with external potentiometer through NIDAQ
         elif forcedirection == "Upwards":
-            ypos=VoltageConverter.get_px_from_voltage_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
+            ypos=VoltageConverter.get_px_from_NIDAQ_Potentiometer_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage()) # Edited to work with external potentiometer through NIDAQ
             ypos = GetSystemMetrics(1) - ypos
 
         if(ypos > calibrationDataClass.GetMaxInput()):
@@ -145,18 +146,19 @@ def InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, exp
 
     if inputMode == "NIDAQ":
         voltage = reader.read()[0]
+        voltage = abs(voltage)
         ypos = 0 
         if forceDirection == "Downwards":
             if absOrRelvoltage == "Relative":
-                ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
+                ypos=VoltageConverter.get_px_from_voltage_NIDAQ_Potentiometer(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
             if absOrRelvoltage == "Absolute":  
-                ypos=VoltageConverter.get_px_from_voltage(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)  
+                ypos=VoltageConverter.get_px_from_voltage_NIDAQ_Potentiometer(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)  
         if forceDirection == "Upwards":
             if absOrRelvoltage == "Relative":
-                ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
+                ypos=VoltageConverter.get_px_from_voltage_NIDAQ_Potentiometer(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
                 ypos = GetSystemMetrics(1) - ypos
             if absOrRelvoltage == "Absolute":  
-                ypos=VoltageConverter.get_px_from_voltage(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)
+                ypos=VoltageConverter.get_px_from_voltage_NIDAQ_Potentiometer(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)
                 ypos = GetSystemMetrics(1) - ypos  
 
         return(voltage,ypos)
