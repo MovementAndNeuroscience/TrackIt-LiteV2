@@ -43,6 +43,7 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
     pushPull = dpg.get_value("pushPull")
     timeTrial = dpg.get_value("SVIPTTimeTrial")
     timeTrialInterval = dpg.get_value("SVIPTTrialInterval")
+    linearLog = dpg.get_value("linearLog")
 
 
     serialObj = serial.Serial()
@@ -348,7 +349,7 @@ def RunGame(dpg, sviptBlock, smoothingFilter):
                 #events[eventIndex].targetTrigger
                 eventTriggerSend = True
 
-            voltage, ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter, pushPull)
+            voltage, ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter, pushPull, linearLog)
 
             if withSVIPTColors == True:
                 drawPlayer(ypos, eval(trials[trialIndex].events[eventManager].eventColor))

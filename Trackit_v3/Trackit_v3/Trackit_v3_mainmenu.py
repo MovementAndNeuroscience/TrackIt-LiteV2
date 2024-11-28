@@ -98,14 +98,13 @@ def Start_Calibration():
     caliConductor.RunCalibration(dpg,calibrationData, smoothingFilter)
     dpg.set_value("calibrationInput", calibrationData.maxinput)
     dpg.set_value("maxVoltage", calibrationData.maxVoltage) 
-    print(str(dpg.get_value("maxVoltage")) + " : Max Volt")
     dpg.set_value("minVoltage", calibrationData.minVoltage) 
 
 def Reset_Calibration():
-    dpg.set_value("maxVoltage", 1.0) 
+    dpg.set_value("maxVoltage", -5.0) 
     dpg.set_value("minVoltage", 500000)
     calibrationData.SetMinVoltage(500000)
-    calibrationData.SetMaxVoltage(1)
+    calibrationData.SetMaxVoltage(-5.0)
 
 def quit_trackit():
     dpg.destroy_context()
@@ -140,6 +139,16 @@ def _updateFroceD(sender, app_data):
     if radio_button_name == "Upwards" and app_data == True:
         dpg.set_value("forceDirection", "Upwards")
         dpg.set_value("Downwards", False)
+
+def _updateInputMapping(sender, app_data):
+    radio_button_name = dpg.get_item_label(sender)
+    if radio_button_name == "Linear" and app_data == True:
+        dpg.set_value("linearLog", "Linear")
+        dpg.set_value("Log10", False)
+
+    if radio_button_name == "Log10" and app_data == True:
+        dpg.set_value("linearLog", "Log10")
+        dpg.set_value("Linear", False)
 
 def _updateMaxvolt(sender, app_data):
     radio_button_name = dpg.get_item_label(sender)
@@ -186,6 +195,11 @@ def _configuration_menu():
             dpg.add_text("Direction of the force")
             dpg.add_checkbox(label="Downwards", source = "Downwards", callback= _updateFroceD)
             dpg.add_checkbox(label="Upwards", source = "Upwards", callback= _updateFroceD)
+
+        with dpg.group(horizontal=True,horizontal_spacing= 50):   
+            dpg.add_text("Input mapping :")
+            dpg.add_checkbox(label="Linear", source = "Linear", callback= _updateInputMapping)
+            dpg.add_checkbox(label="Log10", source = "Log10", callback= _updateInputMapping)
 
         with dpg.group(horizontal=True,horizontal_spacing= 50):
             dpg.add_input_text(label="TrackIt Events", width=500, source= "writtenEvents")
@@ -285,7 +299,6 @@ def _extrinsic_mot_conf():
         dpg.add_checkbox(label="Coin reward", source="coinRew")
 
 def _updateExperimentalMode(sender, app_data):
-    print(f"sender: {sender}, \t app_data: {app_data}")
     radio_button_name = dpg.get_item_label(sender)
     if radio_button_name == "Dynamic" and app_data == True:
         dpg.set_value("experimentMode", "Dynamic")

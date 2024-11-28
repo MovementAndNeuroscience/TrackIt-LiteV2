@@ -42,6 +42,8 @@ def RunGame(dpg, eventsData, smoothingFilter):
     coinEnabled = dpg.get_value("coinRew")
     SoundEnabled = dpg.get_value("soundRew")
     pushPull = dpg.get_value("pushPull")
+    linearLog = dpg.get_value("linearLog")
+
 
     gameStarted = False
     countdownStarted = False
@@ -139,7 +141,6 @@ def RunGame(dpg, eventsData, smoothingFilter):
                     rectPos = 10
             elif event.eventType == "B" or event.eventType == "P":
                 rectPos = (GetSystemMetrics(1)-  event.targetHeight  ) - event.targetPosition
-            print("RECT POS : " + str(rectPos))
             event.targetPosition = rectPos
         
         guideTextRect.center = (GetSystemMetrics(0) // 2, 50)
@@ -312,7 +313,7 @@ def RunGame(dpg, eventsData, smoothingFilter):
                 events[eventIndex].targetTrigger
                 eventTriggerSend = True
 
-            voltage,ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter, pushPull)
+            voltage,ypos = inRep.InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter, pushPull, linearLog)
 
             drawPlayer(ypos,r)
 

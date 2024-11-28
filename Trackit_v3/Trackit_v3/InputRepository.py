@@ -25,7 +25,6 @@ def DetermineADAMOutputCalibration(calibrationDataClass, voltage, ypos, experime
                voltage = 0.01
             ypos=VoltageConverter.get_px_from_Potentiometer_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
         
-        print ("YPOS = " + str(ypos))
         return ypos
 
 
@@ -81,9 +80,9 @@ def CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, exp
         calibrationDataClass = VoltageConverter.Calibrate_minAndMaxVoltage(voltage, calibrationDataClass)
         feedbackVoltage = voltage
         if forcedirection == "Downwards":
-            ypos=VoltageConverter.get_px_from_voltage_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
+            ypos=VoltageConverter.get_px_from_voltage_calibration(voltage, calibrationDataClass.GetMinVoltage())
         elif forcedirection == "Upwards":
-            ypos=VoltageConverter.get_px_from_voltage_calibration(voltage,calibrationDataClass.GetMaxVoltage(), calibrationDataClass.GetMinVoltage())
+            ypos=VoltageConverter.get_px_from_voltage_calibration(voltage, calibrationDataClass.GetMinVoltage())
             ypos = GetSystemMetrics(1) - ypos
 
         if(ypos > calibrationDataClass.GetMaxInput()):
@@ -117,7 +116,7 @@ def DetermineADAMOutput(maxVoltage, minVoltage, percentageOfMaxVoltage, experime
     return ypos    
 
 
-def InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter, pushPull):
+def InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, experimentalMode, absoluteMaxVoltage, percentageOfMaxVoltage, minVoltage, maxVoltage, reader, smoothingFilter, pushPull, linearLog):
     if inputMode == "Mouse":                    
         mx,my=pygame.mouse.get_pos()
 
@@ -145,18 +144,32 @@ def InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, exp
 
     if inputMode == "NIDAQ":
         voltage = reader.read()[0]
-        ypos = 0 
-        if forceDirection == "Downwards":
-            if absOrRelvoltage == "Relative":
-                ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
-            if absOrRelvoltage == "Absolute":  
-                ypos=VoltageConverter.get_px_from_voltage(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)  
-        if forceDirection == "Upwards":
-            if absOrRelvoltage == "Relative":
-                ypos=VoltageConverter.get_px_from_voltage(voltage,maxVoltage, minVoltage, percentageOfMaxVoltage)
-                ypos = GetSystemMetrics(1) - ypos
-            if absOrRelvoltage == "Absolute":  
-                ypos=VoltageConverter.get_px_from_voltage(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)
-                ypos = GetSystemMetrics(1) - ypos  
+        ypos = 0
+        if linearLog == "Linear":
+            if forceDirection == "Downwards":
+                if absOrRelvoltage == "Relative":
+                    ypos=VoltageConverter.get_px_from_voltage(voltage, minVoltage, percentageOfMaxVoltage)
+                if absOrRelvoltage == "Absolute":  
+                    ypos=VoltageConverter.get_px_from_voltage(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)  
+            if forceDirection == "Upwards":
+                if absOrRelvoltage == "Relative":
+                    ypos=VoltageConverter.get_px_from_voltage(voltage, minVoltage, percentageOfMaxVoltage)
+                    ypos = GetSystemMetrics(1) - ypos
+                if absOrRelvoltage == "Absolute":  
+                    ypos=VoltageConverter.get_px_from_voltage(voltage,0, -absoluteMaxVoltage, percentageOfMaxVoltage)
+                    ypos = GetSystemMetrics(1) - ypos  
+        if linearLog == "Log10":
+            if forceDirection == "Downwards":
+                if absOrRelvoltage == "Relative":
+                    ypos=VoltageConverter.get_px_from_log10_voltage(voltage, minVoltage, percentageOfMaxVoltage)
+                if absOrRelvoltage == "Absolute":  
+                    ypos=VoltageConverter.get_px_from_log10_voltage(voltage, -absoluteMaxVoltage, percentageOfMaxVoltage)  
+            if forceDirection == "Upwards":
+                if absOrRelvoltage == "Relative":
+                    ypos=VoltageConverter.get_px_from_log10_voltage(voltage, minVoltage, percentageOfMaxVoltage)
+                    ypos = GetSystemMetrics(1) - ypos
+                if absOrRelvoltage == "Absolute":  
+                    ypos=VoltageConverter.get_px_from_log10_voltage(voltage, -absoluteMaxVoltage, percentageOfMaxVoltage)
+                    ypos = GetSystemMetrics(1) - ypos  
 
         return(voltage,ypos)

@@ -67,6 +67,9 @@ def SetupValueRepository(dpg):
         dpg.add_bool_value(default_value = False, tag = "Isometric")
         dpg.add_bool_value(default_value = True, tag = "sVIPTColors")
         dpg.add_bool_value(default_value = False, tag = "SVIPTTimeTrial")
+        dpg.add_bool_value(default_value = True, tag = "Log10")
+        dpg.add_bool_value(default_value = False, tag = "Linear")
+        dpg.add_string_value(default_value = "Linear", tag = "linearLog")
         dpg.add_int_value(default_value = 1000, tag = "SVIPTTrialInterval")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight1")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight2")
@@ -150,6 +153,9 @@ def SaveConfig(dpg):
         "Isometric": str(dpg.get_value("Isometric")),
         "SVIPTTimeTrial": str(dpg.get_value("SVIPTTimeTrial")),
         "SVIPTTrialInterval": str(dpg.get_value("SVIPTTrialInterval")),
+        "linearLog":str(dpg.get_value("linearLog")),
+        "Linear": str(dpg.get_value("Linear")),
+        "Log10": str(dpg.get_value("Log10")),
         "sVIPTColors":str(dpg.get_value("sVIPTColors")),
         "gateHeight1":str(dpg.get_value("gateHeight1")),
         "gateHeight2":str(dpg.get_value("gateHeight2")),
@@ -171,9 +177,6 @@ def SaveConfig(dpg):
 def LoadConfig(dpg, app_data):
     file = open(app_data["file_path_name"], 'r')
     data = json.load(file)
-
-    print(data['randomTargets'])
-    print(bool(data['randomTargets']))
     
     dpg.configure_item("blockNo", default_value = int(data['blockNo']))
     dpg.configure_item("investName", default_value = data['investName'])
@@ -241,6 +244,9 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("sVIPTColors", default_value = (TrueOrFalse(data['sVIPTColors'])))
     dpg.configure_item("SVIPTTimeTrial", default_value = (TrueOrFalse(data['SVIPTTimeTrial'])))
     dpg.configure_item("SVIPTTrialInterval", default_value = int(data["SVIPTTrialInterval"]))
+    dpg.configure_item("Linear", default_value = (TrueOrFalse(data['Linear'])))
+    dpg.configure_item("Log10", default_value = (TrueOrFalse(data['Log10'])))
+    dpg.configure_item("linearLog", default_value = data['linearLog'])
     dpg.configure_item("gateHeight1", default_value = int(data["gateHeight1"]))
     dpg.configure_item("gateHeight2", default_value = int(data["gateHeight2"]))
     dpg.configure_item("gateHeight3", default_value = int(data["gateHeight3"]))
@@ -257,6 +263,7 @@ def LoadConfig(dpg, app_data):
     TransferDeviceToInputDevice(dpg)
     TransferAbsOrRelVoltageToAbsOrRelVol(dpg)
     TransfertrainingModeToexpTrainingMode(dpg)
+    TransferLinearLog10ToLinearLog10(dpg)
 
 
 def TrueOrFalse(data):
@@ -290,3 +297,9 @@ def TransfertrainingModeToexpTrainingMode(dpg):
         dpg.set_value("ExperimentMode", "Dynamic")
     if dpg.get_value("Isometric") == True:
         dpg.set_value("ExperimentMode", "Isometric")
+
+def TransferLinearLog10ToLinearLog10(dpg):
+    if dpg.get_value("Linear") == True:
+        dpg.set_value("linearLog", "Linear")
+    if dpg.get_value("Log10") == True:
+        dpg.set_value("linearLog", "Log")

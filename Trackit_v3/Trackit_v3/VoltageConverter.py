@@ -2,17 +2,30 @@
 import Calibrationdata
 from win32api import GetSystemMetrics
 import numpy as np 
+import math 
 
-def get_px_from_voltage(voltage, max_voltage, min_voltage, percentOfMax):
+def get_px_from_voltage(voltage, min_voltage, percentOfMax):
 
     min_voltage = min_voltage*(percentOfMax/100)
-    result =  (GetSystemMetrics(1)) * (voltage/(min_voltage/100))/100 # middle point on screen added by middle point on screen * percentge diversion from Min_voltage 
+    percentOfForce = (voltage/(min_voltage/100))/100
+    result =  (GetSystemMetrics(1)) * percentOfForce # middle point on screen added by middle point on screen * percentge diversion from Min_voltage 
     if result <= 0.00:
 
         return 0.00
     return result
 
-def get_px_from_voltage_calibration(voltage, max_voltage, min_voltage):
+def get_px_from_log10_voltage(voltage, min_voltage, percentOfMax):
+
+    min_voltage = min_voltage*(percentOfMax/100)
+    absoluteValue = abs((voltage/(min_voltage/100))/10)
+
+    result =  (GetSystemMetrics(1)) * (math.log10(absoluteValue)) # middle point on screen added by middle point on screen * percentge diversion from Min_voltage 
+    if result <= 0.00:
+
+        return 0.00
+    return result
+
+def get_px_from_voltage_calibration(voltage, min_voltage):
 
     result =  (GetSystemMetrics(1)) * (voltage/(min_voltage/100))/100 # middle point on screen added by middle point on screen * percentge diversion from Min_voltage
     return result 
@@ -36,9 +49,6 @@ def get_px_from_Pulling_Iso_calibration(voltage, max_voltage, min_voltage):
     min_voltage = min_voltage - max_voltage
     if max_voltage <= 1.0:
         max_voltage = 10 
-    print("Voltage : " + str(voltage))
-    print("min voltage : " + str(min_voltage))
-    print("max voltage : " + str(max_voltage))
     if voltage > 0.0:
        voltage = 0.1
     result = abs((GetSystemMetrics(1)) * (voltage/(min_voltage/100))/100) # Top point of the screen * percentge diversion from Max_voltage
