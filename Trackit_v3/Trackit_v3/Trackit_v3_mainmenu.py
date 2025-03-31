@@ -99,6 +99,7 @@ def Start_Calibration():
     dpg.set_value("calibrationInput", calibrationData.maxinput)
     dpg.set_value("maxVoltage", calibrationData.maxVoltage) 
     dpg.set_value("minVoltage", calibrationData.minVoltage) 
+    dpg.set_value("neutralNIDAQval", calibrationData.neurtalNIDAQVal) 
 
 def Reset_Calibration():
     dpg.set_value("maxVoltage", -5.0) 

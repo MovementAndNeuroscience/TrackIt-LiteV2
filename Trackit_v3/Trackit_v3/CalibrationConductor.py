@@ -37,6 +37,7 @@ def RunCalibration(dpg, calibrationDataClass, smoothingFilter):
     reader = 0
     feedbackVoltage = 0 
     serialConnection = 0
+    neutralposFound = False
     experimentalMode = dpg.get_value("experimentMode")
     nidaqCh = dpg.get_value("nidaqCh")
     if inputMode == "NIDAQ":
@@ -97,7 +98,7 @@ def RunCalibration(dpg, calibrationDataClass, smoothingFilter):
             calibrationCounter += clock.get_time()
             gameDisplay.fill(bl)
 
-            ypos, calibrationDataClass, feedbackVoltage = inRep.CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, experimentalMode, forcedirection, reader, smoothingFilter, minIsoCalibrationValue, pushPull)
+            ypos, calibrationDataClass, feedbackVoltage, neutralposFound = inRep.CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, experimentalMode, forcedirection, reader, smoothingFilter, minIsoCalibrationValue, pushPull, neutralposFound)
             drawPlayer(ypos)
 
             if(calibrationCounter < 1000):

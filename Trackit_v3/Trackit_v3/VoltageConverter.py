@@ -4,20 +4,40 @@ from win32api import GetSystemMetrics
 import numpy as np 
 import math 
 
-def get_px_from_voltage(voltage, min_voltage, percentOfMax):
+def get_px_from_voltage(voltage, max_voltage, percentOfMax, neutralpos):
 
-    min_voltage = min_voltage*(percentOfMax/100)
-    percentOfForce = (voltage/(min_voltage/100))/100
+    max_voltage = max_voltage*(percentOfMax/100)
+
+    if neutralpos > 0.00000:
+        voltage = voltage - neutralpos
+        max_voltage = max_voltage - neutralpos
+    elif neutralpos < 0.00000:
+        voltage = voltage + neutralpos
+        max_voltage = max_voltage + neutralpos
+
+    voltage = abs(voltage)
+
+    percentOfForce = (voltage/(max_voltage/100))/100
     result =  (GetSystemMetrics(1)) * percentOfForce # middle point on screen added by middle point on screen * percentge diversion from Min_voltage 
     if result <= 0.00:
 
         return 0.00
     return result
 
-def get_px_from_log10_voltage(voltage, min_voltage, percentOfMax):
+def get_px_from_log10_voltage(voltage, max_voltage, percentOfMax, neutralpos):
 
-    min_voltage = min_voltage*(percentOfMax/100)
-    absoluteValue = abs((voltage/(min_voltage/100))/10)
+    max_voltage = max_voltage*(percentOfMax/100)
+
+    if neutralpos > 0.00000:
+        voltage = voltage - neutralpos
+        max_voltage = max_voltage - neutralpos
+    elif neutralpos < 0.00000:
+        voltage = voltage + neutralpos
+        max_voltage = max_voltage + neutralpos
+
+    voltage = abs(voltage)
+
+    absoluteValue = abs((voltage/(max_voltage/100))/10)
 
     result =  (GetSystemMetrics(1)) * (math.log10(absoluteValue)) # middle point on screen added by middle point on screen * percentge diversion from Min_voltage 
     if result <= 0.00:
@@ -25,9 +45,20 @@ def get_px_from_log10_voltage(voltage, min_voltage, percentOfMax):
         return 0.00
     return result
 
-def get_px_from_voltage_calibration(voltage, min_voltage):
+def get_px_from_voltage_calibration(voltage, max_voltage, neutralpos):
 
-    result =  (GetSystemMetrics(1)) * (voltage/(min_voltage/100))/100 # middle point on screen added by middle point on screen * percentge diversion from Min_voltage
+    if neutralpos > 0.00000:
+        voltage = voltage - neutralpos
+        max_voltage = max_voltage - neutralpos
+    elif neutralpos < 0.00000:
+        voltage = voltage + neutralpos
+        max_voltage = max_voltage + neutralpos
+
+    voltage = abs(voltage)
+    if max_voltage == 0.000:
+        max_voltage = 1
+
+    result =  (GetSystemMetrics(1)) * (voltage/(max_voltage/100))/100 # middle point on screen added by middle point on screen * percentge diversion from Min_voltage
     return result 
 
 #ADAM POTENTIOMETER 

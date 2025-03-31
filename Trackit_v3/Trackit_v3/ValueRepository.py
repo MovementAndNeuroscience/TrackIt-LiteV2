@@ -45,8 +45,9 @@ def SetupValueRepository(dpg):
         dpg.add_int_value(default_value = 20, tag = "minRandomHeight")
         dpg.add_int_value(default_value = 50, tag = "maxRandomHeight")
         dpg.add_int_value(default_value = 0, tag = "calibrationInput")
-        dpg.add_double_value(default_value = 1.0, tag = "maxVoltage") 
+        dpg.add_double_value(default_value = -1000.0, tag = "maxVoltage") 
         dpg.add_double_value(default_value = 500000.0, tag = "minVoltage")
+        dpg.add_double_value(default_value = 5000.0, tag = "neutralNIDAQval") 
         dpg.add_double_value(default_value = 5.0, tag = "absMaxVoltage")
         dpg.add_string_value(default_value= "Relative", tag="absOrRelVoltage")
         dpg.add_bool_value(default_value = False, tag = "Relative")
@@ -133,6 +134,7 @@ def SaveConfig(dpg):
         "calibrationInput": str(dpg.get_value("calibrationInput")),
         "maxVoltage": str(dpg.get_value("maxVoltage") ),
         "minVoltage": str(dpg.get_value("minVoltage") ),
+        "neutralNIDAQval": str(dpg.get_value("neutralNIDAQval")),
         "absMaxVoltage": str(dpg.get_value("absMaxVoltage")),
         "absOrRelVoltage": str(dpg.get_value("absOrRelVoltage")),
         "Relative": str(dpg.get_value("Relative")),
@@ -222,6 +224,7 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("maxRandomHeight", default_value = int(data["maxRandomHeight"]))
     dpg.configure_item("calibrationInput", default_value = int(data["calibrationInput"]))
     dpg.configure_item("maxVoltage", default_value = float(data["maxVoltage"]))
+    dpg.configure_item("neutralNIDAQval", default_value = float(data["neutralNIDAQval"]))
     dpg.configure_item("minVoltage", default_value = float(data["minVoltage"]))
     dpg.configure_item("absMaxVoltage", default_value = float(data["absMaxVoltage"]))
     dpg.configure_item("absOrRelVoltage", default_value = data["absOrRelVoltage"])
