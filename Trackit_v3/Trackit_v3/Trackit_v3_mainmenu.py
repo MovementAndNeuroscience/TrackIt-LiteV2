@@ -3,6 +3,7 @@ import dearpygui.dearpygui as dpg
 import ValueRepository as valRep
 import Calibrationdata as caliDat
 import CalibrationConductor as caliConductor
+import MVCConductor
 import AdaptiveDifficultyConductor as adaptDifConductor
 import GameConductor
 import SVIPTgameConductor
@@ -13,6 +14,7 @@ import EventDataGenerator
 import TriggerGenerator
 import SmoothingFilterClass as smooFilter
 import HighscoreRepository as highRep
+import VtoNCoeffecientConverter as vtoN
 import os
 
 calibrationData = caliDat.Calibrationdata()
@@ -106,6 +108,12 @@ def Reset_Calibration():
     dpg.set_value("minVoltage", 500000)
     calibrationData.SetMinVoltage(500000)
     calibrationData.SetMaxVoltage(-5.0)
+
+def Start_MVC():
+    MVCConductor.RunMVC(dpg,smoothingFilter)
+    
+def Start_Calculating_coeffiecient():
+    vtoN.CalculateVToNCoeffecient(dpg)
 
 def quit_trackit():
     dpg.destroy_context()
@@ -233,6 +241,12 @@ def _configuration_menu():
             dpg.add_input_int(label="% of maximum input", width=100, source= "percentOfMaxCal")
             dpg.add_input_double(label="Absolute Max input voltage", width=100, source = "absMaxVoltage")
 
+        dpg.add_text("MAXIMUM VOLUNTARY CONTRACTION ")
+        with dpg.group(horizontal=True,horizontal_spacing= 50):
+            dpg.add_button(label="Start MVC", width=200, callback=Start_MVC)
+            dpg.add_input_double(label = "Maximum MVC ", width=100,source="maxMvc",enabled=False)
+            dpg.add_input_double(label = "Voltage to Newton Coefficient", width=100, source ="vToNCoefficient")
+
 
 
 def _game_configuration_menu():
@@ -323,6 +337,27 @@ def _serial_conf_menu():
         dpg.add_text("insert lower threshold for Isometric calibration, as the sensor might change dependent on location")
         dpg.add_input_int(label="Minimum calibration value",width=125, source="minIsometricCaliVal")
 
+def _voltage_to_newton_coeffecient_menu():
+    with dpg.window(label="V to N Coeffecient", pos=[0,50]):
+        dpg.add_text("In this menu you write the output in track-it calibration based on the amount of kg loaded onto the loadcell")
+        with dpg.group(horizontal=True):
+            dpg.add_input_double(label="trackit value from first load", width=100, source="firstTrackItload")
+            dpg.add_input_double(label="kg loaded on the loadcell", width=100, source="firstKgLoad")
+        with dpg.group(horizontal=True):
+            dpg.add_input_double(label="trackit value from second load", width=100, source="secondTrackItload")
+            dpg.add_input_double(label="kg loaded on the loadcell", width=100, source="secondKgLoad")
+        with dpg.group(horizontal=True):
+            dpg.add_input_double(label="trackit value from third load", width=100, source="thirdTrackItload")
+            dpg.add_input_double(label="kg loaded on the loadcell", width=100, source="thirdKgLoad")    
+        with dpg.group(horizontal=True):
+            dpg.add_input_double(label="trackit value from fourth load", width=100, source="fourthTrackItload")
+            dpg.add_input_double(label="kg loaded on the loadcell", width=100, source="fourthKgLoad")   
+        with dpg.group(horizontal=True):
+            dpg.add_input_double(label="trackit value from fifth load", width=100, source="fifthTrackItload")
+            dpg.add_input_double(label="kg loaded on the loadcell", width=100, source="fifthKgLoad")   
+        with dpg.group(horizontal=True):    
+            dpg.add_button(label="calculate coeffiecient", width=100, callback=Start_Calculating_coeffiecient)
+            dpg.add_input_double(label = "Voltage to Newton Coefficient", width=100, source ="vToNCoefficient")
 
 def _customizeGateHeight():
     gates = dpg.get_value("noSviptEvents")
@@ -395,6 +430,7 @@ with dpg.window(label="Trackit V3",min_size=[1028,50]):
             dpg.add_menu_item(label="Show Base Configuration", callback= _configuration_menu)
             dpg.add_menu_item(label="Show Game Configuration", callback= _game_configuration_menu)
             dpg.add_menu_item(label="Show Serial Configuration", callback= _serial_conf_menu)
+            dpg.add_menu_item(label="Show V to N Configuration", callback=_voltage_to_newton_coeffecient_menu)
     
 
 dpg.show_viewport()

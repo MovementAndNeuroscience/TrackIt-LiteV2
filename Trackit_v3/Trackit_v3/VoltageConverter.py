@@ -17,7 +17,7 @@ def get_px_from_voltage(voltage, max_voltage, percentOfMax, neutralpos):
 
     voltage = abs(voltage)
 
-    percentOfForce = (voltage/(max_voltage/100))/100
+    percentOfForce = abs((voltage/(max_voltage/100))/100)
     result =  (GetSystemMetrics(1)) * percentOfForce # middle point on screen added by middle point on screen * percentge diversion from Min_voltage 
     if result <= 0.00:
 

@@ -52,6 +52,18 @@ def SetupValueRepository(dpg):
         dpg.add_string_value(default_value= "Relative", tag="absOrRelVoltage")
         dpg.add_bool_value(default_value = False, tag = "Relative")
         dpg.add_bool_value(default_value = False, tag = "Absolute")
+        dpg.add_double_value(default_value = 0.00, tag = "maxMvc")
+        dpg.add_double_value(default_value = 96.286, tag = "vToNCoefficient")
+        dpg.add_double_value(default_value = 0.0, tag = "firstTrackItload")
+        dpg.add_double_value(default_value = 0, tag = "firstKgLoad")
+        dpg.add_double_value(default_value = 0.0, tag = "secondTrackItload")
+        dpg.add_double_value(default_value = 0, tag = "secondKgLoad")
+        dpg.add_double_value(default_value = 0.0, tag = "thirdTrackItload")
+        dpg.add_double_value(default_value = 0, tag = "thirdKgLoad")
+        dpg.add_double_value(default_value = 0.0, tag = "fourthTrackItload")
+        dpg.add_double_value(default_value = 0, tag = "fourthKgLoad")
+        dpg.add_double_value(default_value = 0.0, tag = "fifthTrackItload")
+        dpg.add_double_value(default_value = 0, tag = "fifthKgLoad")
         dpg.add_string_value(default_value= "Pull", tag="pushPull")
         dpg.add_bool_value(default_value = False, tag = "push")
         dpg.add_bool_value(default_value = False, tag = "pull")
@@ -139,6 +151,18 @@ def SaveConfig(dpg):
         "absOrRelVoltage": str(dpg.get_value("absOrRelVoltage")),
         "Relative": str(dpg.get_value("Relative")),
         "Absolute": str(dpg.get_value("Absolute")),
+        "maxMvc": str(dpg.get_value("maxMvc")),
+        "vToNCoefficient": str(dpg.get_value("vToNCoefficient")),
+        "firstTrackItload": str(dpg.get_value("firstTrackItload")),
+        "firstKgLoad": str(dpg.get_value("firstKgLoad")),
+        "secondTrackItload": str(dpg.get_value("secondTrackItload")),
+        "secondKgLoad": str(dpg.get_value("secondKgLoad")),
+        "thirdTrackItload": str(dpg.get_value("thirdTrackItload")),
+        "thirdKgLoad": str(dpg.get_value("thirdKgLoad")),
+        "fourthTrackItload": str(dpg.get_value("fourthTrackItload")),
+        "fourthKgLoad": str(dpg.get_value("fourthKgLoad")),
+        "fifthTrackItload": str(dpg.get_value("fifthTrackItload")),
+        "fifthKgLoad": str(dpg.get_value("fifthKgLoad")),
         "pushPull": str(dpg.get_value("pushPull")),
         "pull": str(dpg.get_value("pull")),
         "push": str(dpg.get_value("push")),
@@ -230,6 +254,18 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("absOrRelVoltage", default_value = data["absOrRelVoltage"])
     dpg.configure_item("Absolute", default_value = (TrueOrFalse(data['Absolute'])))
     dpg.configure_item("Relative", default_value = (TrueOrFalse(data['Relative'])))
+    dpg.configure_item("maxMvc", default_value = float(data["maxMvc"]))
+    dpg.configure_item("vToNCoefficient", default_value = float(data["vToNCoefficient"]))
+    dpg.configure_item("firstTrackItload", default_value = float(data["firstTrackItload"]))
+    dpg.configure_item("firstKgLoad", default_value = float(data["firstKgLoad"]))
+    dpg.configure_item("secondTrackItload", default_value = float(data["secondTrackItload"]))
+    dpg.configure_item("secondKgLoad", default_value = float(data["secondKgLoad"]))
+    dpg.configure_item("thirdTrackItload", default_value = float(data["thirdTrackItload"]))
+    dpg.configure_item("thirdKgLoad", default_value = float(data["thirdKgLoad"]))
+    dpg.configure_item("fourthTrackItload", default_value = float(data["fourthTrackItload"]))
+    dpg.configure_item("fourthKgLoad", default_value = float(data["fourthKgLoad"]))
+    dpg.configure_item("fifthTrackItload", default_value = float(data["fifthTrackItload"]))
+    dpg.configure_item("fifthKgLoad", default_value = float(data["fifthKgLoad"]))
     dpg.configure_item("pushPull", default_value = data["pushPull"])
     dpg.configure_item("push", default_value = (TrueOrFalse(data['push'])))
     dpg.configure_item("pull", default_value = (TrueOrFalse(data['pull'])))

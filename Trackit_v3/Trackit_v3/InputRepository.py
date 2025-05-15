@@ -36,7 +36,7 @@ def CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, exp
         if(my > calibrationDataClass.GetMaxInput()):
             calibrationDataClass.SetMaxInput(my)
         
-        return(my, calibrationDataClass, feedbackVoltage)
+        return(my, calibrationDataClass, feedbackVoltage, neutralValFound)
             
     if inputMode == "USB/ADAM":
         voltage = 0 
@@ -72,7 +72,7 @@ def CalibrationInputCalculations(inputMode, serialObj, calibrationDataClass, exp
         if(ypos > calibrationDataClass.GetMaxInput()):
             calibrationDataClass.SetMaxInput(ypos)
             
-        return(ypos, calibrationDataClass, feedbackVoltage)
+        return(ypos, calibrationDataClass, feedbackVoltage, neutralValFound)
 
     if inputMode == "NIDAQ":
         voltage = reader.read()[0]
@@ -156,13 +156,13 @@ def InputCalculations(inputMode, serialObj, forceDirection, absOrRelvoltage, exp
                 if absOrRelvoltage == "Relative":
                     ypos=VoltageConverter.get_px_from_voltage(voltage, maxVoltage, percentageOfMaxVoltage, neutralVal)
                 if absOrRelvoltage == "Absolute":  
-                    ypos=VoltageConverter.get_px_from_voltage(voltage,0, absoluteMaxVoltage, percentageOfMaxVoltage, neutralVal)  
+                    ypos=VoltageConverter.get_px_from_voltage(voltage, absoluteMaxVoltage, percentageOfMaxVoltage, neutralVal)  
             if forceDirection == "Upwards":
                 if absOrRelvoltage == "Relative":
                     ypos=VoltageConverter.get_px_from_voltage(voltage, maxVoltage, percentageOfMaxVoltage, neutralVal)
                     ypos = GetSystemMetrics(1) - ypos
                 if absOrRelvoltage == "Absolute":  
-                    ypos=VoltageConverter.get_px_from_voltage(voltage,0, absoluteMaxVoltage, percentageOfMaxVoltage, neutralVal)
+                    ypos=VoltageConverter.get_px_from_voltage(voltage, absoluteMaxVoltage, percentageOfMaxVoltage, neutralVal)
                     ypos = GetSystemMetrics(1) - ypos  
         if linearLog == "Log10":
             if forceDirection == "Downwards":
