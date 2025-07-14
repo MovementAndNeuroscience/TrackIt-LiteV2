@@ -6,11 +6,17 @@
     "configurations": [
         {
             "name": "Python: Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
+            "program": "Trackit_v3_mainmenu.py",
+            "cwd": "${workspaceFolder}",
+            "purpose": [
+                "debug-test"
+            ],
             "console": "integratedTerminal",
-            "justMyCode": true
+            "stopOnEntry": true,
+            "justMyCode": false,
+            "env": {"PYTEST_ADDOPTS": "--no-cov"}
         }
     ]
 }

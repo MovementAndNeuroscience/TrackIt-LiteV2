@@ -2,6 +2,8 @@ class EventData():
     targetId = 0 #
     targetHeight = 0   
     targetPosition = 0 
+    targetLength = 0
+    targetXPosition = 0
     eventType = 'R' #
     eventColor = 'r'
     targetTotalTime = 0 
@@ -13,6 +15,7 @@ class EventData():
     timeOnTarget = 0.0 #
     timeOffTarget = 0.0 #
     inputDuringEvent = [] #--
+    inputXDuringEvent = [] 
     meanDistanceAwayFromTarget= 0.0 #
     stdOfInput = 0 #
     meanOfInput = 0 #--
@@ -42,6 +45,17 @@ class EventData():
         self.stdOfInput = stdInput
         self.meanOfInput = meanInput
         self.targetTrigger = targetTrigger
+
+    def EventWithLength( self, targetId, targetHeight, targetPosition, targetLength ,eventType, eventColor, targetTotalTime, inputDuringEvent):
+        self.targetId = targetId
+        self.targetHeight = targetHeight
+        self.targetPosition = targetPosition
+        self.targetLength = targetLength
+        self.eventType = eventType
+        self.eventColor = eventColor
+        self.targetTotalTime = targetTotalTime
+        self.inputDuringEvent = inputDuringEvent  
+        return self
         
     def __init__(self, targetId, targetHeight, targetPosition, eventType, eventColor, targetTotalTime, inputDuringEvent):
         self.targetId = targetId
@@ -51,3 +65,6 @@ class EventData():
         self.eventColor = eventColor
         self.targetTotalTime = targetTotalTime
         self.inputDuringEvent = inputDuringEvent
+
+    def EmptyEvent(self,targetId):
+        self.targetId = targetId

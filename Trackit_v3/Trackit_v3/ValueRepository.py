@@ -94,7 +94,13 @@ def SetupValueRepository(dpg):
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight8")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight9")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight10")
+        dpg.add_bool_value(default_value = False, tag = "sideQuest")
         dpg.add_int_value(default_value = 100, tag = "minIsometricCaliVal")
+        dpg.add_int_value(default_value = 3, tag = "noSideQuestTrials")
+        dpg.add_int_value(default_value = 500, tag = "sideQBreak")
+        dpg.add_int_value(default_value = 5, tag = "noSideEvents")
+        dpg.add_double_value(default_value = 6.0, tag = "sideQuestTrialTime")
+        dpg.add_double_value(default_value = 2.0, tag = "sideQuestStabiTime")
 
 
 
@@ -193,7 +199,13 @@ def SaveConfig(dpg):
         "gateHeight8":str(dpg.get_value("gateHeight8")),
         "gateHeight9":str(dpg.get_value("gateHeight9")),
         "gateHeight10":str(dpg.get_value("gateHeight10")),
-        "minIsometricCaliVal":str(dpg.get_value("minIsometricCaliVal"))
+        "minIsometricCaliVal":str(dpg.get_value("minIsometricCaliVal")),
+        "sideQuest":str(dpg.get_value("sideQuest")),
+        "noSideQuestTrials":str(dpg.get_value("noSideQuestTrials")),
+        "sideQBreak":str(dpg.get_value("sideQBreak")),
+        "noSideEvents":str(dpg.get_value("noSideEvents")),
+        "sideQuestTrialTime":str(dpg.get_value("sideQuestTrialTime")),
+        "sideQuestStabiTime":str(dpg.get_value("sideQuestStabiTime"))
 
     }
     nameOfFile =  str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) +'_'+'conf.cfg'
@@ -297,6 +309,12 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("gateHeight9", default_value = int(data["gateHeight9"]))
     dpg.configure_item("gateHeight10", default_value = int(data["gateHeight10"]))
     dpg.configure_item("minIsometricCaliVal", default_value = int(data["minIsometricCaliVal"]))
+    dpg.configure_item("sideQuest", default_value = (TrueOrFalse(data['sideQuest'])))
+    dpg.configure_item("noSideQuestTrials", default_value = int(data["noSideQuestTrials"]))
+    dpg.configure_item("sideQBreak", default_value = int(data["sideQBreak"]))
+    dpg.configure_item("noSideEvents", default_value = int(data["noSideEvents"]))
+    dpg.configure_item("sideQuestTrialTime", default_value = float(data["sideQuestTrialTime"]))
+    dpg.configure_item("sideQuestStabiTime", default_value = float(data["sideQuestStabiTime"]))
 
     TrasferForceDirectionToForceD(dpg)
     TransferDeviceToInputDevice(dpg)

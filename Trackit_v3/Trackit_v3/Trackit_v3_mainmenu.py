@@ -7,6 +7,8 @@ import MVCConductor
 import AdaptiveDifficultyConductor as adaptDifConductor
 import GameConductor
 import SVIPTgameConductor
+import SideQuestConductor
+import SideQuestGenerator
 import SviptGenerator
 import Eventsdata
 import EventData 
@@ -62,11 +64,22 @@ def start_game():
         else:
             print("lengths of SVIPT : "  + str(len(sviptBlock.trials)))
             SVIPTgameConductor.RunGame(dpg,sviptBlock, smoothingFilter)
+    elif dpg.get_value("sideQuest") == True: 
+        sideQBlock = SideQuestGenerator.GenerateSideQuest(dpg)
+        if sideQBlock.noTrials == 99999:
+            with dpg.window(label="Side Quest creation failed", pos=[0,50]):
+                dpg.add_text("The Computer tried too many times to generate your Side Quest trials please try again")
+        elif sideQBlock.trials[0].events[1].targetLength < 95:
+            with dpg.window(label="Side Quest creation failed", pos=[0,50]):
+                dpg.add_text("The Lengths of the targets are too small, please adjust one of the following varaible and try again \n The total time of trial \n the time of the stabilization \n the number of gates \n the break between gates")
+        else:
+            print("lengths of Side Quest : "  + str(len(sideQBlock.trials)))
+            SideQuestConductor.RunGame(dpg,sideQBlock, smoothingFilter)
+            print("start Side Quest")
     else:
         GameConductor.RunGame(dpg,eventsData, smoothingFilter)
 
 def load_configuration(sender, app_data):
-    
     valRep.LoadConfig(dpg, app_data)
          
 
@@ -270,6 +283,10 @@ def _game_configuration_menu():
             dpg.add_checkbox(label="SVIPT - show all targets", source = "svipt")#need its own variable 
             dpg.add_button(label= "Configure", callback=_SVIPT_conf)
 
+        with dpg.group(horizontal=True,horizontal_spacing= 170): 
+            dpg.add_checkbox(label="Side Scroller Quest", source = "sideQuest")
+            dpg.add_button(label= "Configure", callback=_side_quest_conf)
+
         with dpg.group(horizontal=True,horizontal_spacing= 135): 
             dpg.add_checkbox(label="Target sustain on screen", source="TargetSustain")
             dpg.add_button(label= "Configure", callback=_targ_sustein_conf)
@@ -304,6 +321,15 @@ def _SVIPT_conf():
         with dpg.group(horizontal=True,horizontal_spacing= 162): 
             dpg.add_checkbox(label="SVIPT Time Trial", source="SVIPTTimeTrial")
             dpg.add_input_int(label="Time trial interval (ms)", source="SVIPTTrialInterval")
+
+def _side_quest_conf():
+    with dpg.window(label="Side Scroller Quest Configuration", pos=[450,50]):
+        dpg.add_input_int(label="Number of trials", width= 100, source="noSideQuestTrials")
+        dpg.add_input_int(label="Number of gates per trial", width= 100, source="noSideEvents")
+        dpg.add_input_double(label="trial time in seconds", source="sideQuestTrialTime")
+        dpg.add_input_double(label="Stabilization time in seconds", source= "sideQuestStabiTime")
+        dpg.add_input_int(label="Break between gates in ms", source = "sideQBreak")
+        dpg.add_button(label= "Customize gate height", width=250, callback=_customizeSideGateHeight)
 
 def _extrinsic_mot_conf():
      with dpg.window(label="Extrinsic Motivation Configuration", pos=[450,50]):
@@ -361,6 +387,15 @@ def _voltage_to_newton_coeffecient_menu():
 
 def _customizeGateHeight():
     gates = dpg.get_value("noSviptEvents")
+    gate = 0
+    with dpg.window(label="Costumize Gate Height", pos=[0,50]):
+        while gate < gates:
+
+            dpg.add_input_int(label = "Gate height : gate " + str(gate+1), width= 100, source= "gateHeight" + str(gate+1) )
+            gate += 1
+
+def _customizeSideGateHeight():
+    gates = dpg.get_value("noSideEvents")
     gate = 0
     with dpg.window(label="Costumize Gate Height", pos=[0,50]):
         while gate < gates:

@@ -98,3 +98,52 @@ def SaveSviptDataToFiles(dpg, trials, inputs):
     except Exception as e:
         print(e)
         raise
+
+def SaveSideQuestDataToFiles(dpg, trials, inputs):
+    file_name = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '_' + str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) + "_SideQuestGates"
+    with open('{}.txt'.format(file_name), 'w') as r:
+        r.write("Rect_no\tEventType\tTrigger\tHeight\tPosition" +
+                "\tEntry_time_ms\tTime_on_target_ms\tSD_outside_Target(px)\tMean_Inaccuracy(px_outside_target)\tExit_time(ms)"+
+                "\tPercent_Time_On_Target(%)\tReaction_Time(ms)\ttime_Off_Target(ms)\t overshoot?"+
+                "\t overshoot_time\t undershoot?\t undershoot_time\n")
+            
+        for trialindex , evt in enumerate(trials):
+            for i, evt in enumerate(trials[trialindex].events):
+                r.write("{i}\t{evt}\t{tr}\t{h}\t{pos}\t{et}\t{tot}\t{sd}\t{inac}\t{ext}\t{ptot}\t{rt}\t{tofft}\t{os}\t{ost}\t{us}\t{ust}\n".format
+                    (i=trials[trialindex].events[i].targetId, evt=trials[trialindex].events[i].eventType, tr=trials[trialindex].events[i].targetTrigger,
+                        h = trials[trialindex].events[i].targetHeight, pos = trials[trialindex].events[i].targetPosition, 
+                        et=trials[trialindex].events[i].targetEntryTime,
+                        tot=trials[trialindex].events[i].timeOnTarget,sd= trials[trialindex].events[i].stdOfInput
+                        ,inac= trials[trialindex].events[i].meanDistanceAwayFromTarget, 
+                        ext=trials[trialindex].events[i].targetExitTime, ptot = trials[trialindex].events[i].percentTimeOnTarget, rt = trials[trialindex].events[i].reactionTime, 
+                        tofft= trials[trialindex].events[i].timeOffTarget, os = trials[trialindex].events[i].overshoot, ost = trials[trialindex].events[i].overshootTime,
+                        us = trials[trialindex].events[i].undershoot, ust = trials[trialindex].events[i].undershootTime))
+
+    file_name_svipt = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '_' + str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) + "_SideQuestTrials"
+    with open('{}.txt'.format(file_name_svipt), 'w') as r:
+        r.write("Trial_no\tCompletionTime\tError\n")
+        for i , evt in enumerate(trials):
+            r.write("{i}\t{comp}\t{err}\n".format
+                (i=trials[i].trialno, comp=trials[i].completionTime, err=trials[i].error))
+                    
+    file_name_inputdata = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '_' + str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) + "_InputData"
+    with open('{}.txt'.format(file_name_inputdata), 'w') as r:
+        r.write("Digital_Input\tScreen_Position_Y_axis(px)\ttime(ms)\n")
+        for i , evt in enumerate(inputs):
+            r.write("{di}\t{sp}\t{t}\n".format
+                (di=inputs[i].digitalInput, sp=inputs[i].screenPosY ,t=inputs[i].time))
+                        
+    try:
+        dir_name = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '_' + str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId"))+'_'+ str(dpg.get_value("blockNo"))
+        new_dir = os.path.join(os.getcwd(), dir_name)
+        os.mkdir(new_dir)
+        conf_name = str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) +'_'+'conf.cfg'
+        shutil.copyfile(conf_name, os.path.join(new_dir, conf_name))
+        shutil.move(file_name + '.txt', os.path.join(new_dir, file_name + '.txt'))
+        shutil.move(file_name_svipt + '.txt', os.path.join(new_dir, file_name_svipt + '.txt'))
+        shutil.move(file_name_inputdata + '.txt', os.path.join(new_dir, file_name_inputdata + '.txt'))
+        print ('Results saved in the following folder: {}'.format(dir_name))
+    except Exception as e:
+        print(e)
+        raise
+
