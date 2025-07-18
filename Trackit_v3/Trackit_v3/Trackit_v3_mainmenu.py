@@ -364,7 +364,7 @@ def _serial_conf_menu():
         dpg.add_input_int(label="Minimum calibration value",width=125, source="minIsometricCaliVal")
 
 def _voltage_to_newton_coeffecient_menu():
-    with dpg.window(label="V to N Coeffecient", pos=[0,50]):
+    with dpg.window(label="V to N Coefficient", pos=[0,50]):
         dpg.add_text("In this menu you write the output in track-it calibration based on the amount of kg loaded onto the loadcell")
         with dpg.group(horizontal=True):
             dpg.add_input_double(label="trackit value from first load", width=100, source="firstTrackItload")

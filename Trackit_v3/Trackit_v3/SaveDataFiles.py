@@ -70,7 +70,7 @@ def SaveSviptDataToFiles(dpg, trials, inputs):
                         ext=trials[trialindex].events[i].targetExitTime, ptot = trials[trialindex].events[i].percentTimeOnTarget, rt = trials[trialindex].events[i].reactionTime, 
                         tofft= trials[trialindex].events[i].timeOffTarget, os = trials[trialindex].events[i].overshoot, ost = trials[trialindex].events[i].overshootTime,
                         us = trials[trialindex].events[i].undershoot, ust = trials[trialindex].events[i].undershootTime))
-
+    
     file_name_svipt = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '_' + str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) + "_SVIPTTrials"
     with open('{}.txt'.format(file_name_svipt), 'w') as r:
         r.write("Trial_no\tCompletionTime\tError\n")
@@ -119,12 +119,12 @@ def SaveSideQuestDataToFiles(dpg, trials, inputs):
                         tofft= trials[trialindex].events[i].timeOffTarget, os = trials[trialindex].events[i].overshoot, ost = trials[trialindex].events[i].overshootTime,
                         us = trials[trialindex].events[i].undershoot, ust = trials[trialindex].events[i].undershootTime))
 
-    file_name_svipt = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '_' + str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) + "_SideQuestTrials"
-    with open('{}.txt'.format(file_name_svipt), 'w') as r:
-        r.write("Trial_no\tCompletionTime\tError\n")
+    file_name_statistic = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '_' + str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) + "_SideQuestTrials"
+    with open('{}.txt'.format(file_name_statistic), 'w') as r:
+        r.write("Mean_Accuracy\t Std_Accuracy\tMean_Time_On_Target\t Std_Time_On_Target\t Total_Time_On_Target\t Time_between_Trial\t errors\n")
         for i , evt in enumerate(trials):
-            r.write("{i}\t{comp}\t{err}\n".format
-                (i=trials[i].trialno, comp=trials[i].completionTime, err=trials[i].error))
+            r.write("{macc}\t{sacc}\t{mtot}\t{stot}\t{ttot}\t{tbt}\t{err}\n".format
+            (macc=trials[i].meanAccuracy, sacc=trials[i].stdAccuracy, mtot = trials[i].meanTimeOnTarget, stot = trials[i].stdTimeOnTarget,ttot = trials[i].totalTimeOnTargets, tbt = trials[i].timeBetweenTrials, err = trials[i].error))     
                     
     file_name_inputdata = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '_' + str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) + "_InputData"
     with open('{}.txt'.format(file_name_inputdata), 'w') as r:
@@ -140,7 +140,7 @@ def SaveSideQuestDataToFiles(dpg, trials, inputs):
         conf_name = str(dpg.get_value("investName")) + '_'+ str(dpg.get_value("subjectId")) +'_'+ str(dpg.get_value("blockNo")) +'_'+'conf.cfg'
         shutil.copyfile(conf_name, os.path.join(new_dir, conf_name))
         shutil.move(file_name + '.txt', os.path.join(new_dir, file_name + '.txt'))
-        shutil.move(file_name_svipt + '.txt', os.path.join(new_dir, file_name_svipt + '.txt'))
+        shutil.move(file_name_statistic + '.txt', os.path.join(new_dir, file_name_statistic + '.txt'))
         shutil.move(file_name_inputdata + '.txt', os.path.join(new_dir, file_name_inputdata + '.txt'))
         print ('Results saved in the following folder: {}'.format(dir_name))
     except Exception as e:

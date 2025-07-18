@@ -283,6 +283,7 @@ def RunGame(dpg, sideQBlock, smoothingFilter):
         trials[trialIndex].completionTime = (gameTimeCounter - trialStartTime)/1000
         trial.events = statistics.CalculateInaccuracyAndStd(trial.events)
         trial.events = statistics.CalculateOverAndUndershoot(trial.events, forceDirection)
+        
         for event in trial.events:
             event.timeOffTarget = (event.targetLength/millisecondSegments)- event.timeOnTarget
             if (event.timeOffTarget < 0.0):
@@ -291,12 +292,13 @@ def RunGame(dpg, sideQBlock, smoothingFilter):
             if event.percentTimeOnTarget > 100 :
                 event.percentTimeOnTarget = 100
 
-
             if event.overshoot == True or event.undershoot == True:
                 trial.error += 1 
             elif event.overshoot == False and event.undershoot == False:
                 score += 100
                 coinAndSoundEnabled = True
+        
+        trial.meanAccuracy, trial.stdAccuracy, trial.meanTimeOnTarget, trial.stdTimeOnTarget, trial.totalTimeOnTargets  = statistics.CalculateDescriptiveStastics(trial.events)
 
         return trial, score, coinAndSoundEnabled
 
@@ -436,6 +438,8 @@ def RunGame(dpg, sideQBlock, smoothingFilter):
                         index += 1 
                         if index < len(trials[trialIndex].events):
                             tempTimeOntarget = trials[trialIndex].events[index].timeOnTarget
+                            if tempTimeOntarget == 0:
+                                tempTimeOntarget = 1
                         else:
                             trials[trialIndex], score, coinAndSoundEnabled = EndOfATrial(trials[trialIndex], score, coinAndSoundEnabled)
                             trialIndex += 1
@@ -449,7 +453,6 @@ def RunGame(dpg, sideQBlock, smoothingFilter):
                             startOfTrialTrigger = True
 
                             if trialIndex >= len(trials):
-                                EndOfABlock(dpg, trials, inputs.inputdatas)
                                 inputs.inputdatas
                                 feedbackStarted = True
                                 gameStarted = False
@@ -504,7 +507,7 @@ def RunGame(dpg, sideQBlock, smoothingFilter):
             feedbackCounter += clock.get_time() 
             prevTrial = trialIndex - 1
             stopFeedbackText = font.render("Stop", True, w)
-            compTimeFeedbackText =  font.render(str(trials[prevTrial].completionTime) + " s", True, w)
+            compTimeFeedbackText =  font.render(str(np.round(trials[prevTrial].meanAccuracy)) + " Mean Accuracy in %", True, w)
             errorFeedbackText = font.render(str(trials[prevTrial].error) + " fejl" , True, w )
             contienueText = font.render("Press Return to continue" , True, w )
 
@@ -540,10 +543,13 @@ def RunGame(dpg, sideQBlock, smoothingFilter):
                         beginning = False
                     if feedbackStarted:
                         if trialIndex >= len(trials):
+                            trials[prevTrial].timeBetweenTrials = feedbackCounter
+                            EndOfABlock(dpg, trials, inputs.inputdatas)
+                            feedbackCounter = 0 
                             eventManager = 1
                             feedbackStarted = False
                             gameOver = True 
-                            trials[prevTrial].timeBetweenTrials = feedbackCounter
+                            
                         else :
                             coinpos = GetSystemMetrics(1) // 2
                             eventManager = 1
