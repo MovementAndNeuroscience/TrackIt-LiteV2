@@ -10,7 +10,8 @@ import copy
 def GenerateSideQuest(dpg):
 
     importedEvents = dpg.get_value("writtenEvents")
-    event_height = dpg.get_value("stimHeight")
+    event_height = dpg.get_value("gateHeight" + str(1))
+    baseline_height = dpg.get_value("stabGateHeight")
     random_events = dpg.get_value("noSideEvents")
     random_heights_for_events = dpg.get_value("randomTargetHeight")
     own_Sequence = dpg.get_value("ownSequence")
@@ -46,7 +47,7 @@ def GenerateSideQuest(dpg):
 
 
     if random_events:
-        baselineEvent = EventData.EventData(len(sideQTrial.events), event_height, GetSystemMetrics(1)/2,"B",'w', 60000, InputDatas.InputDatas())
+        baselineEvent = EventData.EventData(len(sideQTrial.events), baseline_height, GetSystemMetrics(1)/2,"B",'w', 60000, InputDatas.InputDatas())
         baselineEvent.targetLength = stabilisatorLength
         baselineEvent.targetXPosition = 0
 
@@ -87,7 +88,7 @@ def GenerateSideQuest(dpg):
                         gateColor = 'w'
                 
                 print("new location " + str(newLocation))
-                newEvent = EventData.EventData(len(sideQTrial.events), event_height, newLocation, "R", gateColor, 10000, InputDatas.InputDatas())
+                newEvent = EventData.EventData(len(sideQTrial.events), dpg.get_value("gateHeight" + str(i+1)), newLocation, "R", gateColor, 10000, InputDatas.InputDatas())
                 newEvent.targetLength = gatesLength
                 previousLocation = newLocation 
                 sideQTrial.AddEvent(newEvent)
@@ -129,7 +130,7 @@ def GenerateSideQuest(dpg):
 
 
         tempSideQBlock, tempSideQTrial = CreateNewTrial(dpg, random_events, sideQTrial, stabilisatorLength, max_closeness_between_events,min_closeness_between_events, random_heights_for_events, availablePixels, minRandomHeight,
-                   maxRandomHeight, recursiveCounter, sideQBlock, gatesLength, own_Sequence, importedEvents, event_height)
+                   maxRandomHeight, recursiveCounter, sideQBlock, gatesLength, own_Sequence, importedEvents, event_height, baseline_height)
         if sideQBlock.noTrials == 99999:
             return sideQBlock
         sideQBlock.AddTrial(tempSideQTrial)
@@ -219,10 +220,10 @@ def FindTheNextRect(previousLocation, min_closeness_between_events, max_closenes
     return height,newPos
 
 def CreateNewTrial(dpg, random_events, sideQTrial, stabilisatorLength, max_closeness_between_events,min_closeness_between_events, random_heights_for_events, availablePixels, minRandomHeight,
-                   maxRandomHeight, recursiveCounter, sideQBlock, gatesLength, own_Sequence, importedEvents, event_height):
+                   maxRandomHeight, recursiveCounter, sideQBlock, gatesLength, own_Sequence, importedEvents, event_height, baseline_height):
     if random_events:
         
-        baselineEvent = EventData.EventData(len(sideQTrial.events),event_height,GetSystemMetrics(1)/2,"B",'w',60000, InputDatas.InputDatas())
+        baselineEvent = EventData.EventData(len(sideQTrial.events),baseline_height,GetSystemMetrics(1)/2,"B",'w',60000, InputDatas.InputDatas())
         baselineEvent.targetLength = stabilisatorLength
         sideQTrial.AddEvent(baselineEvent)
         print("avaiable : " + str(len(availablePixels)))
@@ -263,7 +264,7 @@ def CreateNewTrial(dpg, random_events, sideQTrial, stabilisatorLength, max_close
                         gateColor = 'w'
                 
 
-                newEvent = EventData.EventData(len(sideQTrial.events), event_height, newLocation,"R", gateColor, 10000, InputDatas.InputDatas())
+                newEvent = EventData.EventData(len(sideQTrial.events), dpg.get_value("gateHeight" + str(i+1)), newLocation,"R", gateColor, 10000, InputDatas.InputDatas())
                 newEvent.targetLength = gatesLength
 
                 previousLocation = newLocation 

@@ -94,6 +94,7 @@ def SetupValueRepository(dpg):
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight8")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight9")
         dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "gateHeight10")
+        dpg.add_int_value(default_value = dpg.get_value("stimHeight"), tag = "stabGateHeight")
         dpg.add_bool_value(default_value = False, tag = "sideQuest")
         dpg.add_int_value(default_value = 100, tag = "minIsometricCaliVal")
         dpg.add_int_value(default_value = 3, tag = "noSideQuestTrials")
@@ -199,6 +200,7 @@ def SaveConfig(dpg):
         "gateHeight8":str(dpg.get_value("gateHeight8")),
         "gateHeight9":str(dpg.get_value("gateHeight9")),
         "gateHeight10":str(dpg.get_value("gateHeight10")),
+        "stabGateHeight":str(dpg.get_value("stabGateHeight")),
         "minIsometricCaliVal":str(dpg.get_value("minIsometricCaliVal")),
         "sideQuest":str(dpg.get_value("sideQuest")),
         "noSideQuestTrials":str(dpg.get_value("noSideQuestTrials")),
@@ -308,6 +310,7 @@ def LoadConfig(dpg, app_data):
     dpg.configure_item("gateHeight8", default_value = int(data["gateHeight8"]))
     dpg.configure_item("gateHeight9", default_value = int(data["gateHeight9"]))
     dpg.configure_item("gateHeight10", default_value = int(data["gateHeight10"]))
+    dpg.configure_item("stabGateHeight", default_value = int(data["stabGateHeight"]))
     dpg.configure_item("minIsometricCaliVal", default_value = int(data["minIsometricCaliVal"]))
     dpg.configure_item("sideQuest", default_value = (TrueOrFalse(data['sideQuest'])))
     dpg.configure_item("noSideQuestTrials", default_value = int(data["noSideQuestTrials"]))

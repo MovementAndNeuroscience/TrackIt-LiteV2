@@ -398,6 +398,7 @@ def _customizeSideGateHeight():
     gates = dpg.get_value("noSideEvents")
     gate = 0
     with dpg.window(label="Costumize Gate Height", pos=[0,50]):
+        dpg.add_input_int(label = "Stabilization Gate height :", width= 100, source= "stabGateHeight")
         while gate < gates:
 
             dpg.add_input_int(label = "Gate height : gate " + str(gate+1), width= 100, source= "gateHeight" + str(gate+1) )
