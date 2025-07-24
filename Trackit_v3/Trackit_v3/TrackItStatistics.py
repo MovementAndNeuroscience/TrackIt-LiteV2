@@ -196,3 +196,20 @@ def CalculateDescriptiveStastics(events):
         
 
     return meanAccuracy, stdAccuracy, meanTimeOnTarget, stdTimeOnTarget, totalTimeOnTargets 
+
+def CalculateDescriptiveStasticsSideQuest(events):
+    acc = []
+    timeOnTarget = []
+    for event in events:
+        if event.eventType == "R":
+            acc.append(event.percentTimeOnTarget)
+            timeOnTarget.append(event.timeOnTarget)
+
+    meanAccuracy = np.mean(acc)
+    stdAccuracy = np.std(acc)
+    meanTimeOnTarget = np.mean(timeOnTarget)
+    stdTimeOnTarget = np.std(timeOnTarget)
+    totalTimeOnTargets = np.sum(timeOnTarget)
+        
+
+    return meanAccuracy, stdAccuracy, meanTimeOnTarget, stdTimeOnTarget, totalTimeOnTargets 

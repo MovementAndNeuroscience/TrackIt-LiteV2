@@ -97,8 +97,8 @@ def RunGame(dpg, sideQBlock, smoothingFilter):
     visitedEvents.append(eventManager)
 
     breakBetweenGatesTimeMs = dpg.get_value("sideQBreak")
-    millisecondSegments = GetSystemMetrics(0) / (dpg.get_value("sideQuestTrialTime")*1000)
-    stabilisatorLength = millisecondSegments * (dpg.get_value("sideQuestStabiTime")*1000)
+    millisecondSegments = GetSystemMetrics(0) / trialTime
+    stabilisatorLength = millisecondSegments * (stabilizationTime*1000)
     breakBetweenGatesLength = millisecondSegments * breakBetweenGatesTimeMs; 
     gatesLength = (GetSystemMetrics(0)-(stabilisatorLength + (breakBetweenGatesLength * dpg.get_value("noSideEvents"))))/dpg.get_value("noSideEvents")
 
@@ -142,36 +142,33 @@ def RunGame(dpg, sideQBlock, smoothingFilter):
     font = pygame.font.Font('freesansbold.ttf', 40)
     introText = font.render('Press Return to Start TrackIt', True, w)
     stopFeedbackText = font.render('Stop', True, w)
-    compTimeFeedbackText = font.render('Din samlede Tid', True, w)
-    errorFeedbackText = font.render('Du skød', True, w)
-    contienueText = font.render('Press Return to Continue', True, w)
+    compTimeFeedbackText = font.render('74.0 Mean Accuracy in %', True, w)
+    contienueText = font.render('Press Return to continue', True, w)
     guidelineText = font.render("Hit the squares as accurate as possible", True, w)
     rectNoTExt = font.render("1", True, r)
 
     textRect = introText.get_rect()
     stopFeedRect = stopFeedbackText.get_rect()
     compTimeFeedbackTextRect = compTimeFeedbackText.get_rect()
-    errorFeedbackTextRect = errorFeedbackText.get_rect()
     continueTextRect =contienueText.get_rect()
     guideTextRect = guidelineText.get_rect()
     rectNoTextRect =  rectNoTExt.get_rect()
     middleTextPos = (GetSystemMetrics(0) // 2, GetSystemMetrics(1) // 2)
     textRect.center = middleTextPos
-    stopFeedRect.x = GetSystemMetrics(0) // 2
-    stopFeedRect.y = GetSystemMetrics(1) // 2
-    compTimeFeedbackTextRect.x = GetSystemMetrics(0) // 2 
-    compTimeFeedbackTextRect.y = GetSystemMetrics(1) // 2 + 50
-    errorFeedbackTextRect.x = GetSystemMetrics(0) // 2 
-    errorFeedbackTextRect.y = GetSystemMetrics(1) // 2 + 100
-    continueTextRect.x = GetSystemMetrics(0) // 2 
-    continueTextRect.y = GetSystemMetrics(1) // 2 + 150
+    sfRX, sfRY = stopFeedRect.size
+    stopFeedRect.x = GetSystemMetrics(0) // 2 - (sfRX/2)
+    stopFeedRect.y = GetSystemMetrics(1) // 2 - 75
+    cftRX, cftRY = compTimeFeedbackTextRect.size
+    compTimeFeedbackTextRect.x = GetSystemMetrics(0) // 2 - (cftRX/2)
+    compTimeFeedbackTextRect.y = GetSystemMetrics(1) // 2 
+    ctRX, ctRY = continueTextRect.size; 
+    continueTextRect.x = GetSystemMetrics(0) // 2 - (ctRX/2)
+    continueTextRect.y = GetSystemMetrics(1) // 2 + 75
     
     
     if forceDirection == "Upwards":
         for trial in trials:
-            print("no of events : " + str(len(trial.events)))
             for event in trial.events:
-                print("event position info " + str(event.targetPosition))
                 rectPos = 0
                 if event.eventType == 'R':
                     rectPos = GetSystemMetrics(1) - event.targetPosition
@@ -298,7 +295,7 @@ def RunGame(dpg, sideQBlock, smoothingFilter):
                 score += 100
                 coinAndSoundEnabled = True
         
-        trial.meanAccuracy, trial.stdAccuracy, trial.meanTimeOnTarget, trial.stdTimeOnTarget, trial.totalTimeOnTargets  = statistics.CalculateDescriptiveStastics(trial.events)
+        trial.meanAccuracy, trial.stdAccuracy, trial.meanTimeOnTarget, trial.stdTimeOnTarget, trial.totalTimeOnTargets  = statistics.CalculateDescriptiveStasticsSideQuest(trial.events)
 
         return trial, score, coinAndSoundEnabled
 
@@ -508,12 +505,10 @@ def RunGame(dpg, sideQBlock, smoothingFilter):
             prevTrial = trialIndex - 1
             stopFeedbackText = font.render("Stop", True, w)
             compTimeFeedbackText =  font.render(str(np.round(trials[prevTrial].meanAccuracy)) + " Mean Accuracy in %", True, w)
-            errorFeedbackText = font.render(str(trials[prevTrial].error) + " fejl" , True, w )
             contienueText = font.render("Press Return to continue" , True, w )
 
             gameDisplay.blit(stopFeedbackText, stopFeedRect)
             gameDisplay.blit(compTimeFeedbackText, compTimeFeedbackTextRect)
-            gameDisplay.blit(errorFeedbackText, errorFeedbackTextRect)
             gameDisplay.blit(contienueText, continueTextRect)
 
         else:
@@ -558,6 +553,7 @@ def RunGame(dpg, sideQBlock, smoothingFilter):
                             coinAndSoundEnabled = False
                             imgAlpha = 255 
                             playsound = True
+                            gameTimeCounter = 0
                             countdownStarted = True                
                             countDownCounter = 0
                             feedbackCounter = 0 

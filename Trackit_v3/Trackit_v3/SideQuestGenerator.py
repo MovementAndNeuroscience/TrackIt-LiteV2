@@ -87,13 +87,10 @@ def GenerateSideQuest(dpg):
                     case _:
                         gateColor = 'w'
                 
-                print("new location " + str(newLocation))
                 newEvent = EventData.EventData(len(sideQTrial.events), dpg.get_value("gateHeight" + str(i+1)), newLocation, "R", gateColor, 10000, InputDatas.InputDatas())
                 newEvent.targetLength = gatesLength
                 previousLocation = newLocation 
                 sideQTrial.AddEvent(newEvent)
-                for event in sideQTrial.events:
-                    print ("event locatio loca : " + str(event.targetPosition))
                 i = i + 1 
 
     if own_Sequence:
@@ -122,7 +119,7 @@ def GenerateSideQuest(dpg):
         while pixel <= GetSystemMetrics(1):
             availablePixels.append(pixel)
             pixel += 1
-
+        sideQTrial.__delattr__
         sideQTrial = SviptTrial.SviptTrial(dpg.get_value("noSideEvents"))
         sideQTrial.events = []       
         recursiveCounter = 0
@@ -136,13 +133,7 @@ def GenerateSideQuest(dpg):
         sideQBlock.AddTrial(tempSideQTrial)
         sideQBlock.trials[trialno].trialno = trialno
         trialno +=1
-
-    print("trials in block : " + str(len(sideQBlock.trials)))  
-    for trial in sideQBlock.trials:
-        for event in trial.events:
-            print("Events location " + str(event.targetPosition) + str(event.targetId))
                     
-
     return sideQBlock
 
 def CalculateNewLocation(previousLocation,min_closeness_between_events,max_closeness_between_events, dpg, random_heights_for_events, availablePixels, minRandomHeight, maxRandomHeight, event_height, recursiveCounter, gateNo):
@@ -153,25 +144,11 @@ def CalculateNewLocation(previousLocation,min_closeness_between_events,max_close
             height = random.randint(minRandomHeight, maxRandomHeight)
         else:
             height = event_height
-        availablePixels = ExtractFirstRectFromPixels(availablePixels, pos)
 
         return pos, height
     else:
         height, newPos = FindTheNextRect(previousLocation, min_closeness_between_events, max_closeness_between_events, dpg, availablePixels, minRandomHeight, maxRandomHeight,random_heights_for_events, dpg.get_value("gateHeight" + str(gateNo)), recursiveCounter)
         return newPos, height
-
-def ExtractFirstRectFromPixels(availablePixels, pos):
-    rectPixels = []
-    currentPix = pos
-    while currentPix < pos + 5:
-        rectPixels.append(currentPix)    
-        currentPix += 1 
-
-    for curr in rectPixels:
-        if curr < len(availablePixels):
-            availablePixels.remove(curr)
-
-    return availablePixels
 
 def FindTheNextRect(previousLocation, min_closeness_between_events, max_closeness_between_events, dpg, availablePixels, minRandomHeight, maxRandomHeight, random_heights_for_events, event_height, recursiveCounter):
     height = event_height
@@ -189,7 +166,7 @@ def FindTheNextRect(previousLocation, min_closeness_between_events, max_closenes
         height = random.randint(minRandomHeight, maxRandomHeight)
 
     currentPix = newPos
-    while currentPix < newPos + 10:
+    while currentPix < newPos + 1:
         rectPixels.append(currentPix)    
         currentPix += 1 
 
@@ -208,15 +185,6 @@ def FindTheNextRect(previousLocation, min_closeness_between_events, max_closenes
                 newPos = 99999
                 break
             
-    for curr in rectPixels:
-        pixelPresent = availablePixels.count(curr)
-        if pixelPresent == 0:
-            print("Location already in use")
-            recursiveCounter = 0 
-            height = 99999
-            newPos = 99999
-            break
-        availablePixels.remove(curr)
     return height,newPos
 
 def CreateNewTrial(dpg, random_events, sideQTrial, stabilisatorLength, max_closeness_between_events,min_closeness_between_events, random_heights_for_events, availablePixels, minRandomHeight,
@@ -226,13 +194,11 @@ def CreateNewTrial(dpg, random_events, sideQTrial, stabilisatorLength, max_close
         baselineEvent = EventData.EventData(len(sideQTrial.events),baseline_height,GetSystemMetrics(1)/2,"B",'w',60000, InputDatas.InputDatas())
         baselineEvent.targetLength = stabilisatorLength
         sideQTrial.AddEvent(baselineEvent)
-        print("avaiable : " + str(len(availablePixels)))
 
         i = 0
         previousLocation = 0; 
         while i < sideQTrial.noEvents:
             newLocation, event_height = CalculateNewLocation(previousLocation,min_closeness_between_events,max_closeness_between_events, dpg, random_heights_for_events, availablePixels, minRandomHeight, maxRandomHeight, event_height, recursiveCounter, i+1) 
-            print(str(newLocation) + " new loc")
             
             if newLocation == 99999:
                 sideQBlock.noTrials = 99999
@@ -271,8 +237,6 @@ def CreateNewTrial(dpg, random_events, sideQTrial, stabilisatorLength, max_close
                 sideQTrial.AddEvent(newEvent)
                 
                 i = i + 1 
-                print("no event :" + str(len(sideQTrial.events)))
-                
 
 
     if own_Sequence:

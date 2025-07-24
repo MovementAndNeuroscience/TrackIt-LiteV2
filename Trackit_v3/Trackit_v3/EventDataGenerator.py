@@ -90,11 +90,9 @@ def GenerateEvents(dpg):
                 tempEventListWithBaselineAndPause.AddEventData(pauseEvent)
 
         eventsdata = tempEventListWithBaselineAndPause
-        print('lengths of eventsdata ' + str(len(eventsdata.eventDatas)))
         return eventsdata
     else:
         eventsdata = tempEventList
-        print('lengths of eventsdata ' + str(len(eventsdata.eventDatas)))
         return eventsdata
 
 

@@ -54,8 +54,6 @@ def start_game():
     if dpg.get_value("Isometric") == True: ## Filter window for Isometric Setting 
         smoothingFilter.SetWindowSize(12)
 
-    print(str(len(eventsData.eventDatas)) + " amount of data ")
-
     if dpg.get_value("svipt") == True: 
         sviptBlock = SviptGenerator.GenerateSVIPT(dpg)
         if sviptBlock.noTrials == 99999:
